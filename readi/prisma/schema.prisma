@@ -1,0 +1,207 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modèle pour les catégories de services
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  icon        String?
+  image       String?
+  order       Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  services    Service[]
+  products    Product[]
+}
+
+// Modèle pour les services proposés
+model Service {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String
+  shortDesc   String?
+  image       String?
+  icon        String?
+  features    String?  // JSON string pour la liste des fonctionnalités
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+}
+
+// Modèle pour les produits/pièces détachées
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  reference   String?  @unique
+  description String?
+  price       Float?
+  image       String?
+  stock       Int      @default(0)
+  isActive    Boolean  @default(true)
+  brand       String?
+  series      String?
+  model       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  
+  configurations ProductConfiguration[]
+}
+
+// Modèle pour les demandes de devis
+model QuoteRequest {
+  id          String   @id @default(cuid())
+  firstName   String
+  lastName    String
+  email       String
+  phone       String?
+  company     String?
+  subject     String
+  message     String
+  status      String      @default("PENDING")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Pour les configurateurs
+  configurationType String? // 'product' ou 'cable'
+  configurationId   String?
+}
+
+// QuoteStatus: PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+
+// Modèle pour les messages de contact
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Modèle pour les configurations de produits (Marque -> Série -> Modèle)
+model ProductConfiguration {
+  id          String   @id @default(cuid())
+  brand       String
+  series      String
+  model       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  products    Product[]
+}
+
+// Modèle pour les types de câbles
+model CableType {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  image       String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  connectors CableConnector[]
+  configurations CableConfiguration[]
+}
+
+// Modèle pour les connecteurs de câbles
+model CableConnector {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   // 'male', 'female', 'both'
+  image       String?
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  cableTypeId String
+  cableType   CableType @relation(fields: [cableTypeId], references: [id])
+  
+  configurationsAsConnector1 CableConfiguration[] @relation("Connector1")
+  configurationsAsConnector2 CableConfiguration[] @relation("Connector2")
+}
+
+// Modèle pour les configurations de câbles
+model CableConfiguration {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Float?
+  length      Int?     // Longueur en mètres
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  cableTypeId String
+  cableType   CableType @relation(fields: [cableTypeId], references: [id])
+  
+  connector1Id String
+  connector1   CableConnector @relation("Connector1", fields: [connector1Id], references: [id])
+  
+  connector2Id String
+  connector2   CableConnector @relation("Connector2", fields: [connector2Id], references: [id])
+}
+
+// Modèle pour les utilisateurs admin
+model AdminUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String   // Hashé avec bcrypt
+  role      String    @default("ADMIN")
+  isActive  Boolean  @default(true)
+  lastLogin DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// AdminRole: ADMIN, SUPER_ADMIN
+
+// Modèle pour les témoignages clients
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  company   String?
+  content   String
+  rating    Int      @default(5)
+  image     String?
+  isActive  Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Modèle pour les réalisations/galerie
+model PortfolioItem {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  image       String
+  category    String   // 'affichage-dynamique', 'holographique', etc.
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
