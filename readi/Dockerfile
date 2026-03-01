@@ -45,11 +45,11 @@ COPY --from=builder /app/package.json ./package.json
 # Changer les permissions
 RUN chown -R nextjs:nodejs /app
 
+COPY start.sh ./
+RUN chmod +x start.sh && chown nextjs:nodejs start.sh
+
 USER nextjs
 
 EXPOSE 3000
-
-COPY start.sh ./
-RUN chmod +x start.sh
 
 CMD ["./start.sh"]
