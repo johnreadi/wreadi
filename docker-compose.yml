@@ -17,7 +17,14 @@ services:
       - NEXTAUTH_URL=https://app.readi.fr
     networks:
       - dokploy-overlay
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.readi-app.rule=Host(`app.readi.fr`)"
+      - "traefik.http.routers.readi-app.entrypoints=websecure"
+      - "traefik.http.routers.readi-app.tls.certresolver=letsencrypt"
+      - "traefik.http.services.readi-app.loadbalancer.server.port=3000"
+      - "traefik.docker.network=dokploy-overlay"
+
 networks:
   dokploy-overlay:
     external: true
-    name: dokploy-overlay
