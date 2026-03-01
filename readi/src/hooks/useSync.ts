@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { IS_PRODUCTION } from "@/lib/storage";
 
 interface SyncData {
   categories: any[];
@@ -30,8 +31,8 @@ export function useSync(): UseSyncReturn {
   const [error, setError] = useState<string | null>(null);
   const [lastSync, setLastSync] = useState<string | null>(null);
 
-  // Vérifier si on est en production
-  const isProduction = process.env.NODE_ENV === "production";
+  // Utiliser la détection robuste de production
+  const isProduction = IS_PRODUCTION;
 
   const fetchData = useCallback(async () => {
     try {

@@ -1,11 +1,36 @@
 // Utilitaire de stockage sécurisé - bloque LocalStorage en production
+// GARANTIE : Aucun accès LocalStorage en production
 
-const isProduction = process.env.NODE_ENV === "production";
+// Détection robuste de l'environnement de production
+function checkIsProduction(): boolean {
+  // Vérification côté client uniquement
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  // Vérification via la variable d'environnement Next.js
+  const env = process.env.NODE_ENV;
+  
+  // Vérification supplémentaire via l'URL (production = HTTPS et domaine spécifique)
+  const isHttps = window.location.protocol === "https:";
+  const isProductionDomain = window.location.hostname === "app.readi.fr";
+  
+  // Production = NODE_ENV === "production" OU (HTTPS + domaine de production)
+  return env === "production" || (isHttps && isProductionDomain);
+}
+
+// Variable figée au chargement du module
+const IS_PRODUCTION = checkIsProduction();
+
+// Log de confirmation au chargement
+if (typeof window !== "undefined") {
+  console.log(`[Storage] Environment: ${IS_PRODUCTION ? "PRODUCTION - LocalStorage BLOCKED" : "Development - LocalStorage allowed"}`);
+}
 
 export const storage = {
   getItem: (key: string): string | null => {
-    if (isProduction) {
-      console.warn(`[Production] LocalStorage access blocked for key: ${key}`);
+    if (IS_PRODUCTION) {
+      console.warn(`[Production] LocalStorage READ blocked for key: ${key}`);
       return null;
     }
     try {
@@ -16,8 +41,8 @@ export const storage = {
   },
 
   setItem: (key: string, value: string): void => {
-    if (isProduction) {
-      console.warn(`[Production] LocalStorage write blocked for key: ${key}`);
+    if (IS_PRODUCTION) {
+      console.warn(`[Production] LocalStorage WRITE blocked for key: ${key}`);
       return;
     }
     try {
@@ -28,8 +53,8 @@ export const storage = {
   },
 
   removeItem: (key: string): void => {
-    if (isProduction) {
-      console.warn(`[Production] LocalStorage delete blocked for key: ${key}`);
+    if (IS_PRODUCTION) {
+      console.warn(`[Production] LocalStorage DELETE blocked for key: ${key}`);
       return;
     }
     try {
@@ -40,8 +65,8 @@ export const storage = {
   },
 
   clear: (): void => {
-    if (isProduction) {
-      console.warn("[Production] LocalStorage clear blocked");
+    if (IS_PRODUCTION) {
+      console.warn("[Production] LocalStorage CLEAR blocked");
       return;
     }
     try {
@@ -55,9 +80,10 @@ export const storage = {
 // Hook sécurisé pour le localStorage
 export function useSecureStorage() {
   return {
-    isProduction,
+    isProduction: IS_PRODUCTION,
     storage,
-    // En production, ces fonctions ne font rien
-    // En développement, elles accèdent au localStorage
   };
 }
+
+// Export de la constante pour vérification externe
+export { IS_PRODUCTION };
