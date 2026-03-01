@@ -50,6 +50,5 @@ USER nextjs
 EXPOSE 3000
 
 ENV HOSTNAME="0.0.0.0"
-ENV NEXT_PUBLIC_HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["node", "-e", "process.env.HOSTNAME='0.0.0.0'; require('./server.js')"]
