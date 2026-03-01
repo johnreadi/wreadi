@@ -23,6 +23,9 @@ RUN npx prisma generate
 # Build l'application
 RUN npm run build
 
+# Modifier server.js pour écouter sur 0.0.0.0
+RUN sed -i "s/hostname: 'localhost'/hostname: '0.0.0.0'/g" .next/standalone/server.js || true
+
 # Étape 3 : Production
 FROM node:18-alpine AS runner
 WORKDIR /app
