@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -204,4 +204,141 @@ model PortfolioItem {
   order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// --- Nouveaux modèles pour la modernisation ---
+
+// Modèle pour les paramètres globaux (IA, PWA, etc.)
+model SiteSettings {
+  id                String   @id @default("default")
+  siteName          String   @default("READI.FR")
+  siteSlogan        String?  @default("La Compétence !")
+  siteLogo          String?  // URL ou chemin vers le logo
+  primaryColor      String   @default("#dc2626") // Rouge par défaut
+  fontFamily        String   @default("Inter")
+  baseFontSize      String   @default("16px")
+  aiEnabled         Boolean  @default(true)
+  aiWelcomeMessage  String?  @default("Bonjour ! Comment puis-je vous aider ?")
+  aiInstructions    String?  // Instructions pour le système (prompt)
+  aiModel           String   @default("gpt-4o") // Modèle par défaut
+  aiApiKey          String?  // Clé API (optionnelle si gérée par env)
+  aiTemperature     Float    @default(0.7)
+  contactEmail      String?
+  contactPhone      String?
+  contactAddress    String?
+  contactHours      String?
+  contactMapUrl     String?  // Pour l'image de la carte
+  privacyPolicy     String?  // NOUVEAU: Politique de Confidentialité
+  termsOfService    String?  // NOUVEAU: Conditions Générales (CGU)
+  maintenanceMode   Boolean  @default(false)
+  updatedAt         DateTime @updatedAt
+}
+
+// Modèle pour la messagerie professionnelle (Threads)
+model Conversation {
+  id          String    @id @default(cuid())
+  subject     String?
+  participantName  String
+  participantEmail String
+  lastMessageAt    DateTime @default(now())
+  status      String    @default("OPEN") // OPEN, CLOSED, ARCHIVED
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  messages    Message[]
+}
+
+// Modèle pour les messages
+model Message {
+  id             String       @id @default(cuid())
+  content        String
+  senderType     String       // 'USER' or 'ADMIN'
+  isRead         Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  
+  attachments    Attachment[]
+}
+
+// Modèle pour les pièces jointes
+model Attachment {
+  id        String   @id @default(cuid())
+  fileName  String
+  fileUrl   String
+  fileType  String
+  fileSize  Int
+  createdAt DateTime @default(now())
+  
+  messageId String
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+}
+
+// Modèle pour les contenus de pages (Hero, Sections, etc.)
+model PageContent {
+  id              String   @id @default(cuid())
+  pageSlug        String   @unique // 'home', 'pieces-detachees', etc.
+  heroTitle       String?
+  heroSubtitle    String?
+  heroDescription String?
+  heroBtnText     String?
+  heroBtnLink     String?
+  heroImage       String?
+  heroVideoUrl    String?  // Optionnel
+  
+  // Paramètres de style Hero
+  titleFontSize   String?  @default("4rem")
+  titleFontFamily String?  @default("inherit")
+  subtitleFontSize String? @default("1.25rem")
+  descriptionFontSize String? @default("1.125rem")
+
+  updatedAt       DateTime @updatedAt
+  
+  sections        PageSection[]
+}
+
+model PageSection {
+  id            String   @id @default(cuid())
+  title         String?
+  subtitle      String?
+  content       String?  @default("")
+  order         Int      @default(0)
+  isActive      Boolean  @default(true)
+  
+  // Configuration Média
+  mediaType     String   @default("IMAGE") // IMAGE, VIDEO, SLIDESHOW
+  mediaUrl      String?  // Pour Image unique ou Vidéo
+  slides        String?  // JSON string pour le slideshow: Array<{url, alt, title}>
+  
+  // Style & Animation
+  layout        String   @default("LEFT") // LEFT, RIGHT, CENTER (image position)
+  animation     String?  @default("fade") // fade, slide, scale
+  ctaText       String?
+  ctaLink       String?
+
+  // Paramètres de police spécifiques à la section
+  titleFontSize   String? @default("2.25rem")
+  titleFontFamily String? @default("inherit")
+  contentFontSize String? @default("1.125rem")
+
+  pageContentId String
+  pageContent   PageContent @relation(fields: [pageContentId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// Modèle pour les pages d'atterrissage personnalisées (marketing)
+model LandingPage {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  description     String?
+  heroTitle       String?
+  heroSubtitle    String?
+  content         String?  // Contenu structuré (JSON ou Markdown)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }

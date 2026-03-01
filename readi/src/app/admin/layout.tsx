@@ -1,14 +1,18 @@
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, Package, MessageSquare, FileText, LogOut } from "lucide-react";
+import { LayoutDashboard, Package, Mail, FileText, LogOut, Edit3, Bot, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const adminNav = [
   { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+  { name: "Contenu Site", href: "/admin/content", icon: Edit3 },
+  { name: "Messagerie", href: "/admin/messaging", icon: Mail },
+  { name: "IA & ChatBot", href: "/admin/ai-settings", icon: Bot },
   { name: "Produits", href: "/admin/products", icon: Package },
-  { name: "Messages", href: "/admin/messages", icon: MessageSquare },
   { name: "Devis", href: "/admin/quotes", icon: FileText },
+  { name: "Paramètres", href: "/admin/settings", icon: Settings },
 ];
 
 export default async function AdminLayout({
@@ -16,10 +20,10 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect("/admin/login");
+    redirect("/login-admin");
   }
 
   return (

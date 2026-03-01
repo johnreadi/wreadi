@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+export const dynamic = "force-dynamic";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Providers } from "./providers";
+import { ChatBot } from "@/components/chat/ChatBot";
+import { BackToTop } from "@/components/layout/BackToTop";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { prisma } from "@/lib/prisma";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -11,23 +16,87 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "READI.FR - Service du Pro depuis 1994",
-  description: "READI.FR c'est La Compétence ! Affichage dynamique, informatique, maintenance, pièces détachées et formation web.",
-  keywords: "affichage dynamique, holographique, informatique, maintenance, pièces détachées, formation web",
+  metadataBase: new URL('https://readi.fr'),
+  title: {
+    default: "READI.FR - Expert Affichage Dynamique & Informatique depuis 1994",
+    template: "%s | READI.FR"
+  },
+  description: "READI.FR c'est La Compétence ! Affichage dynamique, informatique, maintenance, pièces détachées et formation web. Pro depuis 1994, nous intervenons partout en France.",
+  keywords: ["affichage dynamique", "informatique pro", "maintenance informatique", "pièces détachées", "hologramme 3d", "bornes tactiles", "formation web"],
+  authors: [{ name: "READI" }],
+  creator: "READI",
+  publisher: "READI",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    url: "https://readi.fr",
+    siteName: "READI.FR",
+    title: "READI.FR - Service du Pro depuis 1994",
+    description: "Expert en affichage dynamique et maintenance informatique. La Compétence depuis plus de 30 ans.",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "READI.FR - Expertise Informatique",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "READI.FR - Expertise Informatique",
+    description: "La Compétence depuis 1994 pour vos services informatiques.",
+    images: ["/og-image.jpg"],
+  },
+  alternates: {
+    canonical: "https://readi.fr",
+  }
 };
 
-export default function RootLayout({
+async function getSiteSettings() {
+  try {
+    const settingsArray = await prisma.$queryRawUnsafe('SELECT * FROM SiteSettings WHERE id = "default"') as any[];
+    return settingsArray?.[0] || null;
+  } catch (e) {
+    return prisma.siteSettings.findUnique({ where: { id: "default" } }).catch(() => null);
+  }
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settings = await getSiteSettings() as any;
+
+  // Construction des styles dynamiques
+  const dynamicStyles = {
+    "--primary-color": settings?.primaryColor || "#dc2626",
+    "--font-family": settings?.fontFamily || "Inter",
+    "--base-font-size": settings?.baseFontSize || "16px",
+  } as React.CSSProperties;
+
   return (
-    <html lang="fr">
+    <html lang="fr" style={dynamicStyles}>
       <body className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
         <Providers>
-          <Header />
+          <JsonLd />
+          <Header settings={settings} />
           <main className="flex-1">{children}</main>
-          <Footer />
+          <Footer settings={settings} />
+          <ChatBot />
+          <BackToTop />
         </Providers>
       </body>
     </html>

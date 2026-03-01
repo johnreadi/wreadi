@@ -1,84 +1,150 @@
-import Link from "next/link";
-import { ArrowRight, Monitor, Sparkles, Zap, Eye } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  ArrowRight, Monitor, Zap, Eye, Sparkles
+} from "lucide-react";
+import Link from "next/link";
+import { DynamicSection } from "@/components/layout/DynamicSection";
+import { Metadata } from "next";
 
-import { Service } from "@prisma/client";
+export const metadata: Metadata = {
+  title: "Affichage Dynamique & Holographique 3D",
+  description: "Boostez votre visibilité avec nos solutions d'affichage dynamique, bornes tactiles et technologie holographique 3D. Expert depuis 1994.",
+  keywords: ["affichage dynamique", "hologramme 3d", "borne tactile", "écran publicitaire", "digital signage"],
+};
 
-async function getServices(): Promise<Service[]> {
-  const category = await prisma.category.findUnique({
-    where: { slug: "affichage-dynamique" },
-    include: {
-      services: {
-        where: { isActive: true },
-        orderBy: { order: "asc" },
+async function getPageData() {
+  const [category, pageContent] = await Promise.all([
+    prisma.category.findUnique({
+      where: { slug: "affichage-dynamique" },
+      include: {
+        services: {
+          where: { isActive: true },
+          orderBy: { order: "asc" },
+        },
       },
-    },
-  });
-  return category?.services || [];
+    }),
+    prisma.pageContent.findUnique({
+      where: { pageSlug: "affichage-dynamique" },
+      include: {
+        sections: {
+          where: { isActive: true },
+          orderBy: { order: "asc" },
+        },
+      },
+    }),
+  ]);
+  return { category, pageContent };
 }
 
 export default async function AffichageDynamiquePage() {
-  const services = await getServices();
+  const { category, pageContent } = await getPageData();
+  const services = category?.services || [];
+
+  const heroData = {
+    title: pageContent?.heroTitle || "Affichage Dynamique",
+    subtitle: pageContent?.heroSubtitle || "Innovation Visuelle",
+    description: pageContent?.heroDescription || "Solutions d'affichage moderne et holographique pour votre entreprise",
+    btnText: pageContent?.heroBtnText || "Demander un devis",
+    btnLink: pageContent?.heroBtnLink || "/contact",
+    image: pageContent?.heroImage || null,
+    video: pageContent?.heroVideoUrl || null,
+    // Font settings - Reduced
+    titleFontSize: pageContent?.titleFontSize || "3.5rem",
+    titleFontFamily: pageContent?.titleFontFamily || "inherit",
+    subtitleFontSize: pageContent?.subtitleFontSize || "0.75rem",
+    descriptionFontSize: pageContent?.descriptionFontSize || "1.125rem",
+  };
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white py-16 lg:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Affichage Dynamique
-            </h1>
-            <p className="text-xl text-blue-100 mb-8">
-              Solutions d&apos;affichage moderne et holographique pour votre entreprise
-            </p>
-            <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-blue-50">
-              <Link href="/contact">
-                Demander un devis
-                <ArrowRight className="ml-2 h-4 w-4" />
+      {/* Dynamic Hero */}
+      <section className="relative h-[65vh] min-h-[450px] flex items-center justify-center overflow-hidden bg-blue-900">
+        {heroData.video ? (
+          <div className="absolute inset-0 z-0">
+            <iframe
+              src={`${heroData.video.replace('watch?v=', 'embed/')}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0`}
+              className="w-full h-full border-0 scale-150 grayscale-[20%]"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            />
+          </div>
+        ) : heroData.image ? (
+          <div className="absolute inset-0 z-0">
+            <img src={heroData.image} alt="" className="w-full h-full object-cover opacity-40 transition-transform duration-1000 hover:scale-105" />
+          </div>
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-indigo-800 opacity-90" />
+        )}
+        <div className="absolute inset-0 bg-black/40 z-10" />
+
+        <div className="container relative z-20 mx-auto px-4 text-center text-white">
+          <span
+            className="inline-block px-3 py-1 rounded-full bg-blue-500/20 backdrop-blur-md font-bold uppercase tracking-widest mb-6 border border-white/10 text-[10px] sm:text-xs"
+            style={{ fontSize: heroData.subtitleFontSize }}
+          >
+            {heroData.subtitle}
+          </span>
+          <h1
+            className="text-3xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tighter leading-tight animate-in fade-in slide-in-from-bottom-8 duration-700 uppercase"
+            style={{
+              fontSize: heroData.titleFontSize,
+              fontFamily: heroData.titleFontFamily
+            }}
+          >
+            {heroData.title}
+          </h1>
+          <p
+            className="text-lg text-blue-100 mb-8 max-w-2xl mx-auto font-medium animate-in fade-in slide-in-from-bottom-4 duration-1000"
+            style={{ fontSize: heroData.descriptionFontSize }}
+          >
+            {heroData.description}
+          </p>
+          <div className="animate-in fade-in zoom-in-95 duration-1000">
+            <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-blue-50 h-14 px-8 rounded-2xl font-black shadow-xl transition-all hover:scale-105 active:scale-95 text-base">
+              <Link href={heroData.btnLink}>
+                {heroData.btnText}
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Services Section */}
-      <section className="py-16 lg:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Services List */}
+      <section className="py-20 bg-white relative">
+        <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Nos Solutions d&apos;Affichage
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-gray-900 mb-4 tracking-tighter uppercase">
+              Nos Solutions d'Affichage
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Des technologies innovantes pour communiquer efficacement avec votre audience
-            </p>
+            <div className="w-20 h-1 bg-blue-600 mx-auto rounded-full" />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             {services.map((service) => (
-              <Card key={service.id} className="overflow-hidden">
-                <div className="h-48 bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center">
-                  <Monitor className="h-20 w-20 text-blue-600" />
+              <Card key={service.id} className="group overflow-hidden border-2 border-gray-50 hover:border-blue-200 transition-all rounded-[2.5rem] shadow-sm hover:shadow-2xl hover:shadow-blue-500/10">
+                <div className="h-64 bg-slate-950 relative overflow-hidden flex items-center justify-center">
+                  {service.image ? (
+                    <img src={service.image} className="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" alt="" />
+                  ) : (
+                    <Monitor className="h-20 w-20 text-blue-500/50" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <h3 className="absolute bottom-6 left-6 text-2xl font-black text-white group-hover:translate-x-2 transition-transform uppercase">{service.name}</h3>
                 </div>
-                <CardHeader>
-                  <CardTitle className="text-2xl">{service.name}</CardTitle>
-                  <CardDescription className="text-base">
-                    {service.shortDesc}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 mb-4">{service.description}</p>
+                <CardContent className="p-8 md:p-10">
+                  <p className="text-gray-600 text-base md:text-lg mb-6 leading-relaxed font-medium">{service.description}</p>
                   {service.features && (
-                    <ul className="space-y-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                       {JSON.parse(service.features).map((feature: string, index: number) => (
-                        <li key={index} className="flex items-center gap-2 text-sm text-gray-600">
+                        <div key={index} className="flex items-center gap-3 text-xs md:text-sm font-bold text-gray-700 bg-blue-50/50 p-3 md:p-4 rounded-xl md:rounded-2xl border border-blue-100/50">
                           <Zap className="h-4 w-4 text-blue-600" />
                           {feature}
-                        </li>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   )}
                 </CardContent>
               </Card>
@@ -87,72 +153,46 @@ export default async function AffichageDynamiquePage() {
         </div>
       </section>
 
+      {/* Dynamic Sections from CMS */}
+      {pageContent?.sections.map((section) => (
+        <DynamicSection key={section.id} section={section as any} />
+      ))}
+
       {/* 3D Holographique Highlight */}
-      <section className="py-16 lg:py-24 bg-gray-900 text-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <section className="py-20 bg-gray-950 text-white relative overflow-hidden">
+        {/* Background glow */}
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-600 rounded-full blur-[150px] opacity-20" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-indigo-600 rounded-full blur-[150px] opacity-20" />
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
-              <div className="inline-flex items-center gap-2 bg-blue-600/20 text-blue-400 px-4 py-2 rounded-full text-sm font-medium mb-6">
-                <Sparkles className="h-4 w-4" />
-                Technologie innovante
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              <Badge className="bg-blue-600 text-white mb-6 uppercase tracking-widest px-4 py-1 rounded-full border-none font-black text-[10px]">Exclusivité READI</Badge>
+              <h2 className="text-3xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tighter italic uppercase text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-white to-blue-200 leading-tight">
                 3D Holographique
               </h2>
-              <p className="text-xl text-gray-300 mb-6">
-                L&apos;image flotte dans l&apos;espace
+              <p className="text-lg text-gray-400 mb-8 leading-relaxed font-medium max-w-xl">
+                L'image flotte dans l'espace. Un système de ventilation LED révolutionnaire pour captiver votre audience immédiatement.
               </p>
-              <p className="text-gray-400 mb-8">
-                C&apos;est un système de ventilation des LEDs qui donne l&apos;illusion de flottabilité 
-                des objets dans l&apos;espace. Très simple à mettre en place et moins coûteux. 
-                Par contre, il faut avoir une petite compétence dans la réalisation des vidéos et des maquettes.
-              </p>
-              <div className="grid grid-cols-2 gap-4 mb-8">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-600/20 rounded-lg flex items-center justify-center">
-                    <Eye className="h-5 w-5 text-blue-400" />
-                  </div>
-                  <span className="text-sm">Effet spectaculaire</span>
+              <div className="space-y-4 mb-10">
+                <div className="flex items-center gap-4 text-lg font-black italic">
+                  <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/20 flex items-center justify-center text-blue-400"><Eye className="h-5 w-5" /></div>
+                  Effet de flottabilité spectaculaire
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-600/20 rounded-lg flex items-center justify-center">
-                    <Zap className="h-5 w-5 text-blue-400" />
-                  </div>
-                  <span className="text-sm">Installation simple</span>
+                <div className="flex items-center gap-4 text-lg font-black italic text-gray-300">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/20 flex items-center justify-center text-indigo-400"><Zap className="h-5 w-5" /></div>
+                  Installation plug & play rapide
                 </div>
               </div>
-              <Button asChild className="bg-blue-600 hover:bg-blue-700">
-                <Link href="/contact">
-                  En savoir plus
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
+              <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700 h-14 px-10 rounded-2xl font-black text-base transition-all hover:scale-105">
+                <Link href="/contact">En savoir plus</Link>
               </Button>
             </div>
-            <div className="relative h-96 bg-gradient-to-br from-blue-900/50 to-indigo-900/50 rounded-2xl overflow-hidden flex items-center justify-center">
-              <div className="text-center">
-                <Sparkles className="h-32 w-32 mx-auto mb-4 text-blue-400 animate-pulse" />
-                <p className="text-lg text-gray-400">Visualisation 3D Holographique</p>
-              </div>
+            <div className="relative aspect-square rounded-[3.5rem] border-8 border-white/5 bg-gradient-to-br from-blue-900/40 via-black to-black overflow-hidden flex items-center justify-center shadow-[0_0_80px_rgba(37,99,235,0.2)]">
+              <Sparkles className="h-32 w-32 text-blue-400 animate-pulse" />
+              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16 lg:py-24 bg-blue-600">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Transformez votre communication visuelle
-          </h2>
-          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Découvrez comment l&apos;affichage dynamique peut moderniser votre entreprise.
-          </p>
-          <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-blue-50">
-            <Link href="/contact">
-              Demander une démonstration
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
         </div>
       </section>
     </div>

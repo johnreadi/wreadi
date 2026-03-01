@@ -143,7 +143,7 @@ async function main() {
       shortDesc: 'Installation et réparation antennes',
       categoryId: infoCat.id,
       order: 5,
-      features: JSON.stringify(['Agréé Orange TV', 'Réception satellite', 'Réparation TV', 'Caméras IP']),
+      features: JSON.stringify(['Spécialiste en électronique', 'Réception satellite', 'Réparation TV', 'Caméras IP']),
     },
   });
 

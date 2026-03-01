@@ -1,51 +1,119 @@
-import Link from "next/link";
-import { ArrowRight, Printer, Copy, ScanLine, Monitor, Antenna, Globe } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
-import { Service } from "@prisma/client";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  ArrowRight, Printer, Copy, ScanLine, Monitor, Antenna, Globe, Settings, CheckCircle2
+} from "lucide-react";
+import Link from "next/link";
+import { DynamicSection } from "@/components/layout/DynamicSection";
+import { Metadata } from "next";
 
-async function getServices(): Promise<Service[]> {
-  const category = await prisma.category.findUnique({
-    where: { slug: "informatique-maintenance" },
-    include: {
-      services: {
-        where: { isActive: true },
-        orderBy: { order: "asc" },
+export const metadata: Metadata = {
+  title: "Maintenance Informatique & Installation sur site",
+  description: "Dépannage informatique professionnel, maintenance de parcs, installation réseau et serveurs. Intervention sur site partout en France.",
+  keywords: ["maintenance informatique", "dépannage pc", "installation réseau", "serveur entreprise", "support technique"],
+};
+
+async function getPageData() {
+  const [category, pageContent] = await Promise.all([
+    prisma.category.findUnique({
+      where: { slug: "informatique-maintenance" },
+      include: {
+        services: {
+          where: { isActive: true },
+          orderBy: { order: "asc" },
+        },
       },
-    },
-  });
-  return category?.services || [];
+    }),
+    prisma.pageContent.findUnique({
+      where: { pageSlug: "informatique-maintenance" },
+      include: {
+        sections: {
+          where: { isActive: true },
+          orderBy: { order: "asc" },
+        },
+      },
+    }),
+  ]);
+  return { category, pageContent };
 }
 
-const iconMap: Record<string, React.ReactNode> = {
-  Printer: <Printer className="h-8 w-8" />,
-  Copy: <Copy className="h-8 w-8" />,
-  ScanLine: <ScanLine className="h-8 w-8" />,
-  Monitor: <Monitor className="h-8 w-8" />,
-  Antenna: <Antenna className="h-8 w-8" />,
-  Globe: <Globe className="h-8 w-8" />,
+const iconMap: Record<string, any> = {
+  Printer: Printer,
+  Copy: Copy,
+  ScanLine: ScanLine,
+  Monitor: Monitor,
+  Antenna: Antenna,
+  Globe: Globe,
 };
 
 export default async function InformatiqueMaintenancePage() {
-  const services = await getServices();
+  const { category, pageContent } = await getPageData();
+  const services = category?.services || [];
+
+  const heroData = {
+    title: pageContent?.heroTitle || "Maintenance & Installation",
+    subtitle: pageContent?.heroSubtitle || "Service Pro sur site",
+    description: pageContent?.heroDescription || "Dépannage informatique, installation réseau et maintenance de parcs professionnels.",
+    btnText: pageContent?.heroBtnText || "Demander une intervention",
+    btnLink: pageContent?.heroBtnLink || "/contact",
+    image: pageContent?.heroImage || null,
+    video: pageContent?.heroVideoUrl || null,
+    // Font settings - Reduced
+    titleFontSize: pageContent?.titleFontSize || "3.5rem",
+    titleFontFamily: pageContent?.titleFontFamily || "inherit",
+    subtitleFontSize: pageContent?.subtitleFontSize || "0.75rem",
+    descriptionFontSize: pageContent?.descriptionFontSize || "1.125rem",
+  };
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-green-600 via-green-700 to-teal-800 text-white py-16 lg:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Maintenance & Installation
-            </h1>
-            <p className="text-xl text-green-100 mb-8">
-              Services professionnels d&apos;informatique et maintenance sur site
-            </p>
-            <Button asChild size="lg" className="bg-white text-green-600 hover:bg-green-50">
-              <Link href="/contact">
-                Demander une intervention
-                <ArrowRight className="ml-2 h-4 w-4" />
+      {/* Dynamic Hero */}
+      <section className="relative h-[65vh] min-h-[450px] flex items-center justify-center overflow-hidden bg-emerald-900">
+        {heroData.video ? (
+          <div className="absolute inset-0 z-0">
+            <iframe
+              src={`${heroData.video.replace('watch?v=', 'embed/')}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0`}
+              className="w-full h-full border-0 scale-150 grayscale-[20%]"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            />
+          </div>
+        ) : heroData.image ? (
+          <div className="absolute inset-0 z-0">
+            <img src={heroData.image} alt="" className="w-full h-full object-cover opacity-40 transition-transform duration-1000 hover:scale-105" />
+          </div>
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 to-teal-800 opacity-90" />
+        )}
+        <div className="absolute inset-0 bg-black/40 z-10" />
+
+        <div className="container relative z-20 mx-auto px-4 text-center text-white">
+          <span
+            className="inline-block px-3 py-1 rounded-full bg-emerald-500/20 backdrop-blur-md font-bold uppercase tracking-widest mb-6 border border-white/10 text-[10px] sm:text-xs"
+            style={{ fontSize: heroData.subtitleFontSize }}
+          >
+            {heroData.subtitle}
+          </span>
+          <h1
+            className="text-3xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tighter leading-tight animate-in fade-in slide-in-from-bottom-8 duration-700 uppercase"
+            style={{
+              fontSize: heroData.titleFontSize,
+              fontFamily: heroData.titleFontFamily
+            }}
+          >
+            {heroData.title}
+          </h1>
+          <p
+            className="text-lg text-emerald-100 mb-8 max-w-2xl mx-auto font-medium animate-in fade-in slide-in-from-bottom-4 duration-1000"
+            style={{ fontSize: heroData.descriptionFontSize }}
+          >
+            {heroData.description}
+          </p>
+          <div className="animate-in fade-in zoom-in-95 duration-1000">
+            <Button asChild size="lg" className="bg-white text-emerald-600 hover:bg-emerald-50 h-14 px-8 rounded-2xl font-black shadow-xl transition-all hover:scale-105 active:scale-95 text-base">
+              <Link href={heroData.btnLink}>
+                {heroData.btnText}
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
           </div>
@@ -53,59 +121,60 @@ export default async function InformatiqueMaintenancePage() {
       </section>
 
       {/* Services Grid */}
-      <section className="py-16 lg:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-white relative">
+        <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Nos Services de Maintenance
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Intervention sur site pour tous vos équipements informatiques
-            </p>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-gray-900 mb-4 tracking-tighter uppercase">Nos Services de Maintenance</h2>
+            <div className="w-20 h-1 bg-emerald-600 mx-auto rounded-full" />
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((service: Service) => (
-              <Card key={service.id} className="h-full hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="w-14 h-14 bg-green-100 rounded-lg flex items-center justify-center text-green-600 mb-4">
-                    {iconMap[service.icon || "Monitor"]}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {services.map((service) => {
+              const Icon = iconMap[service.icon || "Monitor"] || Monitor;
+              return (
+                <Card key={service.id} className="group hover:border-emerald-600 transition-all border-2 border-gray-100 shadow-sm hover:shadow-2xl hover:shadow-emerald-600/10 rounded-[2rem] p-8 flex flex-col">
+                  <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 mb-6 transition-transform group-hover:scale-110 group-hover:-rotate-3 group-hover:bg-emerald-100">
+                    <Icon className="h-8 w-8" />
                   </div>
-                  <CardTitle className="text-xl">{service.name}</CardTitle>
-                  <CardDescription>{service.shortDesc}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 text-sm mb-4">{service.description}</p>
+                  <h3 className="text-xl font-black mb-4 group-hover:text-emerald-600 transition-colors uppercase">
+                    {service.name}
+                  </h3>
+                  <p className="text-gray-500 text-base md:text-lg mb-6 flex-1 leading-relaxed">
+                    {service.description}
+                  </p>
                   {service.features && (
-                    <ul className="space-y-1">
-                      {JSON.parse(service.features).slice(0, 3).map((feature: string, index: number) => (
-                        <li key={index} className="text-xs text-gray-500 flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                          {feature}
-                        </li>
+                    <div className="space-y-2 pt-6 border-t border-gray-100">
+                      {JSON.parse(service.features).slice(0, 3).map((f: string, i: number) => (
+                        <div key={i} className="flex items-center gap-3 text-xs md:text-sm font-bold text-gray-600">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                          {f}
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   )}
-                </CardContent>
-              </Card>
-            ))}
+                </Card>
+              )
+            })}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 lg:py-24 bg-green-600">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Besoin d&apos;une intervention rapide ?
-          </h2>
-          <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
-            Nous intervenons sur site sans embarquer votre matériel. Devis transparent avec déplacement inclus.
+      {/* Dynamic Sections from CMS */}
+      {pageContent?.sections.map((section) => (
+        <DynamicSection key={section.id} section={section as any} />
+      ))}
+
+      {/* Trust & Methodology Section */}
+      <section className="py-20 bg-emerald-600 text-white relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-emerald-700 -skew-x-12 translate-x-1/4 opacity-50" />
+        <div className="container mx-auto px-4 relative z-10 text-center">
+          <h2 className="text-2xl md:text-4xl font-black mb-6 tracking-tighter uppercase">Besoin d'une intervention immédiate ?</h2>
+          <p className="text-lg text-emerald-100 mb-10 max-w-3xl mx-auto font-medium">
+            Nos techniciens interviennent sur site dans des délais record. Pas besoin d'embarquer votre matériel, nous réparons chez vous dès que possible.
           </p>
-          <Button asChild size="lg" className="bg-white text-green-600 hover:bg-green-50">
+          <Button asChild size="lg" className="bg-white text-emerald-700 hover:bg-emerald-50 h-14 px-10 rounded-2xl font-black text-lg shadow-2xl transition-all hover:scale-105 active:scale-95">
             <Link href="/contact">
-              Contactez-nous maintenant
-              <ArrowRight className="ml-2 h-4 w-4" />
+              Parler à un technicien
+              <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
           </Button>
         </div>

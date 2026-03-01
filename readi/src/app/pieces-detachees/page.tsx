@@ -1,263 +1,210 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight, Package, Search } from "lucide-react";
+import { ArrowRight, Package, Settings, Globe, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { prisma } from "@/lib/prisma";
+import { PiecesConfigurator } from "@/components/pieces/PiecesConfigurator";
+import { Metadata } from "next";
+import { DynamicSection } from "@/components/layout/DynamicSection";
 
-interface Product {
-  id: string;
-  name: string;
-  reference: string | null;
-  description: string | null;
-  price: number | null;
-  brand: string | null;
-  series: string | null;
-  model: string | null;
-  stock: number;
+export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Pièces Détachées Informatiques & Catalogues",
+  description: "Catalogue complet de pièces détachées informatiques, câbles et composants. Accès aux guides produits officiels EET Group et configurateur personnalisé.",
+  keywords: ["pièces détachées informatique", "câbles ordinateur", "composants pc", "catalogue constructeur", "eet group"],
+};
+
+async function getPageData() {
+  const [pageContent, products] = await Promise.all([
+    // @ts-ignore
+    prisma.pageContent.findUnique({
+      where: { pageSlug: "pieces-detachees" },
+      include: {
+        sections: {
+          where: { isActive: true },
+          orderBy: { order: "asc" },
+        },
+      },
+    }),
+    prisma.product.findMany({
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+
+  return { pageContent, products };
 }
 
-export default function PiecesDetacheesPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [brands, setBrands] = useState<string[]>([]);
-  const [series, setSeries] = useState<string[]>([]);
-  const [models, setModels] = useState<string[]>([]);
-  const [selectedBrand, setSelectedBrand] = useState<string>("");
-  const [selectedSeries, setSelectedSeries] = useState<string>("");
-  const [selectedModel, setSelectedModel] = useState<string>("");
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [loading, setLoading] = useState(true);
+export default async function PiecesDetacheesPage() {
+  const { pageContent, products } = await getPageData();
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  useEffect(() => {
-    // Filter series based on selected brand
-    if (selectedBrand) {
-      const filteredSeries = products
-        .filter((p) => p.brand === selectedBrand)
-        .map((p) => p.series)
-        .filter((s): s is string => s !== null);
-      setSeries(Array.from(new Set(filteredSeries)));
-      setSelectedSeries("");
-      setSelectedModel("");
-    } else {
-      const allSeries = products.map((p) => p.series).filter((s): s is string => s !== null);
-      setSeries(Array.from(new Set(allSeries)));
-    }
-  }, [selectedBrand, products]);
-
-  useEffect(() => {
-    // Filter models based on selected brand and series
-    if (selectedBrand || selectedSeries) {
-      const filteredModels = products
-        .filter((p) => (!selectedBrand || p.brand === selectedBrand) && (!selectedSeries || p.series === selectedSeries))
-        .map((p) => p.model)
-        .filter((m): m is string => m !== null);
-      setModels(Array.from(new Set(filteredModels)));
-      setSelectedModel("");
-    } else {
-      const allModels = products.map((p) => p.model).filter((m): m is string => m !== null);
-      setModels(Array.from(new Set(allModels)));
-    }
-  }, [selectedSeries, selectedBrand, products]);
-
-  async function fetchProducts() {
-    try {
-      const response = await fetch("/api/products");
-      const data = await response.json();
-      setProducts(data);
-      
-      // Extract unique brands
-      const allBrands = data.map((p: Product) => p.brand).filter((b: string | null): b is string => b !== null);
-      setBrands(Array.from(new Set(allBrands)));
-      
-      const allSeries = data.map((p: Product) => p.series).filter((s: string | null): s is string => s !== null);
-      setSeries(Array.from(new Set(allSeries)));
-      
-      const allModels = data.map((p: Product) => p.model).filter((m: string | null): m is string => m !== null);
-      setModels(Array.from(new Set(allModels)));
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const filteredProducts = products.filter((product) => {
-    const matchesBrand = !selectedBrand || product.brand === selectedBrand;
-    const matchesSeries = !selectedSeries || product.series === selectedSeries;
-    const matchesModel = !selectedModel || product.model === selectedModel;
-    const matchesSearch = !searchQuery || 
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.reference?.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesBrand && matchesSeries && matchesModel && matchesSearch;
-  });
+  const heroData = {
+    title: pageContent?.heroTitle || "Pièces Détachées & Catalogues",
+    subtitle: pageContent?.heroSubtitle || "Solutions Composants",
+    description: pageContent?.heroDescription || "Trouvez vos composants via notre configurateur ou nos portails partenaires officiels.",
+    btnText: pageContent?.heroBtnText || "Accéder au catalogue",
+    btnLink: pageContent?.heroBtnLink || "#catalogues",
+    image: pageContent?.heroImage || null,
+    video: pageContent?.heroVideoUrl || null,
+    // Font settings - Reduced
+    titleFontSize: pageContent?.titleFontSize || "3rem",
+    titleFontFamily: pageContent?.titleFontFamily || "inherit",
+    subtitleFontSize: pageContent?.subtitleFontSize || "0.75rem",
+    descriptionFontSize: pageContent?.descriptionFontSize || "1.125rem",
+  };
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-orange-600 via-orange-700 to-red-800 text-white py-16 lg:py-24">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Pièces Détachées
-            </h1>
-            <p className="text-xl text-orange-100 mb-8">
-              Configurateur de produits compatibles avec votre système
-            </p>
-            <Button asChild size="lg" className="bg-white text-orange-600 hover:bg-orange-50">
-              <Link href="/configurateur-cables">
-                Configurateur de câbles
-                <ArrowRight className="ml-2 h-4 w-4" />
+      {/* Dynamic Hero */}
+      <section className="relative h-[65vh] min-h-[450px] flex items-center justify-center overflow-hidden bg-orange-900">
+        {heroData.video ? (
+          <div className="absolute inset-0 z-0">
+            <iframe
+              src={`${heroData.video.replace('watch?v=', 'embed/')}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0`}
+              className="w-full h-full border-0 scale-150 grayscale-[20%]"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            />
+          </div>
+        ) : heroData.image ? (
+          <div className="absolute inset-0 z-0">
+            <img src={heroData.image} alt="" className="w-full h-full object-cover opacity-40 transition-transform duration-1000 hover:scale-105" />
+          </div>
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-600 to-red-800 opacity-90" />
+        )}
+        <div className="absolute inset-0 bg-black/40 z-10" />
+
+        <div className="container relative z-20 mx-auto px-4 text-center text-white">
+          <span
+            className="inline-block px-3 py-1 rounded-full bg-orange-500/20 backdrop-blur-md font-bold uppercase tracking-widest mb-6 border border-white/10 text-[10px] sm:text-xs"
+            style={{ fontSize: heroData.subtitleFontSize }}
+          >
+            {heroData.subtitle}
+          </span>
+          <h1
+            className="text-3xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tighter uppercase"
+            style={{
+              fontSize: heroData.titleFontSize,
+              fontFamily: heroData.titleFontFamily
+            }}
+          >
+            {heroData.title}
+          </h1>
+          <p
+            className="text-lg text-orange-100 mb-8 max-w-2xl mx-auto font-medium"
+            style={{ fontSize: heroData.descriptionFontSize }}
+          >
+            {heroData.description}
+          </p>
+          <div className="flex flex-wrap justify-center gap-6 animate-in fade-in zoom-in-95 duration-1000">
+            <Button asChild size="lg" className="bg-white text-orange-600 hover:bg-orange-50 h-14 px-8 rounded-2xl font-black shadow-2xl transition-all hover:scale-105 active:scale-95 text-base">
+              <Link href={heroData.btnLink}>
+                {heroData.btnText}
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="border-white/40 text-white hover:bg-white/10 h-14 px-8 rounded-2xl font-black backdrop-blur-sm text-base">
+              <Link href="#configurateur">
+                Configurateur
               </Link>
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Configurator Section */}
-      <section className="py-12 bg-gray-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <Card className="border-2 border-orange-200">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Package className="h-6 w-6 text-orange-600" />
-                Configurateur - Trouvez les produits compatibles avec votre système
-              </CardTitle>
-              <CardDescription>
-                Sélectionnez votre marque, série et modèle pour trouver les produits compatibles
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Étape 1 : Marque</label>
-                  <Select value={selectedBrand} onValueChange={setSelectedBrand}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choisir une marque" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Toutes les marques</SelectItem>
-                      {brands.map((brand) => (
-                        <SelectItem key={brand} value={brand}>{brand}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Étape 2 : Série</label>
-                  <Select value={selectedSeries} onValueChange={setSelectedSeries} disabled={!selectedBrand}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choisir une série" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Toutes les séries</SelectItem>
-                      {series.map((s) => (
-                        <SelectItem key={s} value={s}>{s}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Étape 3 : Modèle</label>
-                  <Select value={selectedModel} onValueChange={setSelectedModel} disabled={!selectedSeries}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choisir un modèle" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Tous les modèles</SelectItem>
-                      {models.map((m) => (
-                        <SelectItem key={m} value={m}>{m}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+      {/* Trust Badges */}
+      <section className="py-12 bg-gray-50 border-b">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="flex flex-col items-center text-center">
+              <Globe className="h-8 w-8 text-orange-600 mb-3" />
+              <span className="text-sm font-black uppercase text-gray-500">Expédition France</span>
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <ShieldCheck className="h-8 w-8 text-orange-600 mb-3" />
+              <span className="text-sm font-black uppercase text-gray-500">Garantie Constructeur</span>
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <Settings className="h-8 w-8 text-orange-600 mb-3" />
+              <span className="text-sm font-black uppercase text-gray-500">Support Technique</span>
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <Package className="h-8 w-8 text-orange-600 mb-3" />
+              <span className="text-sm font-black uppercase text-gray-500">+100k Références</span>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Products Section */}
-      <section className="py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Produits disponibles
-              <Badge variant="secondary" className="ml-2">
-                {filteredProducts.length}
-              </Badge>
-            </h2>
-            <div className="relative w-full md:w-72">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Rechercher un produit..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+      {/* External Catalogues / IFrames Section */}
+      <section id="catalogues" className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-gray-900 mb-4 tracking-tighter uppercase">Portail Partenaire Officiel</h2>
+            <div className="w-20 h-1 bg-orange-600 mx-auto rounded-full" />
           </div>
 
-          {loading ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500">Chargement des produits...</p>
-            </div>
-          ) : filteredProducts.length === 0 ? (
-            <div className="text-center py-12">
-              <Package className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-              <p className="text-gray-500">Aucun produit trouvé</p>
-              <p className="text-sm text-gray-400 mt-2">
-                Essayez de modifier vos critères de recherche
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.map((product) => (
-                <Card key={product.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-lg">{product.name}</CardTitle>
-                        <CardDescription className="text-sm">
-                          Réf: {product.reference || "N/A"}
-                        </CardDescription>
-                      </div>
-                      <Badge variant={product.stock > 0 ? "default" : "destructive"}>
-                        {product.stock > 0 ? "En stock" : "Rupture"}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-600 mb-4">{product.description}</p>
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm text-gray-500">
-                        {product.brand && <span className="mr-2">{product.brand}</span>}
-                        {product.series && <span className="mr-2">{product.series}</span>}
-                        {product.model && <span>{product.model}</span>}
-                      </div>
-                      <div className="text-lg font-bold text-orange-600">
-                        {product.price ? `${product.price.toFixed(2)} €` : "Sur demande"}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+          <div className="space-y-16">
+            {/* Guide Produit Interactif Iframe */}
+            <Card className="overflow-hidden border-4 border-orange-50 shadow-[0_32px_64px_-16px_rgba(234,88,12,0.15)] rounded-[2.5rem]">
+              <div className="bg-gradient-to-r from-orange-50 to-red-50 p-6 md:p-8 border-b flex flex-col md:flex-row justify-between items-center gap-6">
+                <div>
+                  <h3 className="text-xl md:text-2xl font-black text-orange-900 mb-1 tracking-tight">Catalogue Général Officiel</h3>
+                  <p className="text-sm md:text-base text-gray-600 font-medium">Recherchez par marque, catégorie ou référence constructeur</p>
+                </div>
+                <Badge className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 text-xs font-black rounded-full border-none shadow-lg shadow-orange-600/20">
+                  CATALOGUE PRODUITS
+                </Badge>
+              </div>
+              <CardContent className="p-0 bg-gray-50 min-h-[700px] relative">
+                <iframe
+                  src="https://www.eetgroup.com/fr-fr/external-guides/productguide?externalId=855948f7-0461-4b48-b2d6-1ab51285adc7&guideId=all"
+                  width="100%"
+                  height="800"
+                  className="w-full border-0"
+                  title="Catalogue Général EET Group"
+                  loading="lazy"
+                  allowFullScreen
+                />
+              </CardContent>
+            </Card>
+
+            {/* Nouveau Guide Câbles Iframe */}
+            <Card className="overflow-hidden border-4 border-slate-50 shadow-[0_32px_64px_-16px_rgba(15,23,42,0.15)] rounded-[2.5rem]">
+              <div className="bg-gradient-to-r from-slate-50 to-gray-100 p-6 md:p-8 border-b flex flex-col md:flex-row justify-between items-center gap-6">
+                <div>
+                  <h3 className="text-xl md:text-2xl font-black text-slate-900 mb-1 tracking-tight">Configuration de Câblage</h3>
+                  <p className="text-sm md:text-base text-gray-600 font-medium">Trouvez le câble exact compatible avec votre matériel ou votre installation</p>
+                </div>
+                <Badge className="bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 text-xs font-black rounded-full border-none shadow-lg shadow-slate-800/20">
+                  CATALOGUE CÂBLES
+                </Badge>
+              </div>
+              <CardContent className="p-0 bg-gray-50 min-h-[700px] relative">
+                <iframe
+                  src="https://www.eetgroup.com/fr-fr/external-guides/productguide?externalId=fbb885a1-d180-4a3f-911b-6c35504b3862&guideId=cable"
+                  width="100%"
+                  height="800"
+                  className="w-full border-0"
+                  title="Catalogue Câbles EET Group"
+                  loading="lazy"
+                  allowFullScreen
+                />
+              </CardContent>
+            </Card>
+          </div>
         </div>
+      </section>
+
+      {/* Dynamic Sections from CMS */}
+      {pageContent?.sections?.map((section: any) => (
+        <DynamicSection key={section.id} section={section} />
+      ))}
+
+      {/* Logic Configurator (Client Component) */}
+      <section id="configurateur" className="py-12">
+        <PiecesConfigurator initialProducts={products} />
       </section>
     </div>
   );
