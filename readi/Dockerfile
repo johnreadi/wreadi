@@ -30,6 +30,9 @@ RUN sed -i "s/hostname: 'localhost'/hostname: '0.0.0.0'/g" .next/standalone/serv
 FROM node:18-alpine AS runner
 WORKDIR /app
 
+# Installer OpenSSL pour Prisma
+RUN apk add --no-cache openssl
+
 ENV NODE_ENV=production
 ENV PORT=3000
 
