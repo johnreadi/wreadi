@@ -28,5 +28,3 @@ services:
 networks:
   dokploy-overlay:
     external: true
-  default:
-    driver: none
