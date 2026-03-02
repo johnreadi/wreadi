@@ -81,7 +81,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const settings = await getSiteSettings() as any;
+  const settings = await getSiteSettings();
+  
+  // Log server-side pour debug
+  console.log("RootLayout Settings:", JSON.stringify(settings, null, 2));
 
   // Construction des styles dynamiques
   const dynamicStyles = {
