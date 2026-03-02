@@ -18,6 +18,14 @@ if [ -d "prisma" ]; then
       echo "DB Push failed! Check error above."
       # We don't exit here to allow server to start if it's just a connection issue we want to debug
     }
+    
+    # Run seed script if it exists
+    if [ -f "prisma/seed.js" ]; then
+      echo "Running seed script..."
+      node prisma/seed.js || echo "Seeding failed (non-fatal)"
+    else
+      echo "No seed script found at prisma/seed.js"
+    fi
   else
     echo "Warning: Prisma CLI not found in node_modules, skipping db sync."
   fi

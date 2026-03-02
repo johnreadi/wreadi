@@ -4,6 +4,16 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
+  // Check if admin user already exists to prevent re-seeding
+  const existingAdmin = await prisma.adminUser.findUnique({
+    where: { email: 'admin@readi.fr' },
+  });
+
+  if (existingAdmin) {
+    console.log('Admin user already exists. Skipping seeding.');
+    return;
+  }
+
   console.log('Start seeding...');
 
   // Créer l'admin par défaut
