@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ColorPicker } from "@/components/admin/ColorPicker";
 import { Save, ArrowLeft, Layout } from "lucide-react";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
+import { handleFileUpload } from "@/lib/file-upload";
 
 async function getPageContent() {
     let content = await prisma.pageContent.findUnique({
@@ -38,6 +40,22 @@ export default async function AdminPiecesContentPage() {
         const heroTitle = formData.get("heroTitle") as string;
         const heroSubtitle = formData.get("heroSubtitle") as string;
         const heroDescription = formData.get("heroDescription") as string;
+        const heroBgColor = (formData.get("heroBgColorText") as string) || (formData.get("heroBgColor") as string);
+
+        const heroImageFile = formData.get("heroImageFile") as File;
+        const heroVideoFile = formData.get("heroVideoFile") as File;
+        let heroImage = formData.get("heroImage") as string;
+        let heroVideoUrl = formData.get("heroVideoUrl") as string;
+
+        const uploadedImage = await handleFileUpload(heroImageFile);
+        if (uploadedImage) {
+            heroImage = uploadedImage;
+        }
+
+        const uploadedVideo = await handleFileUpload(heroVideoFile);
+        if (uploadedVideo) {
+            heroVideoUrl = uploadedVideo;
+        }
 
         await prisma.pageContent.update({
             where: { pageSlug: "pieces-detachees" },
@@ -45,6 +63,9 @@ export default async function AdminPiecesContentPage() {
                 heroTitle,
                 heroSubtitle,
                 heroDescription,
+                heroBgColor,
+                heroImage,
+                heroVideoUrl,
             },
         });
 
@@ -100,6 +121,34 @@ export default async function AdminPiecesContentPage() {
                                     rows={3}
                                     defaultValue={content.heroDescription || ""}
                                 />
+                            </div>
+                            <div className="space-y-4 border-t pt-4">
+                                <h3 className="font-semibold text-sm text-gray-900">Apparence Hero</h3>
+                                <div className="space-y-2">
+                                    <Label>Couleur de fond</Label>
+                                    <ColorPicker 
+                                        name="heroBgColor" 
+                                        defaultValue={content.heroBgColor || "#ffffff"} 
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="heroImageFile">Image Hero</Label>
+                                        {content.heroImage && (
+                                            <div className="text-xs text-gray-500 mb-1 truncate">Actuelle: {content.heroImage.split("/").pop()}</div>
+                                        )}
+                                        <Input type="hidden" name="heroImage" value={content.heroImage || ""} />
+                                        <Input type="file" id="heroImageFile" name="heroImageFile" accept="image/*" className="text-xs" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="heroVideoFile">Vidéo Hero</Label>
+                                        {content.heroVideoUrl && (
+                                            <div className="text-xs text-gray-500 mb-1 truncate">Actuelle: {content.heroVideoUrl.split("/").pop()}</div>
+                                        )}
+                                        <Input type="hidden" name="heroVideoUrl" value={content.heroVideoUrl || ""} />
+                                        <Input type="file" id="heroVideoFile" name="heroVideoFile" accept="video/*" className="text-xs" />
+                                    </div>
+                                </div>
                             </div>
                         </CardContent>
                     </Card>

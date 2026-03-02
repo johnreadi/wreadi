@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { handleFileUpload } from "@/lib/file-upload";
 
 export async function createLandingPage(formData: FormData) {
     const title = formData.get("title") as string;
@@ -10,6 +11,19 @@ export async function createLandingPage(formData: FormData) {
     const heroTitle = formData.get("heroTitle") as string;
     const heroSubtitle = formData.get("heroSubtitle") as string;
     const isActive = formData.get("isActive") === "on";
+    const backgroundColor = formData.get("backgroundColor") as string;
+
+    const heroImageFile = formData.get("heroImageFile") as File;
+    const heroVideoFile = formData.get("heroVideoFile") as File;
+
+    let heroImage = formData.get("heroImage") as string;
+    let heroVideo = formData.get("heroVideo") as string;
+
+    const uploadedImage = await handleFileUpload(heroImageFile);
+    if (uploadedImage) heroImage = uploadedImage;
+
+    const uploadedVideo = await handleFileUpload(heroVideoFile);
+    if (uploadedVideo) heroVideo = uploadedVideo;
 
     await prisma.landingPage.create({
         data: {
@@ -18,6 +32,9 @@ export async function createLandingPage(formData: FormData) {
             description,
             heroTitle,
             heroSubtitle,
+            heroImage,
+            heroVideo,
+            backgroundColor,
             isActive,
         },
     });
@@ -32,6 +49,19 @@ export async function updateLandingPage(id: string, formData: FormData) {
     const heroTitle = formData.get("heroTitle") as string;
     const heroSubtitle = formData.get("heroSubtitle") as string;
     const isActive = formData.get("isActive") === "on";
+    const backgroundColor = formData.get("backgroundColor") as string;
+
+    const heroImageFile = formData.get("heroImageFile") as File;
+    const heroVideoFile = formData.get("heroVideoFile") as File;
+
+    let heroImage = formData.get("heroImage") as string;
+    let heroVideo = formData.get("heroVideo") as string;
+
+    const uploadedImage = await handleFileUpload(heroImageFile);
+    if (uploadedImage) heroImage = uploadedImage;
+
+    const uploadedVideo = await handleFileUpload(heroVideoFile);
+    if (uploadedVideo) heroVideo = uploadedVideo;
 
     await prisma.landingPage.update({
         where: { id },
@@ -41,6 +71,9 @@ export async function updateLandingPage(id: string, formData: FormData) {
             description,
             heroTitle,
             heroSubtitle,
+            heroImage,
+            heroVideo,
+            backgroundColor,
             isActive,
         },
     });

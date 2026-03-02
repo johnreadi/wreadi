@@ -52,6 +52,8 @@ interface Service {
     description: string;
     shortDesc: string | null;
     isActive: boolean;
+    image: string | null;
+    icon: string | null;
     categoryId: string;
     category: {
         name: string;
@@ -123,6 +125,16 @@ export function ServiceList({ initialServices, categories }: ServiceListProps) {
                                                 ))}
                                             </SelectContent>
                                         </Select>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="imageFile">Image du service</Label>
+                                        <Input type="file" id="imageFile" name="imageFile" accept="image/*" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="iconFile">Icône du service</Label>
+                                        <Input type="file" id="iconFile" name="iconFile" accept="image/*" />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
@@ -227,6 +239,28 @@ export function ServiceList({ initialServices, categories }: ServiceListProps) {
                                                 ))}
                                             </SelectContent>
                                         </Select>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="edit-imageFile">Image du service</Label>
+                                        {selectedService.image && (
+                                            <div className="text-xs text-gray-500 truncate mb-1" title={selectedService.image}>
+                                                Actuel: {selectedService.image.split("/").pop()}
+                                            </div>
+                                        )}
+                                        <Input type="hidden" name="image" value={selectedService.image || ""} />
+                                        <Input type="file" id="edit-imageFile" name="imageFile" accept="image/*" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="edit-iconFile">Icône du service</Label>
+                                        {selectedService.icon && (
+                                            <div className="text-xs text-gray-500 truncate mb-1" title={selectedService.icon}>
+                                                Actuelle: {selectedService.icon.split("/").pop()}
+                                            </div>
+                                        )}
+                                        <Input type="hidden" name="icon" value={selectedService.icon || ""} />
+                                        <Input type="file" id="edit-iconFile" name="iconFile" accept="image/*" />
                                     </div>
                                 </div>
                                 <div className="space-y-2">

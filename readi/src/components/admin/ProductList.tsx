@@ -38,6 +38,7 @@ type ProductWithCategory = {
     reference: string | null;
     description: string | null;
     price: number | null;
+    image: string | null;
     stock: number;
     isActive: boolean;
     categoryId: string;
@@ -176,6 +177,11 @@ export function ProductList({ initialProducts, categories }: ProductListProps) {
                                     <div className="space-y-2">
                                         <Label htmlFor="description">Description</Label>
                                         <Textarea id="description" name="description" placeholder="Détails techniques..." />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="imageFile">Image du produit</Label>
+                                        <Input type="file" id="imageFile" name="imageFile" accept="image/*" />
                                     </div>
 
                                     <div className="grid grid-cols-3 gap-4">
@@ -333,6 +339,15 @@ export function ProductList({ initialProducts, categories }: ProductListProps) {
                                 <div className="space-y-2">
                                     <Label htmlFor="edit-description">Description</Label>
                                     <Textarea id="edit-description" name="description" defaultValue={selectedProduct.description || ""} />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="edit-imageFile">Image du produit</Label>
+                                    {selectedProduct.image && (
+                                        <div className="text-xs text-gray-500 mb-1 truncate">Actuelle: {selectedProduct.image.split("/").pop()}</div>
+                                    )}
+                                    <Input type="hidden" name="image" value={selectedProduct.image || ""} />
+                                    <Input type="file" id="edit-imageFile" name="imageFile" accept="image/*" />
                                 </div>
 
                                 <div className="grid grid-cols-3 gap-4">

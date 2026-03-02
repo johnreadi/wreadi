@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -321,6 +321,7 @@ model PageContent {
   heroBtnLink     String?
   heroImage       String?
   heroVideoUrl    String?  // Optionnel
+  heroBgColor     String?  // Couleur de fond (hex/rgb)
   
   // Paramètres de style Hero
   titleFontSize   String?  @default("4rem")
@@ -351,6 +352,7 @@ model PageSection {
   animation     String?  @default("fade") // fade, slide, scale
   ctaText       String?
   ctaLink       String?
+  backgroundColor String?  // Couleur de fond de la section
 
   // Paramètres de police spécifiques à la section
   titleFontSize   String? @default("2.25rem")
@@ -372,6 +374,9 @@ model LandingPage {
   description     String?
   heroTitle       String?
   heroSubtitle    String?
+  heroImage       String?
+  heroVideo       String?
+  backgroundColor String?
   content         String?  // Contenu structuré (JSON ou Markdown)
   isActive        Boolean  @default(true)
   createdAt       DateTime @default(now())

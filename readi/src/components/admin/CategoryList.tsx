@@ -37,6 +37,8 @@ interface Category {
     name: string;
     slug: string;
     description: string | null;
+    image: string | null;
+    icon: string | null;
     isActive: boolean;
     _count: {
         services: number;
@@ -97,6 +99,16 @@ export function CategoryList({ initialCategories }: CategoryListProps) {
                                 <div className="space-y-2">
                                     <Label htmlFor="description">Description</Label>
                                     <Textarea id="description" name="description" placeholder="Courte description..." />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="imageFile">Image de la catégorie</Label>
+                                        <Input type="file" id="imageFile" name="imageFile" accept="image/*" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="iconFile">Icône de la catégorie</Label>
+                                        <Input type="file" id="iconFile" name="iconFile" accept="image/*" />
+                                    </div>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <Label htmlFor="isActive">Activer la catégorie</Label>
@@ -176,6 +188,28 @@ export function CategoryList({ initialCategories }: CategoryListProps) {
                                 <div className="space-y-2">
                                     <Label htmlFor="edit-description">Description</Label>
                                     <Textarea id="edit-description" name="description" defaultValue={selectedCategory.description || ""} />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="edit-imageFile">Image de la catégorie</Label>
+                                        {selectedCategory.image && (
+                                            <div className="text-xs text-gray-500 truncate mb-1" title={selectedCategory.image}>
+                                                Actuelle: {selectedCategory.image.split("/").pop()}
+                                            </div>
+                                        )}
+                                        <Input type="hidden" name="image" value={selectedCategory.image || ""} />
+                                        <Input type="file" id="edit-imageFile" name="imageFile" accept="image/*" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="edit-iconFile">Icône de la catégorie</Label>
+                                        {selectedCategory.icon && (
+                                            <div className="text-xs text-gray-500 truncate mb-1" title={selectedCategory.icon}>
+                                                Actuelle: {selectedCategory.icon.split("/").pop()}
+                                            </div>
+                                        )}
+                                        <Input type="hidden" name="icon" value={selectedCategory.icon || ""} />
+                                        <Input type="file" id="edit-iconFile" name="iconFile" accept="image/*" />
+                                    </div>
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <Label htmlFor="edit-isActive">Activer la catégorie</Label>

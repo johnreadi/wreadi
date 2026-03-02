@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ColorPicker } from "@/components/admin/ColorPicker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -38,6 +39,7 @@ type Section = {
     titleFontSize: string | null;
     titleFontFamily: string | null;
     contentFontSize: string | null;
+    backgroundColor: string | null;
 };
 
 interface PageSectionManagerProps {
@@ -256,7 +258,7 @@ function SectionFormFields({ section }: { section?: Section }) {
                             <Input id="mediaUrl" name="mediaUrl" defaultValue={section?.mediaUrl || ""} placeholder="https://..." />
                         </div>
 
-                        {mType === 'IMAGE' && (
+                        {(mType === 'IMAGE' || mType === 'VIDEO') && (
                             <div className="space-y-1.5 pt-2 border-t border-dashed">
                                 <Label htmlFor="file" className="text-[10px] text-gray-500 uppercase font-semibold flex items-center gap-2">
                                     <Upload className="h-3 w-3" />
@@ -266,7 +268,7 @@ function SectionFormFields({ section }: { section?: Section }) {
                                     type="file" 
                                     id="file" 
                                     name="file" 
-                                    accept="image/*" 
+                                    accept={mType === 'VIDEO' ? "video/*" : "image/*"} 
                                     className="cursor-pointer file:cursor-pointer file:text-blue-600 file:border-0 file:bg-blue-50 file:px-4 file:py-1 file:mr-4 file:rounded-full hover:file:bg-blue-100 transition-all h-auto py-2" 
                                 />
                             </div>
@@ -306,6 +308,16 @@ function SectionFormFields({ section }: { section?: Section }) {
                         <Input name="contentFontSize" defaultValue={section?.contentFontSize || "1.125rem"} placeholder="Taille (ex: 1rem)" className="h-9 text-xs" />
                         <span className="text-[10px] text-gray-400">Taille du texte descriptif</span>
                     </div>
+                </div>
+                
+                <div className="space-y-4 col-span-2 border-t pt-4">
+                    <Label className="flex items-center gap-2 text-gray-700 font-bold">
+                        Couleur de fond (Optionnel)
+                    </Label>
+                    <ColorPicker 
+                        name="backgroundColor" 
+                        defaultValue={section?.backgroundColor || "#ffffff"} 
+                    />
                 </div>
             </div>
 

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { ColorPicker } from "@/components/admin/ColorPicker";
 import { PageSectionManager } from "@/components/admin/PageSectionManager";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from "next/link";
 import { upsertPageContent } from "@/app/admin/content/page-actions";
+import { handleFileUpload } from "@/lib/file-upload";
 
 async function getPageData(slug: string) {
     // @ts-ignore - Prisma types might be out of sync in IDE
@@ -74,6 +76,7 @@ export default async function PageEditor({ params }: { params: { slug: string } 
         heroBtnLink: page?.heroBtnLink || defaults.heroBtnLink || "",
         heroImage: page?.heroImage || "",
         heroVideoUrl: page?.heroVideoUrl || "",
+        heroBgColor: page?.heroBgColor || "",
         // Font settings
         titleFontSize: page?.titleFontSize || "4rem",
         titleFontFamily: page?.titleFontFamily || "inherit",
@@ -83,14 +86,33 @@ export default async function PageEditor({ params }: { params: { slug: string } 
 
     async function handleSaveHero(formData: FormData) {
         "use server";
+        
+        // Handle file uploads
+        const imageFile = formData.get("heroImageFile") as File;
+        const videoFile = formData.get("heroVideoFile") as File;
+        
+        let heroImage = formData.get("heroImage") as string;
+        let heroVideoUrl = formData.get("heroVideoUrl") as string;
+
+        const uploadedImage = await handleFileUpload(imageFile);
+        if (uploadedImage) {
+            heroImage = uploadedImage;
+        }
+
+        const uploadedVideo = await handleFileUpload(videoFile);
+        if (uploadedVideo) {
+            heroVideoUrl = uploadedVideo;
+        }
+
         const data = {
             heroTitle: formData.get("heroTitle") as string,
             heroSubtitle: formData.get("heroSubtitle") as string,
             heroDescription: formData.get("heroDescription") as string,
             heroBtnText: formData.get("heroBtnText") as string,
             heroBtnLink: formData.get("heroBtnLink") as string,
-            heroImage: formData.get("heroImage") as string,
-            heroVideoUrl: formData.get("heroVideoUrl") as string,
+            heroImage,
+            heroVideoUrl,
+            heroBgColor: (formData.get("heroBgColorText") as string) || (formData.get("heroBgColor") as string),
             // Font fields
             titleFontSize: formData.get("titleFontSize") as string,
             titleFontFamily: formData.get("titleFontFamily") as string,
@@ -209,18 +231,39 @@ export default async function PageEditor({ params }: { params: { slug: string } 
 
                                     <div className="space-y-6 relative z-10">
                                         <div className="space-y-3">
-                                            <Label className="text-xs font-black uppercase text-gray-400 tracking-widest">Image de fond (URL)</Label>
-                                            <div className="relative">
-                                                <Input name="heroImage" defaultValue={pageData.heroImage} placeholder="/images/bg.jpg" className="pl-12 h-14 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-2xl" />
-                                                <ImageIcon className="absolute left-4 top-4 h-6 w-6 text-red-500" />
+                                            <Label className="text-xs font-black uppercase text-gray-400 tracking-widest">Couleur de fond (Optionnel)</Label>
+                                            <ColorPicker 
+                                                name="heroBgColor" 
+                                                defaultValue={pageData.heroBgColor || "#000000"} 
+                                                inputClassName="bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-lg"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            <Label className="text-xs font-black uppercase text-gray-400 tracking-widest">Image de fond</Label>
+                                            <div className="space-y-2">
+                                                <div className="relative">
+                                                    <Input name="heroImage" defaultValue={pageData.heroImage} placeholder="/images/bg.jpg" className="pl-12 h-14 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-2xl" />
+                                                    <ImageIcon className="absolute left-4 top-4 h-6 w-6 text-red-500" />
+                                                </div>
+                                                <div className="relative">
+                                                    <Input type="file" name="heroImageFile" accept="image/*" className="pl-12 h-14 bg-white/5 border-dashed border-white/20 text-white/60 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700 cursor-pointer" />
+                                                    <span className="absolute left-4 top-4 text-xs font-bold text-gray-500 uppercase">OU</span>
+                                                </div>
                                             </div>
                                         </div>
 
                                         <div className="space-y-3">
                                             <Label className="text-xs font-black uppercase text-gray-400 tracking-widest">Vidéo Youtube / MP4 (Option)</Label>
-                                            <div className="relative">
-                                                <Input name="heroVideoUrl" defaultValue={pageData.heroVideoUrl} placeholder="Lien vers la vidéo" className="pl-12 h-14 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-2xl" />
-                                                <Video className="absolute left-4 top-4 h-6 w-6 text-red-500" />
+                                            <div className="space-y-2">
+                                                <div className="relative">
+                                                    <Input name="heroVideoUrl" defaultValue={pageData.heroVideoUrl} placeholder="Lien vers la vidéo" className="pl-12 h-14 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-2xl" />
+                                                    <Video className="absolute left-4 top-4 h-6 w-6 text-red-500" />
+                                                </div>
+                                                <div className="relative">
+                                                    <Input type="file" name="heroVideoFile" accept="video/*" className="pl-12 h-14 bg-white/5 border-dashed border-white/20 text-white/60 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700 cursor-pointer" />
+                                                    <span className="absolute left-4 top-4 text-xs font-bold text-gray-500 uppercase">OU</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

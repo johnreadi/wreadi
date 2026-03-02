@@ -27,6 +27,7 @@ import {
     DialogTitle,
     DialogTrigger
 } from "@/components/ui/dialog";
+import { ColorPicker } from "@/components/admin/ColorPicker";
 import {
     createLandingPage,
     updateLandingPage,
@@ -42,6 +43,9 @@ interface LandingPage {
     description: string | null;
     heroTitle: string | null;
     heroSubtitle: string | null;
+    heroImage: string | null;
+    heroVideo: string | null;
+    backgroundColor: string | null;
     isActive: boolean;
     createdAt: Date;
 }
@@ -133,6 +137,23 @@ export function LandingPageList({ initialLandingPages }: LandingPageListProps) {
                                         <div className="space-y-2">
                                             <Label htmlFor="heroSubtitle">Sous-titre (Hero)</Label>
                                             <Input id="heroSubtitle" name="heroSubtitle" placeholder="Sous-titre..." />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4 border-t pt-4">
+                                        <h3 className="font-semibold text-sm text-gray-900">Apparence Hero</h3>
+                                        <div className="space-y-2">
+                                            <Label>Couleur de fond</Label>
+                                            <ColorPicker name="backgroundColor" defaultValue="#ffffff" />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="heroImageFile">Image Hero</Label>
+                                                <Input type="file" id="heroImageFile" name="heroImageFile" accept="image/*" className="text-xs" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="heroVideoFile">Vidéo Hero</Label>
+                                                <Input type="file" id="heroVideoFile" name="heroVideoFile" accept="video/*" className="text-xs" />
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
@@ -230,15 +251,41 @@ export function LandingPageList({ initialLandingPages }: LandingPageListProps) {
                                     <Input id="edit-description" name="description" defaultValue={selectedPage.description || ""} />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="edit-heroTitle">Titre de la page (Hero)</Label>
-                                        <Input id="edit-heroTitle" name="heroTitle" defaultValue={selectedPage.heroTitle || ""} />
+                                        <div className="space-y-2">
+                                            <Label htmlFor="edit-heroTitle">Titre de la page (Hero)</Label>
+                                            <Input id="edit-heroTitle" name="heroTitle" defaultValue={selectedPage.heroTitle || ""} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="edit-heroSubtitle">Sous-titre (Hero)</Label>
+                                            <Input id="edit-heroSubtitle" name="heroSubtitle" defaultValue={selectedPage.heroSubtitle || ""} />
+                                        </div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="edit-heroSubtitle">Sous-titre (Hero)</Label>
-                                        <Input id="edit-heroSubtitle" name="heroSubtitle" defaultValue={selectedPage.heroSubtitle || ""} />
+                                    <div className="space-y-4 border-t pt-4">
+                                        <h3 className="font-semibold text-sm text-gray-900">Apparence Hero</h3>
+                                        <div className="space-y-2">
+                                            <Label>Couleur de fond</Label>
+                                            <ColorPicker 
+                                                name="backgroundColor" 
+                                                defaultValue={selectedPage.backgroundColor || "#ffffff"} 
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="edit-heroImageFile">Image Hero</Label>
+                                                {selectedPage.heroImage && (
+                                                    <div className="text-xs text-gray-500 mb-1 truncate">Actuelle: {selectedPage.heroImage}</div>
+                                                )}
+                                                <Input type="file" id="edit-heroImageFile" name="heroImageFile" accept="image/*" className="text-xs" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="edit-heroVideoFile">Vidéo Hero</Label>
+                                                {selectedPage.heroVideo && (
+                                                    <div className="text-xs text-gray-500 mb-1 truncate">Actuelle: {selectedPage.heroVideo}</div>
+                                                )}
+                                                <Input type="file" id="edit-heroVideoFile" name="heroVideoFile" accept="video/*" className="text-xs" />
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
                                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                     <Label htmlFor="edit-isActive" className="font-medium">Page active</Label>
                                     <Switch id="edit-isActive" name="isActive" defaultChecked={selectedPage.isActive} />

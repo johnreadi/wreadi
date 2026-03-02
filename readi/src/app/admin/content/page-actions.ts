@@ -2,37 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
-
-// Utility function to handle file upload
-async function handleFileUpload(file: File | null): Promise<string | null> {
-    if (!file || file.size === 0 || file.name === "undefined") return null;
-
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    // Ensure upload directory exists
-    const uploadDir = join(process.cwd(), "public", "uploads");
-    try {
-        await mkdir(uploadDir, { recursive: true });
-    } catch (e) {
-        console.error("Error creating upload directory:", e);
-    }
-
-    // Sanitize filename
-    const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, "-");
-    const fileName = `${Date.now()}-${cleanName}`;
-    const fullPath = join(uploadDir, fileName);
-    
-    try {
-        await writeFile(fullPath, buffer);
-        return `/uploads/${fileName}`;
-    } catch (e) {
-        console.error("Error writing file:", e);
-        throw new Error("Impossible d'écrire le fichier sur le disque.");
-    }
-}
+import { handleFileUpload } from "@/lib/file-upload";
 
 export async function upsertPageContent(pageSlug: string, data: any) {
     const page = await prisma.pageContent.upsert({
@@ -58,6 +28,8 @@ export async function addPageSection(pageSlug: string, formData: FormData) {
         mediaUrl = uploadedPath;
     }
 
+    const backgroundColor = (formData.get("backgroundColorText") as string) || (formData.get("backgroundColor") as string);
+
     await prisma.pageSection.create({
         data: {
             title: formData.get("title") as string,
@@ -65,6 +37,7 @@ export async function addPageSection(pageSlug: string, formData: FormData) {
             content: formData.get("content") as string,
             mediaType: formData.get("mediaType") as string,
             mediaUrl,
+            backgroundColor,
             layout: formData.get("layout") as string,
             animation: formData.get("animation") as string,
             titleFontSize: formData.get("titleFontSize") as string,
@@ -89,6 +62,8 @@ export async function updatePageSection(id: string, formData: FormData) {
         mediaUrl = uploadedPath;
     }
 
+    const backgroundColor = (formData.get("backgroundColorText") as string) || (formData.get("backgroundColor") as string);
+
     const section = await prisma.pageSection.update({
         where: { id },
         data: {
@@ -97,6 +72,7 @@ export async function updatePageSection(id: string, formData: FormData) {
             content: formData.get("content") as string,
             mediaType: formData.get("mediaType") as string,
             mediaUrl,
+            backgroundColor,
             layout: formData.get("layout") as string,
             animation: formData.get("animation") as string,
             titleFontSize: formData.get("titleFontSize") as string,

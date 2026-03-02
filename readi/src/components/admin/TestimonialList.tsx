@@ -45,6 +45,7 @@ interface Testimonial {
     company: string | null;
     content: string;
     rating: number;
+    image: string | null;
     isActive: boolean;
 }
 
@@ -117,6 +118,10 @@ export function TestimonialList({ initialTestimonials }: TestimonialListProps) {
                                 <div className="space-y-2">
                                     <Label htmlFor="company">Entreprise (optionnel)</Label>
                                     <Input id="company" name="company" placeholder="ex: Société XYZ" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="imageFile">Photo du client / Logo (optionnel)</Label>
+                                    <Input type="file" id="imageFile" name="imageFile" accept="image/*" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="content">Témoignage</Label>
@@ -224,6 +229,16 @@ export function TestimonialList({ initialTestimonials }: TestimonialListProps) {
                                 <div className="space-y-2">
                                     <Label htmlFor="edit-company">Entreprise</Label>
                                     <Input id="edit-company" name="company" defaultValue={selectedTestimonial.company || ""} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="edit-imageFile">Photo du client / Logo</Label>
+                                    {selectedTestimonial.image && (
+                                        <div className="text-xs text-gray-500 truncate mb-1" title={selectedTestimonial.image}>
+                                            Actuel: {selectedTestimonial.image.split("/").pop()}
+                                        </div>
+                                    )}
+                                    <Input type="hidden" name="image" value={selectedTestimonial.image || ""} />
+                                    <Input type="file" id="edit-imageFile" name="imageFile" accept="image/*" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="edit-content">Témoignage</Label>

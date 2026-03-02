@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { handleFileUpload } from "@/lib/file-upload";
 
 export async function createService(formData: FormData) {
     const name = formData.get("name") as string;
@@ -9,6 +10,17 @@ export async function createService(formData: FormData) {
     const description = formData.get("description") as string;
     const shortDesc = formData.get("shortDesc") as string;
     const isActive = formData.get("isActive") === "on";
+
+    const imageFile = formData.get("imageFile") as File;
+    const iconFile = formData.get("iconFile") as File;
+    let image = formData.get("image") as string;
+    let icon = formData.get("icon") as string;
+
+    const uploadedImage = await handleFileUpload(imageFile);
+    if (uploadedImage) image = uploadedImage;
+
+    const uploadedIcon = await handleFileUpload(iconFile);
+    if (uploadedIcon) icon = uploadedIcon;
 
     const slug = name.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
 
@@ -19,6 +31,8 @@ export async function createService(formData: FormData) {
             categoryId,
             description,
             shortDesc,
+            image,
+            icon,
             isActive,
         },
     });
@@ -33,6 +47,21 @@ export async function updateService(id: string, formData: FormData) {
     const shortDesc = formData.get("shortDesc") as string;
     const isActive = formData.get("isActive") === "on";
 
+    const imageFile = formData.get("imageFile") as File;
+    const iconFile = formData.get("iconFile") as File;
+    let image = formData.get("image") as string;
+    let icon = formData.get("icon") as string;
+
+    const uploadedImage = await handleFileUpload(imageFile);
+    if (uploadedImage) {
+        image = uploadedImage;
+    }
+
+    const uploadedIcon = await handleFileUpload(iconFile);
+    if (uploadedIcon) {
+        icon = uploadedIcon;
+    }
+
     await prisma.service.update({
         where: { id },
         data: {
@@ -41,6 +70,8 @@ export async function updateService(id: string, formData: FormData) {
             description,
             shortDesc,
             isActive,
+            image,
+            icon,
         },
     });
 

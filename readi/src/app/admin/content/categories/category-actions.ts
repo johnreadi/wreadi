@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { handleFileUpload } from "@/lib/file-upload";
 
 export async function createCategory(formData: FormData) {
     const name = formData.get("name") as string;
@@ -9,11 +10,24 @@ export async function createCategory(formData: FormData) {
     const description = formData.get("description") as string;
     const isActive = formData.get("isActive") === "on";
 
+    const imageFile = formData.get("imageFile") as File;
+    const iconFile = formData.get("iconFile") as File;
+    let image = null;
+    let icon = null;
+
+    const uploadedImage = await handleFileUpload(imageFile);
+    if (uploadedImage) image = uploadedImage;
+
+    const uploadedIcon = await handleFileUpload(iconFile);
+    if (uploadedIcon) icon = uploadedIcon;
+
     await prisma.category.create({
         data: {
             name,
             slug,
             description,
+            image,
+            icon,
             isActive,
         },
     });
@@ -26,11 +40,24 @@ export async function updateCategory(id: string, formData: FormData) {
     const description = formData.get("description") as string;
     const isActive = formData.get("isActive") === "on";
 
+    const imageFile = formData.get("imageFile") as File;
+    const iconFile = formData.get("iconFile") as File;
+    let image = formData.get("image") as string;
+    let icon = formData.get("icon") as string;
+
+    const uploadedImage = await handleFileUpload(imageFile);
+    if (uploadedImage) image = uploadedImage;
+
+    const uploadedIcon = await handleFileUpload(iconFile);
+    if (uploadedIcon) icon = uploadedIcon;
+
     await prisma.category.update({
         where: { id },
         data: {
             name,
             description,
+            image,
+            icon,
             isActive,
         },
     });

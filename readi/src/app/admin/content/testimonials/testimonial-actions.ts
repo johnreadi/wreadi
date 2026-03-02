@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { handleFileUpload } from "@/lib/file-upload";
 
 export async function createTestimonial(formData: FormData) {
     const name = formData.get("name") as string;
@@ -10,12 +11,21 @@ export async function createTestimonial(formData: FormData) {
     const rating = parseInt(formData.get("rating") as string);
     const isActive = formData.get("isActive") === "on";
 
+    const imageFile = formData.get("imageFile") as File;
+    let image = null;
+
+    const uploadedImage = await handleFileUpload(imageFile);
+    if (uploadedImage) {
+        image = uploadedImage;
+    }
+
     await prisma.testimonial.create({
         data: {
             name,
             company,
             content,
             rating,
+            image,
             isActive,
         },
     });
@@ -30,6 +40,14 @@ export async function updateTestimonial(id: string, formData: FormData) {
     const rating = parseInt(formData.get("rating") as string);
     const isActive = formData.get("isActive") === "on";
 
+    const imageFile = formData.get("imageFile") as File;
+    let image = formData.get("image") as string;
+
+    const uploadedImage = await handleFileUpload(imageFile);
+    if (uploadedImage) {
+        image = uploadedImage;
+    }
+
     await prisma.testimonial.update({
         where: { id },
         data: {
@@ -37,6 +55,7 @@ export async function updateTestimonial(id: string, formData: FormData) {
             company,
             content,
             rating,
+            image,
             isActive,
         },
     });

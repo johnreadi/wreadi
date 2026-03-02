@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { handleFileUpload } from "@/lib/file-upload";
 
 export async function createProduct(formData: FormData) {
     const name = formData.get("name") as string;
@@ -15,6 +16,12 @@ export async function createProduct(formData: FormData) {
     const model = formData.get("model") as string;
     const isActive = formData.get("isActive") === "on";
 
+    const imageFile = formData.get("imageFile") as File;
+    let image = formData.get("image") as string;
+
+    const uploadedImage = await handleFileUpload(imageFile);
+    if (uploadedImage) image = uploadedImage;
+
     await prisma.product.create({
         data: {
             name,
@@ -23,6 +30,7 @@ export async function createProduct(formData: FormData) {
             price,
             stock,
             categoryId,
+            image,
             brand: brand || null,
             series: series || null,
             model: model || null,
@@ -45,6 +53,12 @@ export async function updateProduct(id: string, formData: FormData) {
     const model = formData.get("model") as string;
     const isActive = formData.get("isActive") === "on";
 
+    const imageFile = formData.get("imageFile") as File;
+    let image = formData.get("image") as string;
+
+    const uploadedImage = await handleFileUpload(imageFile);
+    if (uploadedImage) image = uploadedImage;
+
     await prisma.product.update({
         where: { id },
         data: {
@@ -54,6 +68,7 @@ export async function updateProduct(id: string, formData: FormData) {
             price,
             stock,
             categoryId,
+            image,
             brand: brand || null,
             series: series || null,
             model: model || null,
