@@ -28,7 +28,12 @@ echo "Running database migrations..."
 if [ -d "prisma" ]; then
   # Try running migration using local prisma binary
   if [ -f "./node_modules/.bin/prisma" ]; then
-    ./node_modules/.bin/prisma migrate deploy
+    ./node_modules/.bin/prisma migrate deploy || {
+      echo "Migration failed! Check error above."
+      echo "Listing prisma directory content for debugging:"
+      ls -la prisma
+      # We don't exit here to allow server to start if migration is not critical or to debug
+    }
   else
     echo "Warning: Prisma CLI not found in node_modules, skipping migrations."
   fi
@@ -38,5 +43,13 @@ fi
 
 # Start the server
 echo "Starting Next.js server..."
+echo "Current user: $(whoami)"
+echo "Current directory: $(pwd)"
+echo "Listing files:"
+ls -la
+
 # Explicitly set hostname and port, though ENV vars should handle it
-node server.js
+# Use exec to replace shell with node process for better signal handling
+export HOSTNAME="0.0.0.0"
+export PORT="3000"
+exec node server.js
