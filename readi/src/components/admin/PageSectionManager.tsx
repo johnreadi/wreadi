@@ -4,7 +4,7 @@ import { useState } from "react";
 import {
     Plus, Edit, Trash2, Image as ImageIcon, Video, Layers,
     ChevronUp, ChevronDown, Check, Save, X, Layout, Move,
-    Settings2, Play, LayoutGrid
+    Settings2, Play, LayoutGrid, Upload
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -51,42 +51,30 @@ export function PageSectionManager({ pageSlug, initialSections }: PageSectionMan
     const [editingSection, setEditingSection] = useState<Section | null>(null);
 
     const handleAddSection = async (formData: FormData) => {
-        const data = {
-            title: formData.get("title") as string,
-            subtitle: formData.get("subtitle") as string,
-            content: formData.get("content") as string,
-            mediaType: formData.get("mediaType") as string,
-            mediaUrl: formData.get("mediaUrl") as string,
-            layout: formData.get("layout") as string,
-            animation: formData.get("animation") as string,
-            titleFontSize: formData.get("titleFontSize") as string,
-            titleFontFamily: formData.get("titleFontFamily") as string,
-            contentFontSize: formData.get("contentFontSize") as string,
-            order: sections.length,
-            isActive: true,
-        };
-        await addPageSection(pageSlug, data);
-        setIsAddOpen(false);
-        window.location.reload();
+        try {
+            formData.append("order", sections.length.toString());
+            // Default isActive to true for new sections if not provided (though we will enable the checkbox)
+            if (!formData.has("isActive")) {
+                formData.append("isActive", "on");
+            }
+            await addPageSection(pageSlug, formData);
+            setIsAddOpen(false);
+            window.location.reload();
+        } catch (error) {
+            console.error("Error adding section:", error);
+            alert("Une erreur est survenue lors de l'ajout de la section. Veuillez réessayer.");
+        }
     };
 
     const handleUpdateSection = async (id: string, formData: FormData) => {
-        const data = {
-            title: formData.get("title") as string,
-            subtitle: formData.get("subtitle") as string,
-            content: formData.get("content") as string,
-            mediaType: formData.get("mediaType") as string,
-            mediaUrl: formData.get("mediaUrl") as string,
-            layout: formData.get("layout") as string,
-            animation: formData.get("animation") as string,
-            titleFontSize: formData.get("titleFontSize") as string,
-            titleFontFamily: formData.get("titleFontFamily") as string,
-            contentFontSize: formData.get("contentFontSize") as string,
-            isActive: formData.get("isActive") === "on",
-        };
-        await updatePageSection(id, data);
-        setEditingSection(null);
-        window.location.reload();
+        try {
+            await updatePageSection(id, formData);
+            setEditingSection(null);
+            window.location.reload();
+        } catch (error) {
+            console.error("Error updating section:", error);
+            alert("Une erreur est survenue lors de la modification de la section. Veuillez réessayer.");
+        }
     };
 
     const handleDeleteSection = async (id: string) => {
@@ -258,8 +246,32 @@ function SectionFormFields({ section }: { section?: Section }) {
                     </Select>
                 </div>
                 <div className="space-y-2 col-span-2">
-                    <Label htmlFor="mediaUrl">{mType === 'VIDEO' ? 'Lien de la vidéo' : 'Lien de l\'image (URL ou /uploads/...)'}</Label>
-                    <Input id="mediaUrl" name="mediaUrl" defaultValue={section?.mediaUrl || ""} placeholder="https://..." />
+                    <Label className="flex items-center gap-2">
+                        {mType === 'VIDEO' ? 'Source de la vidéo' : 'Source de l\'image'}
+                    </Label>
+                    
+                    <div className="space-y-4">
+                        <div className="space-y-1.5">
+                            <Label htmlFor="mediaUrl" className="text-[10px] text-gray-500 uppercase font-semibold">Option A: Lien direct (URL)</Label>
+                            <Input id="mediaUrl" name="mediaUrl" defaultValue={section?.mediaUrl || ""} placeholder="https://..." />
+                        </div>
+
+                        {mType === 'IMAGE' && (
+                            <div className="space-y-1.5 pt-2 border-t border-dashed">
+                                <Label htmlFor="file" className="text-[10px] text-gray-500 uppercase font-semibold flex items-center gap-2">
+                                    <Upload className="h-3 w-3" />
+                                    Option B: Charger depuis l'ordinateur
+                                </Label>
+                                <Input 
+                                    type="file" 
+                                    id="file" 
+                                    name="file" 
+                                    accept="image/*" 
+                                    className="cursor-pointer file:cursor-pointer file:text-blue-600 file:border-0 file:bg-blue-50 file:px-4 file:py-1 file:mr-4 file:rounded-full hover:file:bg-blue-100 transition-all h-auto py-2" 
+                                />
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 

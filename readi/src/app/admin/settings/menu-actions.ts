@@ -2,10 +2,11 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { MenuItem, TopBarItem } from "@prisma/client";
 
 // --- MENU ACTIONS ---
 
-export async function getMenuItems() {
+export async function getMenuItems(): Promise<MenuItem[]> {
     return prisma.menuItem.findMany({
         orderBy: { order: 'asc' }
     });
@@ -49,19 +50,19 @@ export async function reorderMenuItems(items: { id: string; order: number }[]) {
 
 // --- TOP BAR ACTIONS ---
 
-export async function getTopBarItems() {
+export async function getTopBarItems(): Promise<TopBarItem[]> {
     return prisma.topBarItem.findMany({
         orderBy: { order: 'asc' }
     });
 }
 
-export async function createTopBarItem(data: { type: string; content: string; settings?: string }) {
+export async function createTopBarItem(data: { type: string; content: string; settings?: string | null }) {
     const count = await prisma.topBarItem.count();
     const newItem = await prisma.topBarItem.create({
         data: {
             type: data.type,
             content: data.content,
-            settings: data.settings,
+            settings: data.settings ?? null,
             order: count,
         }
     });
@@ -69,10 +70,14 @@ export async function createTopBarItem(data: { type: string; content: string; se
     return newItem;
 }
 
-export async function updateTopBarItem(id: string, data: { type: string; content: string; settings?: string }) {
+export async function updateTopBarItem(id: string, data: { type: string; content: string; settings?: string | null }) {
     const updatedItem = await prisma.topBarItem.update({
         where: { id },
-        data
+        data: {
+            type: data.type,
+            content: data.content,
+            settings: data.settings ?? null,
+        }
     });
     revalidatePath("/", "layout");
     return updatedItem;
