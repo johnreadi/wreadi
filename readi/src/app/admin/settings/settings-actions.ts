@@ -60,7 +60,7 @@ export async function updateAppearance(formData: FormData) {
                 privacyPolicy,
                 termsOfService,
                 ...(logoPath ? { siteLogo: logoPath } : {}),
-            } as any, // "as any" coupe les erreurs TS du client obsolète le temps de redémarrer le serveur
+            } as any,
             create: {
                 id: "default",
                 siteName,
@@ -76,30 +76,11 @@ export async function updateAppearance(formData: FormData) {
                 privacyPolicy,
                 termsOfService,
                 siteLogo: logoPath || null,
-            } as any, // "as any" coupe les erreurs
+            } as any,
         });
     } catch (error: any) {
-        console.warn("Prisma Client out of sync (EPERM locking), falling back to raw SQL update.");
-
-        await prisma.$executeRawUnsafe(`
-            INSERT OR REPLACE INTO SiteSettings (
-                id, siteName, siteSlogan, primaryColor, fontFamily, baseFontSize, 
-                contactEmail, contactPhone, contactAddress, contactHours, contactMapUrl, 
-                privacyPolicy, termsOfService,
-                siteLogo, updatedAt
-            ) VALUES (
-                'default', ?, ?, ?, ?, ?, 
-                ?, ?, ?, ?, ?, 
-                ?, ?,
-                COALESCE(?, (SELECT siteLogo FROM SiteSettings WHERE id = 'default')),
-                datetime('now')
-            )
-        `,
-            siteName, siteSlogan, primaryColor, fontFamily, baseFontSize,
-            contactEmail, contactPhone, contactAddress, contactHours, contactMapUrl,
-            privacyPolicy, termsOfService,
-            logoPath
-        );
+        console.error("Failed to update settings:", error);
+        throw new Error("Impossible de sauvegarder les paramètres. Vérifiez les logs serveur.");
     }
 
     revalidatePath("/", "layout");
@@ -109,10 +90,12 @@ export async function updateAppearance(formData: FormData) {
 
 export async function getAppearanceSettings() {
     try {
-        // Essai SQL brut car le client pourrait rejeter les Select si les champs manquent aussi
-        const res = await prisma.$queryRawUnsafe('SELECT * FROM SiteSettings WHERE id = "default"') as any[];
-        return res?.[0] || null;
+        const settings = await prisma.siteSettings.findUnique({
+            where: { id: "default" }
+        });
+        return settings;
     } catch (e) {
-        return prisma.siteSettings.findUnique({ where: { id: "default" } }).catch(() => null);
+        console.error("Error fetching settings:", e);
+        return null;
     }
 }
