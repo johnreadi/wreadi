@@ -43,6 +43,7 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/.env ./.env
 
 # Nous avons besoin de prisma cli pour les migrations, mais standalone ne l'inclut pas forcément.
 # On copie node_modules pour s'assurer d'avoir tout ce qu'il faut, même si ça alourdit l'image.
