@@ -34,7 +34,9 @@ export async function updateAppearance(formData: FormData) {
         const uploadDir = join(process.cwd(), "public", "uploads");
         try {
             await mkdir(uploadDir, { recursive: true });
-        } catch (e) { }
+        } catch (e) {
+            console.error("Error creating upload directory:", e);
+        }
 
         // Nettoyage du nom de fichier pour éviter les caractères spéciaux
         const cleanName = logoFile.name.replace(/[^a-zA-Z0-9.-]/g, "-");
@@ -42,7 +44,13 @@ export async function updateAppearance(formData: FormData) {
         const fullPath = join(uploadDir, fileName);
         
         console.log("Saving logo to:", fullPath);
-        await writeFile(fullPath, buffer);
+        try {
+            await writeFile(fullPath, buffer);
+            console.log("Logo saved successfully.");
+        } catch (e) {
+            console.error("Error writing logo file:", e);
+            throw new Error("Impossible d'écrire le fichier du logo sur le disque.");
+        }
         logoPath = `/uploads/${fileName}`;
     }
 

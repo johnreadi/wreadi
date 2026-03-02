@@ -26,6 +26,12 @@ if [ -d "prisma" ]; then
     else
       echo "No seed script found at prisma/seed.js"
     fi
+
+    # Run DB check script
+    if [ -f "prisma/check-db.js" ]; then
+      echo "Running DB check script..."
+      node prisma/check-db.js || echo "DB check failed (non-fatal)"
+    fi
   else
     echo "Warning: Prisma CLI not found in node_modules, skipping db sync."
   fi
@@ -37,8 +43,8 @@ fi
 echo "Starting Next.js server..."
 echo "Current user: $(whoami)"
 echo "Current directory: $(pwd)"
-echo "Listing files:"
-ls -la
+echo "Listing files in public/uploads:"
+ls -la public/uploads || echo "public/uploads not found or not accessible"
 
 # Explicitly set hostname and port, though ENV vars should handle it
 # Use exec to replace shell with node process for better signal handling

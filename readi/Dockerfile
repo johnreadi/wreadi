@@ -45,6 +45,9 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/.env ./.env
 
+# Créer le dossier uploads et définir les permissions
+RUN mkdir -p ./public/uploads && chown -R nextjs:nodejs ./public/uploads
+
 # Nous avons besoin de prisma cli pour les migrations, mais standalone ne l'inclut pas forcément.
 # On copie node_modules pour s'assurer d'avoir tout ce qu'il faut, même si ça alourdit l'image.
 # Une alternative plus légère serait de copier uniquement le nécessaire ou d'utiliser un script dédié.
