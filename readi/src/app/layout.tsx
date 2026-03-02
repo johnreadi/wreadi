@@ -66,10 +66,13 @@ export const metadata: Metadata = {
 
 async function getSiteSettings() {
   try {
-    const settingsArray = await prisma.$queryRawUnsafe('SELECT * FROM SiteSettings WHERE id = "default"') as any[];
-    return settingsArray?.[0] || null;
+    const settings = await prisma.siteSettings.findUnique({
+      where: { id: "default" }
+    });
+    return settings;
   } catch (e) {
-    return prisma.siteSettings.findUnique({ where: { id: "default" } }).catch(() => null);
+    console.error("Error fetching site settings:", e);
+    return null;
   }
 }
 

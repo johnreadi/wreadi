@@ -36,8 +36,12 @@ export async function updateAppearance(formData: FormData) {
             await mkdir(uploadDir, { recursive: true });
         } catch (e) { }
 
-        const fileName = `${Date.now()}-${logoFile.name.replace(/\s+/g, "-")}`;
+        // Nettoyage du nom de fichier pour éviter les caractères spéciaux
+        const cleanName = logoFile.name.replace(/[^a-zA-Z0-9.-]/g, "-");
+        const fileName = `${Date.now()}-${cleanName}`;
         const fullPath = join(uploadDir, fileName);
+        
+        console.log("Saving logo to:", fullPath);
         await writeFile(fullPath, buffer);
         logoPath = `/uploads/${fileName}`;
     }
