@@ -115,13 +115,15 @@ export function PageSectionManager({ pageSlug, initialSections }: PageSectionMan
                             Ajouter une section
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
-                        <form action={handleAddSection}>
+                    <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+                        <form action={handleAddSection} className="flex flex-col h-full min-h-0 gap-4">
                             <DialogHeader>
                                 <DialogTitle>Nouvelle section</DialogTitle>
                                 <DialogDescription>Créez un bloc riche pour votre front-end.</DialogDescription>
                             </DialogHeader>
-                            <SectionFormFields />
+                            <div className="flex-1 overflow-y-auto pr-2">
+                                <SectionFormFields />
+                            </div>
                             <DialogFooter>
                                 <Button type="submit">Créer la section</Button>
                             </DialogFooter>
@@ -194,13 +196,15 @@ export function PageSectionManager({ pageSlug, initialSections }: PageSectionMan
 
             {editingSection && (
                 <Dialog open={!!editingSection} onOpenChange={() => setEditingSection(null)}>
-                    <DialogContent className="max-w-2xl">
-                        <form action={(fd) => handleUpdateSection(editingSection.id, fd)}>
+                    <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+                        <form action={(fd) => handleUpdateSection(editingSection.id, fd)} className="flex flex-col h-full min-h-0 gap-4">
                             <DialogHeader>
                                 <DialogTitle>Modifier la section</DialogTitle>
                                 <DialogDescription>Ajustez les textes et médias du bloc.</DialogDescription>
                             </DialogHeader>
-                            <SectionFormFields key={editingSection.id} section={editingSection} />
+                            <div className="flex-1 overflow-y-auto pr-2">
+                                <SectionFormFields key={editingSection.id} section={editingSection} />
+                            </div>
                             <DialogFooter>
                                 <Button type="submit" className="bg-blue-600 hover:bg-blue-700">Enregistrer les modifications</Button>
                             </DialogFooter>

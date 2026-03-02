@@ -84,18 +84,18 @@ export function TestimonialList({ initialTestimonials }: TestimonialListProps) {
                             Ajouter un témoignage
                         </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent className="max-h-[90vh] flex flex-col">
                         <form action={async (formData) => {
                             await createTestimonial(formData);
                             setIsAddOpen(false);
-                        }}>
+                        }} className="flex flex-col h-full min-h-0">
                             <DialogHeader>
                                 <DialogTitle>Ajouter un avis client</DialogTitle>
                                 <DialogDescription>
                                     Insérez un nouveau témoignage pour renforcer la confiance.
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="space-y-4 py-4">
+                            <div className="space-y-4 py-4 flex-1 overflow-y-auto pr-2">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="name">Nom du client</Label>
@@ -194,19 +194,19 @@ export function TestimonialList({ initialTestimonials }: TestimonialListProps) {
 
             {/* Edit Dialog */}
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-                <DialogContent>
+                <DialogContent className="max-h-[90vh] flex flex-col">
                     {selectedTestimonial && (
                         <form action={async (formData) => {
                             await updateTestimonial(selectedTestimonial.id, formData);
                             setIsEditOpen(false);
-                        }}>
+                        }} className="flex flex-col h-full min-h-0">
                             <DialogHeader>
                                 <DialogTitle>Modifier le témoignage</DialogTitle>
                                 <DialogDescription>
                                     Mettez à jour les propos de {selectedTestimonial.name}
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="space-y-4 py-4">
+                            <div className="space-y-4 py-4 flex-1 overflow-y-auto pr-2">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="edit-name">Nom du client</Label>

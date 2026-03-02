@@ -125,18 +125,18 @@ export function ProductList({ initialProducts, categories }: ProductListProps) {
                                 Ajouter un produit
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+                        <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
                             <form action={async (formData) => {
                                 await createProduct(formData);
                                 setIsAddOpen(false);
-                            }}>
+                            }} className="flex flex-col h-full min-h-0">
                                 <DialogHeader>
                                     <DialogTitle>Ajouter un nouveau produit</DialogTitle>
                                     <DialogDescription>
                                         Remplissez les informations pour le catalogue pièces détachées.
                                     </DialogDescription>
                                 </DialogHeader>
-                                <div className="grid gap-4 py-4">
+                                <div className="grid gap-4 py-4 flex-1 overflow-y-auto pr-2">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="name">Nom du produit *</Label>
@@ -286,19 +286,19 @@ export function ProductList({ initialProducts, categories }: ProductListProps) {
 
             {/* Edit Dialog */}
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-                <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+                <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
                     {selectedProduct && (
                         <form action={async (formData) => {
                             await updateProduct(selectedProduct.id, formData);
                             setIsEditOpen(false);
-                        }}>
+                        }} className="flex flex-col h-full min-h-0">
                             <DialogHeader>
                                 <DialogTitle>Modifier le produit</DialogTitle>
                                 <DialogDescription>
                                     Édition de : {selectedProduct.name}
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="grid gap-4 py-4">
+                            <div className="grid gap-4 py-4 flex-1 overflow-y-auto pr-2">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="edit-name">Nom du produit *</Label>

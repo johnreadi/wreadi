@@ -103,18 +103,18 @@ export function LandingPageList({ initialLandingPages }: LandingPageListProps) {
                                 Créer une page
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-[600px]">
+                        <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
                             <form action={async (formData) => {
                                 await createLandingPage(formData);
                                 setIsAddOpen(false);
-                            }}>
+                            }} className="flex flex-col h-full min-h-0">
                                 <DialogHeader>
                                     <DialogTitle>Nouvelle Campagne Marketing</DialogTitle>
                                     <DialogDescription>
                                         Créez une page d'atterrissage optimisée pour vos publicités.
                                     </DialogDescription>
                                 </DialogHeader>
-                                <div className="grid gap-4 py-4">
+                                <div className="grid gap-4 py-4 flex-1 overflow-y-auto pr-2">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="title">Nom de la campagne</Label>
@@ -223,19 +223,19 @@ export function LandingPageList({ initialLandingPages }: LandingPageListProps) {
 
             {/* Edit Dialog */}
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-                <DialogContent className="sm:max-w-[600px]">
+                <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
                     {selectedPage && (
                         <form action={async (formData) => {
                             await updateLandingPage(selectedPage.id, formData);
                             setIsEditOpen(false);
-                        }}>
+                        }} className="flex flex-col h-full min-h-0">
                             <DialogHeader>
                                 <DialogTitle>Modifier la Campagne</DialogTitle>
                                 <DialogDescription>
                                     Édition de : {selectedPage.title}
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="grid gap-4 py-4">
+                            <div className="grid gap-4 py-4 flex-1 overflow-y-auto pr-2">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="edit-title">Nom de la campagne</Label>

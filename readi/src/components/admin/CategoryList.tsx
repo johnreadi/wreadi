@@ -80,18 +80,18 @@ export function CategoryList({ initialCategories }: CategoryListProps) {
                             Ajouter une catégorie
                         </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent className="max-h-[90vh] flex flex-col">
                         <form action={async (formData) => {
                             await createCategory(formData);
                             setIsAddOpen(false);
-                        }}>
+                        }} className="flex flex-col h-full min-h-0">
                             <DialogHeader>
                                 <DialogTitle>Ajouter une catégorie</DialogTitle>
                                 <DialogDescription>
                                     Créez une nouvelle catégorie de services pour votre site.
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="space-y-4 py-4">
+                            <div className="space-y-4 py-4 flex-1 overflow-y-auto pr-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="name">Nom de la catégorie</Label>
                                     <Input id="name" name="name" placeholder="ex: Informatique" required />
@@ -168,19 +168,19 @@ export function CategoryList({ initialCategories }: CategoryListProps) {
 
             {/* Edit Dialog */}
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-                <DialogContent>
+                <DialogContent className="max-h-[90vh] flex flex-col">
                     {selectedCategory && (
                         <form action={async (formData) => {
                             await updateCategory(selectedCategory.id, formData);
                             setIsEditOpen(false);
-                        }}>
+                        }} className="flex flex-col h-full min-h-0">
                             <DialogHeader>
                                 <DialogTitle>Modifier la catégorie</DialogTitle>
                                 <DialogDescription>
                                     Mettez à jour les informations de {selectedCategory.name}
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="space-y-4 py-4">
+                            <div className="space-y-4 py-4 flex-1 overflow-y-auto pr-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="edit-name">Nom de la catégorie</Label>
                                     <Input id="edit-name" name="name" defaultValue={selectedCategory.name} required />

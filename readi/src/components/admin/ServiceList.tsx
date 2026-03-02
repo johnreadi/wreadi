@@ -96,18 +96,18 @@ export function ServiceList({ initialServices, categories }: ServiceListProps) {
                             Ajouter un service
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[600px]">
+                    <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
                         <form action={async (formData) => {
                             await createService(formData);
                             setIsAddOpen(false);
-                        }}>
+                        }} className="flex flex-col h-full min-h-0">
                             <DialogHeader>
                                 <DialogTitle>Ajouter un service</DialogTitle>
                                 <DialogDescription>
                                     Décrivez la nouvelle offre de service pour vos clients.
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="grid gap-4 py-4">
+                            <div className="grid gap-4 py-4 flex-1 overflow-y-auto pr-2">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="name">Nom du service</Label>
@@ -209,19 +209,19 @@ export function ServiceList({ initialServices, categories }: ServiceListProps) {
 
             {/* Edit Dialog */}
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-                <DialogContent className="sm:max-w-[600px]">
+                <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
                     {selectedService && (
                         <form action={async (formData) => {
                             await updateService(selectedService.id, formData);
                             setIsEditOpen(false);
-                        }}>
+                        }} className="flex flex-col h-full min-h-0">
                             <DialogHeader>
                                 <DialogTitle>Modifier le service</DialogTitle>
                                 <DialogDescription>
                                     Mettez à jour les informations de {selectedService.name}
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="grid gap-4 py-4">
+                            <div className="grid gap-4 py-4 flex-1 overflow-y-auto pr-2">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="edit-name">Nom du service</Label>
