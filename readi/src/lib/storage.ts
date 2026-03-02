@@ -3,20 +3,22 @@
 
 // Détection robuste de l'environnement de production
 function checkIsProduction(): boolean {
-  // Vérification côté client uniquement
-  if (typeof window === "undefined") {
-    return false;
+  // 1. Vérification via la variable d'environnement (Server & Client)
+  if (process.env.NODE_ENV === "production") {
+    return true;
   }
 
-  // Vérification via la variable d'environnement Next.js
-  const env = process.env.NODE_ENV;
-  
-  // Vérification supplémentaire via l'URL (production = HTTPS et domaine spécifique)
-  const isHttps = window.location.protocol === "https:";
-  const isProductionDomain = window.location.hostname === "app.readi.fr";
-  
-  // Production = NODE_ENV === "production" OU (HTTPS + domaine de production)
-  return env === "production" || (isHttps && isProductionDomain);
+  // 2. Vérification côté client uniquement
+  if (typeof window !== "undefined") {
+    // Vérification supplémentaire via l'URL (production = HTTPS et domaine spécifique)
+    const isHttps = window.location.protocol === "https:";
+    // On considère production si on est en HTTPS sur un domaine qui n'est pas localhost
+    const isProductionDomain = window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1";
+    
+    return isHttps && isProductionDomain;
+  }
+
+  return false;
 }
 
 // Variable figée au chargement du module

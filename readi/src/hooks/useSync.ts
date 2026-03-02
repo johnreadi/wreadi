@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { IS_PRODUCTION } from "@/lib/storage";
+import { IS_PRODUCTION, storage } from "@/lib/storage";
 
 interface SyncData {
   categories: any[];
@@ -50,10 +50,9 @@ export function useSync(): UseSyncReturn {
         setLastSync(result.timestamp);
 
         // En développement uniquement : stocker dans localStorage comme cache
-        if (!isProduction) {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(result.data));
-          localStorage.setItem(TIMESTAMP_KEY, result.timestamp);
-        }
+        // Le wrapper storage gère déjà la vérification IS_PRODUCTION
+        storage.setItem(STORAGE_KEY, JSON.stringify(result.data));
+        storage.setItem(TIMESTAMP_KEY, result.timestamp);
       } else {
         throw new Error(result.error || "Sync failed");
       }
@@ -62,10 +61,10 @@ export function useSync(): UseSyncReturn {
       
       // En développement : utiliser le cache local en cas d'erreur
       if (!isProduction) {
-        const cached = localStorage.getItem(STORAGE_KEY);
+        const cached = storage.getItem(STORAGE_KEY);
         if (cached) {
           setData(JSON.parse(cached));
-          setLastSync(localStorage.getItem(TIMESTAMP_KEY));
+          setLastSync(storage.getItem(TIMESTAMP_KEY));
         }
       }
     } finally {
@@ -76,8 +75,8 @@ export function useSync(): UseSyncReturn {
   useEffect(() => {
     // En développement : charger le cache initial si disponible
     if (!isProduction) {
-      const cached = localStorage.getItem(STORAGE_KEY);
-      const cachedTime = localStorage.getItem(TIMESTAMP_KEY);
+      const cached = storage.getItem(STORAGE_KEY);
+      const cachedTime = storage.getItem(TIMESTAMP_KEY);
       if (cached) {
         setData(JSON.parse(cached));
         setLastSync(cachedTime);
