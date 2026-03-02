@@ -9,6 +9,7 @@ import { ChatBot } from "@/components/chat/ChatBot";
 import { BackToTop } from "@/components/layout/BackToTop";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { prisma } from "@/lib/prisma";
+import { getMenuItems, getTopBarItems } from "@/app/admin/settings/menu-actions";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -82,6 +83,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const settings = await getSiteSettings();
+  const menuItems = await getMenuItems();
+  const topBarItems = await getTopBarItems();
   
   // Log server-side pour debug
   console.log("RootLayout Settings:", JSON.stringify(settings, null, 2));
@@ -98,7 +101,7 @@ export default async function RootLayout({
       <body className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
         <Providers>
           <JsonLd />
-          <Header settings={settings} />
+          <Header settings={settings} menuItems={menuItems} topBarItems={topBarItems} />
           <main className="flex-1">{children}</main>
           <Footer settings={settings} />
           <ChatBot />

@@ -9,24 +9,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Palette, Upload, Type, Layout, Image as ImageIcon, Save, Phone, Mail, MapPin, Clock } from "lucide-react";
 import { updateAppearance } from "./settings-actions";
 
+import { MenuManager } from "./MenuManager";
+import { TopBarManager } from "./TopBarManager";
+
 type Settings = {
     id: string;
-    siteName: string;
-    siteSlogan: string | null;
-    siteLogo: string | null;
-    primaryColor: string;
-    fontFamily: string;
-    baseFontSize: string;
-    contactEmail: string | null;
-    contactPhone: string | null;
-    contactAddress: string | null;
-    contactHours: string | null;
-    contactMapUrl: string | null;
-    privacyPolicy: string | null;
-    termsOfService: string | null;
+    // ... existing fields ...
+    headerBgColor?: string;
+    headerTextColor?: string;
+    headerFontSize?: string;
+    topBarEnabled?: boolean;
+    topBarBgColor?: string;
+    topBarTextColor?: string;
 };
 
-export function AppearanceForm({ initialSettings }: { initialSettings: Settings | any }) {
+export function AppearanceForm({ initialSettings, menuItems, topBarItems }: { initialSettings: Settings | any, menuItems: any[], topBarItems: any[] }) {
     const [logoPreview, setLogoPreview] = useState<string | null>(initialSettings?.siteLogo || null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -171,6 +168,105 @@ export function AppearanceForm({ initialSettings }: { initialSettings: Settings 
                             </div>
                         </div>
 
+                        {/* Menu & Header Section */}
+                        <div className="pt-10 border-t-2 border-orange-50 space-y-8">
+                            <div>
+                                <h3 className="text-xl font-black uppercase text-gray-900 tracking-tight">Apparence de l'Entête (Header)</h3>
+                                <p className="text-sm text-gray-500 font-medium">Personnalisez le style du menu de navigation et de la barre d'information.</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-4 p-6 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+                                    <h4 className="font-bold uppercase text-xs text-gray-400 tracking-widest mb-4">Style du Menu Principal</h4>
+                                    
+                                    <div className="space-y-3">
+                                        <Label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Couleur de fond</Label>
+                                        <div className="flex items-center gap-3">
+                                            <Input
+                                                type="color"
+                                                name="headerBgColor"
+                                                defaultValue={initialSettings?.headerBgColor || "#ffffff"}
+                                                className="w-12 h-12 p-1 cursor-pointer border-2 rounded-xl"
+                                            />
+                                            <span className="text-xs font-mono text-gray-500">Arrière-plan</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <Label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Couleur du texte</Label>
+                                        <div className="flex items-center gap-3">
+                                            <Input
+                                                type="color"
+                                                name="headerTextColor"
+                                                defaultValue={initialSettings?.headerTextColor || "#1f2937"}
+                                                className="w-12 h-12 p-1 cursor-pointer border-2 rounded-xl"
+                                            />
+                                            <span className="text-xs font-mono text-gray-500">Liens et Textes</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <Label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Taille du texte</Label>
+                                        <select
+                                            name="headerFontSize"
+                                            className="flex h-12 w-full rounded-xl border-2 border-input bg-background px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-orange-500 outline-none"
+                                            defaultValue={initialSettings?.headerFontSize || "16px"}
+                                        >
+                                            <option value="14px">14px</option>
+                                            <option value="15px">15px</option>
+                                            <option value="16px">16px</option>
+                                            <option value="18px">18px</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4 p-6 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h4 className="font-bold uppercase text-xs text-gray-400 tracking-widest">Barre d'Information (Top Bar)</h4>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                id="topBarEnabled"
+                                                name="topBarEnabled"
+                                                value="true"
+                                                defaultChecked={initialSettings?.topBarEnabled}
+                                                className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                                            />
+                                            <Label htmlFor="topBarEnabled" className="text-xs font-bold cursor-pointer">Activer</Label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="space-y-3">
+                                        <Label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Couleur de fond</Label>
+                                        <div className="flex items-center gap-3">
+                                            <Input
+                                                type="color"
+                                                name="topBarBgColor"
+                                                defaultValue={initialSettings?.topBarBgColor || "#000000"}
+                                                className="w-12 h-12 p-1 cursor-pointer border-2 rounded-xl"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <Label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Couleur du texte</Label>
+                                        <div className="flex items-center gap-3">
+                                            <Input
+                                                type="color"
+                                                name="topBarTextColor"
+                                                defaultValue={initialSettings?.topBarTextColor || "#ffffff"}
+                                                className="w-12 h-12 p-1 cursor-pointer border-2 rounded-xl"
+                                            />
+                                        </div>
+                                    </div>
+                                    
+                                    <p className="text-xs text-gray-400 italic mt-4">
+                                        Utilisez l'outil de gestion ci-dessous pour ajouter du contenu à cette barre.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Contact Information Section */}
                         <div className="pt-10 border-t-2 border-orange-50 space-y-8">
                             <div>
@@ -241,6 +337,10 @@ export function AppearanceForm({ initialSettings }: { initialSettings: Settings 
                             </Button>
                         </div>
                     </form>
+                    
+                    {/* Gestionnaires de Menu et TopBar hors du formulaire principal */}
+                    <MenuManager initialItems={menuItems} />
+                    <TopBarManager initialItems={topBarItems} />
                 </CardContent>
             </Card>
         </div>

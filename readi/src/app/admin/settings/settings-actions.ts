@@ -23,6 +23,15 @@ export async function updateAppearance(formData: FormData) {
     const privacyPolicy = (formData.get("privacyPolicy") as string) || "";
     const termsOfService = (formData.get("termsOfService") as string) || "";
 
+    // Champs Header & TopBar
+    const headerBgColor = (formData.get("headerBgColor") as string) || "#ffffff";
+    const headerTextColor = (formData.get("headerTextColor") as string) || "#1f2937";
+    const headerFontSize = (formData.get("headerFontSize") as string) || "16px";
+    
+    const topBarEnabled = formData.get("topBarEnabled") === "true";
+    const topBarBgColor = (formData.get("topBarBgColor") as string) || "#000000";
+    const topBarTextColor = (formData.get("topBarTextColor") as string) || "#ffffff";
+
     const logoFile = formData.get("logo") as File;
     let logoPath: string | undefined = undefined;
 
@@ -71,6 +80,12 @@ export async function updateAppearance(formData: FormData) {
                 contactMapUrl,
                 privacyPolicy,
                 termsOfService,
+                headerBgColor,
+                headerTextColor,
+                headerFontSize,
+                topBarEnabled,
+                topBarBgColor,
+                topBarTextColor,
                 ...(logoPath ? { siteLogo: logoPath } : {}),
             } as any,
             create: {
@@ -87,6 +102,12 @@ export async function updateAppearance(formData: FormData) {
                 contactMapUrl,
                 privacyPolicy,
                 termsOfService,
+                headerBgColor,
+                headerTextColor,
+                headerFontSize,
+                topBarEnabled,
+                topBarBgColor,
+                topBarTextColor,
                 siteLogo: logoPath || null,
             } as any,
         });

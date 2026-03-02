@@ -231,7 +231,42 @@ model SiteSettings {
   privacyPolicy     String?  // NOUVEAU: Politique de Confidentialité
   termsOfService    String?  // NOUVEAU: Conditions Générales (CGU)
   maintenanceMode   Boolean  @default(false)
+  
+  // Header Styling
+  headerBgColor     String   @default("#ffffff")
+  headerTextColor   String   @default("#1f2937")
+  headerFontSize    String   @default("16px")
+
+  // Top Bar Settings
+  topBarEnabled     Boolean  @default(false)
+  topBarBgColor     String   @default("#000000")
+  topBarTextColor   String   @default("#ffffff")
+
   updatedAt         DateTime @updatedAt
+}
+
+// Modèle pour les éléments du menu
+model MenuItem {
+  id        String   @id @default(cuid())
+  label     String
+  href      String
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  target    String   @default("_self") // _blank, _self
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Modèle pour les éléments de la barre d'entête (Top Bar)
+model TopBarItem {
+  id        String   @id @default(cuid())
+  type      String   // TEXT, SCROLL, IMAGE
+  content   String
+  settings  String?  // JSON for speed, etc.
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Modèle pour la messagerie professionnelle (Threads)

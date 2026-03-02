@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { LayoutDashboard, Package, Mail, FileText, LogOut, Edit3, Bot, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 const adminNav = [
   { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
