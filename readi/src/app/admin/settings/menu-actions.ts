@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { MenuItem, TopBarItem } from "@prisma/client";
+import type { MenuItem, TopBarItem } from "@prisma/client";
 
 // --- MENU ACTIONS ---
 
