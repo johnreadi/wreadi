@@ -2,12 +2,16 @@
 set -e
 
 echo "Starting deployment script..."
+echo "Initial DATABASE_URL: $DATABASE_URL"
 
 # Ensure DATABASE_URL starts with file: for SQLite
 if [ -n "$DATABASE_URL" ]; then
   case "$DATABASE_URL" in
     file:*) ;;
-    *) export DATABASE_URL="file:$DATABASE_URL" ;;
+    *) 
+      echo "Prefixing DATABASE_URL with file: protocol"
+      export DATABASE_URL="file:$DATABASE_URL" 
+      ;;
   esac
 fi
 
@@ -16,6 +20,8 @@ if [ -z "$DATABASE_URL" ]; then
    export DATABASE_URL="file:./dev.db"
    echo "DATABASE_URL not set, defaulting to $DATABASE_URL"
 fi
+
+echo "Final DATABASE_URL: $DATABASE_URL"
 
 # Run database migrations
 echo "Running database migrations..."
