@@ -4,41 +4,25 @@ set -e
 echo "Starting deployment script..."
 echo "Initial DATABASE_URL: $DATABASE_URL"
 
-# Ensure DATABASE_URL starts with file: for SQLite
-if [ -n "$DATABASE_URL" ]; then
-  case "$DATABASE_URL" in
-    file:*) ;;
-    *) 
-      echo "Prefixing DATABASE_URL with file: protocol"
-      export DATABASE_URL="file:$DATABASE_URL" 
-      ;;
-  esac
-fi
+# No need to force file: protocol anymore as we are using PostgreSQL
+# The DATABASE_URL from Dokploy (postgresql://...) is correct
 
-# If DATABASE_URL is not set, default it
-if [ -z "$DATABASE_URL" ]; then
-   export DATABASE_URL="file:./dev.db"
-   echo "DATABASE_URL not set, defaulting to $DATABASE_URL"
-fi
-
-echo "Final DATABASE_URL: $DATABASE_URL"
-
-# Run database migrations
-echo "Running database migrations..."
+# Run database migrations (or push schema)
+echo "Syncing database schema..."
 if [ -d "prisma" ]; then
-  # Try running migration using local prisma binary
+  # Try running db push using local prisma binary
   if [ -f "./node_modules/.bin/prisma" ]; then
-    ./node_modules/.bin/prisma migrate deploy || {
-      echo "Migration failed! Check error above."
-      echo "Listing prisma directory content for debugging:"
-      ls -la prisma
-      # We don't exit here to allow server to start if migration is not critical or to debug
+    # Using db push instead of migrate deploy because we switched providers
+    # and don't have valid migrations for Postgres yet.
+    ./node_modules/.bin/prisma db push --accept-data-loss || {
+      echo "DB Push failed! Check error above."
+      # We don't exit here to allow server to start if it's just a connection issue we want to debug
     }
   else
-    echo "Warning: Prisma CLI not found in node_modules, skipping migrations."
+    echo "Warning: Prisma CLI not found in node_modules, skipping db sync."
   fi
 else
-  echo "Warning: No prisma directory found, skipping migrations."
+  echo "Warning: No prisma directory found, skipping db sync."
 fi
 
 # Start the server
