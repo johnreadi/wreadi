@@ -57,7 +57,7 @@ export async function getTopBarItems() {
 
 export async function createTopBarItem(data: { type: string; content: string; settings?: string }) {
     const count = await prisma.topBarItem.count();
-    await prisma.topBarItem.create({
+    const newItem = await prisma.topBarItem.create({
         data: {
             type: data.type,
             content: data.content,
@@ -66,14 +66,16 @@ export async function createTopBarItem(data: { type: string; content: string; se
         }
     });
     revalidatePath("/", "layout");
+    return newItem;
 }
 
 export async function updateTopBarItem(id: string, data: { type: string; content: string; settings?: string }) {
-    await prisma.topBarItem.update({
+    const updatedItem = await prisma.topBarItem.update({
         where: { id },
         data
     });
     revalidatePath("/", "layout");
+    return updatedItem;
 }
 
 export async function deleteTopBarItem(id: string) {

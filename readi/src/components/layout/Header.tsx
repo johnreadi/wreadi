@@ -16,6 +16,7 @@ interface MenuItem {
 interface TopBarItem {
   type: string;
   content: string;
+  settings?: string | null;
 }
 
 interface HeaderProps {
@@ -40,6 +41,11 @@ export function Header({ settings, menuItems = [], topBarItems = [] }: HeaderPro
   const [isOpen, setIsOpen] = useState(false);
   const siteName = settings?.siteName || "READI";
   const primaryColor = settings?.primaryColor || "#dc2626";
+
+  // Debug Logo
+  if (settings?.siteLogo) {
+    console.log("Header Logo URL:", settings.siteLogo);
+  }
   
   // Custom Styles
   const headerStyle = {
@@ -67,17 +73,30 @@ export function Header({ settings, menuItems = [], topBarItems = [] }: HeaderPro
       {settings?.topBarEnabled && (
         <div style={topBarStyle} className="w-full py-2 px-4 text-xs font-bold">
           <div className="container mx-auto flex items-center justify-between">
-            {topBarItems.map((item, idx) => (
+            {topBarItems.map((item, idx) => {
+              const itemSettings = item.settings ? JSON.parse(item.settings) : {};
+              const duration = itemSettings.duration || 10;
+              const direction = itemSettings.direction || 'left';
+
+              return (
               <div key={idx} className="flex items-center">
                 {item.type === "TEXT" && <span>{item.content}</span>}
                 {item.type === "SCROLL" && (
                   <div className="overflow-hidden whitespace-nowrap max-w-[300px] md:max-w-md lg:max-w-xl relative">
-                    <div className="animate-marquee inline-block">{item.content}</div>
+                    <div 
+                      className="animate-marquee inline-block"
+                      style={{
+                        animationDuration: `${duration}s`,
+                        animationDirection: direction === 'right' ? 'reverse' : 'normal'
+                      }}
+                    >
+                      {item.content}
+                    </div>
                   </div>
                 )}
                 {item.type === "IMAGE" && <img src={item.content} alt="TopBar Element" className="h-6 w-auto object-contain" />}
               </div>
-            ))}
+            )})}
             {topBarItems.length === 0 && <span>Bienvenue sur {siteName}</span>}
           </div>
         </div>
