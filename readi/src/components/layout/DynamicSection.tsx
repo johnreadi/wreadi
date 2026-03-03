@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Play, ChevronRight, Layout } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ interface DynamicSectionProps {
         content: string | null;
         mediaType: string;
         mediaUrl: string | null;
+        slides?: string | null;
         layout: string;
         animation: string | null;
         ctaText: string | null;
@@ -29,6 +31,18 @@ export function DynamicSection({ section }: DynamicSectionProps) {
     const isReverse = section.layout === "RIGHT";
     const isCenter = section.layout === "CENTER";
     const isFull = section.layout === "FULL";
+    
+    const [currentSlide, setCurrentSlide] = useState(0);
+    const slides = section.slides ? JSON.parse(section.slides) : [];
+
+    useEffect(() => {
+        if (section.mediaType === "SLIDESHOW" && slides.length > 1) {
+            const interval = setInterval(() => {
+                setCurrentSlide((prev) => (prev + 1) % slides.length);
+            }, 5000);
+            return () => clearInterval(interval);
+        }
+    }, [section.mediaType, slides.length]);
 
     const getAnimation = () => {
         switch (section.animation) {
@@ -139,11 +153,43 @@ export function DynamicSection({ section }: DynamicSectionProps) {
                                 )}
 
                                 {section.mediaType === "SLIDESHOW" && (
-                                    <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                                        <div className="text-center p-8">
-                                            <Layout className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-                                            <p className="text-sm text-gray-400 italic">Slideshow en cours de chargement...</p>
-                                        </div>
+                                    <div className="w-full h-full relative group bg-gray-100 overflow-hidden">
+                                        {slides.length > 0 ? (
+                                            <>
+                                                {slides.map((slide: any, index: number) => (
+                                                    <div
+                                                        key={index}
+                                                        className={`absolute inset-0 transition-opacity duration-1000 ${
+                                                            index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
+                                                        }`}
+                                                    >
+                                                        <img
+                                                            src={slide.url}
+                                                            alt={slide.alt || `Slide ${index + 1}`}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    </div>
+                                                ))}
+                                                {/* Navigation Dots */}
+                                                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
+                                                    {slides.map((_: any, index: number) => (
+                                                        <button
+                                                            key={index}
+                                                            onClick={() => setCurrentSlide(index)}
+                                                            className={`w-2 h-2 rounded-full transition-all ${
+                                                                index === currentSlide ? "bg-white w-4" : "bg-white/50"
+                                                            }`}
+                                                            aria-label={`Go to slide ${index + 1}`}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                                                <Layout className="h-12 w-12 mb-2" />
+                                                <p className="text-sm italic">Aucune image dans le diaporama.</p>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>

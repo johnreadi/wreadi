@@ -17,15 +17,35 @@ export async function createLandingPage(formData: FormData) {
     const heroVideoFile = formData.get("heroVideoFile") as File;
     const heroImageUrl = formData.get("heroImageUrl") as string;
     const heroVideoUrl = formData.get("heroVideoUrl") as string;
+    const heroImageInputType = formData.get("heroImageInputType") as string;
+    const heroVideoInputType = formData.get("heroVideoInputType") as string;
 
     let heroImage = heroImageUrl || formData.get("heroImage") as string || "";
     let heroVideo = heroVideoUrl || formData.get("heroVideo") as string || "";
 
-    const uploadedImage = await handleFileUpload(heroImageFile);
-    if (uploadedImage) heroImage = uploadedImage;
+    if (heroImageInputType === "file") {
+        try {
+            const uploadedImage = await handleFileUpload(heroImageFile);
+            if (uploadedImage) heroImage = uploadedImage;
+        } catch (e) {
+            console.error("Hero image upload failed:", e);
+        }
+    } else if (!heroImageInputType) {
+        const uploadedImage = await handleFileUpload(heroImageFile);
+        if (uploadedImage) heroImage = uploadedImage;
+    }
 
-    const uploadedVideo = await handleFileUpload(heroVideoFile);
-    if (uploadedVideo) heroVideo = uploadedVideo;
+    if (heroVideoInputType === "file") {
+        try {
+            const uploadedVideo = await handleFileUpload(heroVideoFile);
+            if (uploadedVideo) heroVideo = uploadedVideo;
+        } catch (e) {
+            console.error("Hero video upload failed:", e);
+        }
+    } else if (!heroVideoInputType) {
+        const uploadedVideo = await handleFileUpload(heroVideoFile);
+        if (uploadedVideo) heroVideo = uploadedVideo;
+    }
 
     await prisma.landingPage.create({
         data: {
@@ -57,18 +77,43 @@ export async function updateLandingPage(id: string, formData: FormData) {
     const heroVideoFile = formData.get("heroVideoFile") as File;
     const heroImageUrl = formData.get("heroImageUrl") as string;
     const heroVideoUrl = formData.get("heroVideoUrl") as string;
+    const heroImageInputType = formData.get("heroImageInputType") as string;
+    const heroVideoInputType = formData.get("heroVideoInputType") as string;
 
     let heroImage = formData.get("heroImage") as string;
     let heroVideo = formData.get("heroVideo") as string;
 
-    if (heroImageUrl && heroImageUrl.trim() !== "") heroImage = heroImageUrl;
-    if (heroVideoUrl && heroVideoUrl.trim() !== "") heroVideo = heroVideoUrl;
+    // Handle Hero Image
+    if (heroImageInputType === "url") {
+        if (heroImageUrl && heroImageUrl.trim() !== "") heroImage = heroImageUrl;
+    } else if (heroImageInputType === "file") {
+        try {
+            const uploadedImage = await handleFileUpload(heroImageFile);
+            if (uploadedImage) heroImage = uploadedImage;
+        } catch (e) {
+            console.error("Hero image upload failed:", e);
+        }
+    } else {
+        if (heroImageUrl && heroImageUrl.trim() !== "") heroImage = heroImageUrl;
+        const uploadedImage = await handleFileUpload(heroImageFile);
+        if (uploadedImage) heroImage = uploadedImage;
+    }
 
-    const uploadedImage = await handleFileUpload(heroImageFile);
-    if (uploadedImage) heroImage = uploadedImage;
-
-    const uploadedVideo = await handleFileUpload(heroVideoFile);
-    if (uploadedVideo) heroVideo = uploadedVideo;
+    // Handle Hero Video
+    if (heroVideoInputType === "url") {
+        if (heroVideoUrl && heroVideoUrl.trim() !== "") heroVideo = heroVideoUrl;
+    } else if (heroVideoInputType === "file") {
+        try {
+            const uploadedVideo = await handleFileUpload(heroVideoFile);
+            if (uploadedVideo) heroVideo = uploadedVideo;
+        } catch (e) {
+            console.error("Hero video upload failed:", e);
+        }
+    } else {
+        if (heroVideoUrl && heroVideoUrl.trim() !== "") heroVideo = heroVideoUrl;
+        const uploadedVideo = await handleFileUpload(heroVideoFile);
+        if (uploadedVideo) heroVideo = uploadedVideo;
+    }
 
     await prisma.landingPage.update({
         where: { id },

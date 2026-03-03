@@ -28,11 +28,22 @@ export default async function LandingPage({ params }: { params: { slug: string }
                 >
                     {page.heroVideo ? (
                         <div className="absolute inset-0 z-0 opacity-60">
-                            <iframe
-                                src={`${page.heroVideo.replace('watch?v=', 'embed/')}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0`}
-                                className="w-full h-[120%] -translate-y-[10%] border-0 scale-125"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            />
+                            {(page.heroVideo.startsWith('/') || page.heroVideo.match(/\.(mp4|webm|ogg)$/i)) ? (
+                                <video
+                                    src={page.heroVideo}
+                                    autoPlay
+                                    muted
+                                    loop
+                                    playsInline
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <iframe
+                                    src={`${page.heroVideo.replace('watch?v=', 'embed/')}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0`}
+                                    className="w-full h-[120%] -translate-y-[10%] border-0 scale-125"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                />
+                            )}
                         </div>
                     ) : page.heroImage ? (
                         <div className="absolute inset-0 z-0">

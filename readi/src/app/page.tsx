@@ -66,11 +66,22 @@ export default async function HomePage() {
       >
         {heroData.video ? (
           <div className="absolute inset-0 z-0 opacity-60">
-            <iframe
-              src={`${heroData.video.replace('watch?v=', 'embed/')}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&playlist=${heroData.video.split('v=')[1] || ''}`}
-              className="w-full h-[120%] -translate-y-[10%] border-0 scale-125"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            />
+            {(heroData.video.startsWith('/') || heroData.video.match(/\.(mp4|webm|ogg)$/i)) ? (
+              <video
+                src={heroData.video}
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <iframe
+                src={`${heroData.video.replace('watch?v=', 'embed/')}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&playlist=${heroData.video.split('v=')[1] || ''}`}
+                className="w-full h-[120%] -translate-y-[10%] border-0 scale-125"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              />
+            )}
           </div>
         ) : heroData.image ? (
           <div className="absolute inset-0 z-0">

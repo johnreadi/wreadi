@@ -125,35 +125,53 @@ export function PortfolioList({ initialItems }: PortfolioListProps) {
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Image de la réalisation</Label>
-                                    <div className="flex items-center gap-4 mb-2">
-                                        <div className="flex items-center gap-2">
-                                            <input 
-                                                type="radio" 
-                                                id="add-type-file" 
-                                                checked={imageInputType === "file"} 
-                                                onChange={() => setImageInputType("file")}
-                                                className="w-4 h-4 text-blue-600 focus:ring-blue-500"
-                                            />
-                                            <Label htmlFor="add-type-file" className="font-normal cursor-pointer">Fichier Local</Label>
+                                        <Label>Image de la réalisation</Label>
+                                        <div className="flex items-center gap-4 mb-2">
+                                            <div className="flex items-center gap-2">
+                                                <input 
+                                                    type="hidden" 
+                                                    name="imageInputType" 
+                                                    value={imageInputType} 
+                                                />
+                                                <input 
+                                                    type="radio" 
+                                                    id="add-type-file" 
+                                                    checked={imageInputType === "file"} 
+                                                    onChange={() => setImageInputType("file")}
+                                                    className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                                                />
+                                                <Label htmlFor="add-type-file" className="font-normal cursor-pointer">Fichier Local</Label>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <input 
+                                                    type="radio" 
+                                                    id="add-type-url" 
+                                                    checked={imageInputType === "url"} 
+                                                    onChange={() => setImageInputType("url")}
+                                                    className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                                                />
+                                                <Label htmlFor="add-type-url" className="font-normal cursor-pointer">URL Externe</Label>
+                                            </div>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <input 
-                                                type="radio" 
-                                                id="add-type-url" 
-                                                checked={imageInputType === "url"} 
-                                                onChange={() => setImageInputType("url")}
-                                                className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                                        {imageInputType === "file" ? (
+                                            <Input 
+                                                type="file" 
+                                                id="imageFile" 
+                                                name="imageFile" 
+                                                accept="image/*" 
+                                                required 
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file && file.size > 10 * 1024 * 1024) {
+                                                        alert("Le fichier est trop volumineux (max 10MB).");
+                                                        e.target.value = "";
+                                                    }
+                                                }}
                                             />
-                                            <Label htmlFor="add-type-url" className="font-normal cursor-pointer">URL Externe</Label>
-                                        </div>
+                                        ) : (
+                                            <Input id="imageUrl" name="imageUrl" placeholder="https://exemple.com/image.jpg" required />
+                                        )}
                                     </div>
-                                    {imageInputType === "file" ? (
-                                        <Input type="file" id="imageFile" name="imageFile" accept="image/*" required />
-                                    ) : (
-                                        <Input id="imageUrl" name="imageUrl" placeholder="https://exemple.com/image.jpg" required />
-                                    )}
-                                </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="description">Description</Label>
                                     <Textarea id="description" name="description" rows={4} placeholder="Détails du projet..." />
@@ -278,6 +296,11 @@ export function PortfolioList({ initialItems }: PortfolioListProps) {
                                     <div className="flex items-center gap-4 mb-2">
                                         <div className="flex items-center gap-2">
                                             <input 
+                                                type="hidden" 
+                                                name="imageInputType" 
+                                                value={imageInputType} 
+                                            />
+                                            <input 
                                                 type="radio" 
                                                 id="edit-type-file" 
                                                 checked={imageInputType === "file"} 
@@ -301,7 +324,19 @@ export function PortfolioList({ initialItems }: PortfolioListProps) {
                                     <Input type="hidden" name="image" value={selectedItem.image || ""} />
                                     
                                     {imageInputType === "file" ? (
-                                        <Input type="file" id="edit-imageFile" name="imageFile" accept="image/*" />
+                                        <Input 
+                                            type="file" 
+                                            id="edit-imageFile" 
+                                            name="imageFile" 
+                                            accept="image/*" 
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file && file.size > 10 * 1024 * 1024) {
+                                                    alert("Le fichier est trop volumineux (max 10MB).");
+                                                    e.target.value = "";
+                                                }
+                                            }}
+                                        />
                                     ) : (
                                         <Input id="edit-imageUrl" name="imageUrl" placeholder="https://exemple.com/image.jpg" defaultValue={selectedItem.image?.startsWith("http") ? selectedItem.image : ""} />
                                     )}

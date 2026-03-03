@@ -13,11 +13,24 @@ export async function createTestimonial(formData: FormData) {
 
     const imageFile = formData.get("imageFile") as File;
     const imageUrl = formData.get("imageUrl") as string;
+    const imageInputType = formData.get("imageInputType") as string;
     let image = imageUrl || null;
 
-    const uploadedImage = await handleFileUpload(imageFile);
-    if (uploadedImage) {
-        image = uploadedImage;
+    if (imageInputType === "file") {
+        try {
+            const uploadedImage = await handleFileUpload(imageFile);
+            if (uploadedImage) {
+                image = uploadedImage;
+            }
+        } catch (e) {
+            console.error("Image upload failed:", e);
+        }
+    } else if (!imageInputType) {
+        // Fallback
+        const uploadedImage = await handleFileUpload(imageFile);
+        if (uploadedImage) {
+            image = uploadedImage;
+        }
     }
 
     await prisma.testimonial.create({
@@ -43,13 +56,27 @@ export async function updateTestimonial(id: string, formData: FormData) {
 
     const imageFile = formData.get("imageFile") as File;
     const imageUrl = formData.get("imageUrl") as string;
+    const imageInputType = formData.get("imageInputType") as string;
     let image = formData.get("image") as string;
 
-    if (imageUrl && imageUrl.trim() !== "") image = imageUrl;
-
-    const uploadedImage = await handleFileUpload(imageFile);
-    if (uploadedImage) {
-        image = uploadedImage;
+    if (imageInputType === "url") {
+        if (imageUrl && imageUrl.trim() !== "") image = imageUrl;
+    } else if (imageInputType === "file") {
+        try {
+            const uploadedImage = await handleFileUpload(imageFile);
+            if (uploadedImage) {
+                image = uploadedImage;
+            }
+        } catch (e) {
+            console.error("Image upload failed:", e);
+        }
+    } else {
+        // Fallback
+        if (imageUrl && imageUrl.trim() !== "") image = imageUrl;
+        const uploadedImage = await handleFileUpload(imageFile);
+        if (uploadedImage) {
+            image = uploadedImage;
+        }
     }
 
     await prisma.testimonial.update({

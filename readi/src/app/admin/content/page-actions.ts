@@ -22,10 +22,44 @@ export async function addPageSection(pageSlug: string, formData: FormData) {
 
     const file = formData.get("file") as File;
     let mediaUrl = formData.get("mediaUrl") as string;
+    const mediaInputType = formData.get("mediaInputType") as string;
+    const mediaType = formData.get("mediaType") as string;
+    let slides = formData.get("slides") as string;
     
-    const uploadedPath = await handleFileUpload(file);
-    if (uploadedPath) {
-        mediaUrl = uploadedPath;
+    if (mediaType === "SLIDESHOW") {
+        const files = formData.getAll("files") as File[];
+        if (files && files.length > 0 && files[0].size > 0) {
+            const uploadedSlides = [];
+            for (const f of files) {
+                try {
+                    const path = await handleFileUpload(f);
+                    if (path) {
+                        uploadedSlides.push({ url: path, alt: "", title: "" });
+                    }
+                } catch (e) {
+                    console.error("Error uploading slide:", e);
+                }
+            }
+            if (uploadedSlides.length > 0) {
+                slides = JSON.stringify(uploadedSlides);
+            }
+        }
+    } else if (mediaInputType === "file") {
+        try {
+            const uploadedPath = await handleFileUpload(file);
+            if (uploadedPath) {
+                mediaUrl = uploadedPath;
+            }
+        } catch (error) {
+            console.error("Error uploading file:", error);
+            // Optionally throw or handle error
+        }
+    } else if (!mediaInputType) {
+        // Fallback for compatibility
+        const uploadedPath = await handleFileUpload(file);
+        if (uploadedPath) {
+            mediaUrl = uploadedPath;
+        }
     }
 
     const backgroundColor = (formData.get("backgroundColorText") as string) || (formData.get("backgroundColor") as string);
@@ -35,8 +69,9 @@ export async function addPageSection(pageSlug: string, formData: FormData) {
             title: formData.get("title") as string,
             subtitle: formData.get("subtitle") as string,
             content: formData.get("content") as string,
-            mediaType: formData.get("mediaType") as string,
+            mediaType,
             mediaUrl,
+            slides,
             backgroundColor,
             layout: formData.get("layout") as string,
             animation: formData.get("animation") as string,
@@ -56,10 +91,45 @@ export async function addPageSection(pageSlug: string, formData: FormData) {
 export async function updatePageSection(id: string, formData: FormData) {
     const file = formData.get("file") as File;
     let mediaUrl = formData.get("mediaUrl") as string;
+    const mediaInputType = formData.get("mediaInputType") as string;
+    const mediaType = formData.get("mediaType") as string;
+    let slides = formData.get("slides") as string;
     
-    const uploadedPath = await handleFileUpload(file);
-    if (uploadedPath) {
-        mediaUrl = uploadedPath;
+    if (mediaType === "SLIDESHOW") {
+        const files = formData.getAll("files") as File[];
+        // Check if files were actually uploaded (browser might send one empty file)
+        const hasFiles = files.length > 0 && files[0].size > 0;
+        
+        if (hasFiles) {
+            const uploadedSlides = [];
+            for (const f of files) {
+                try {
+                    const path = await handleFileUpload(f);
+                    if (path) {
+                        uploadedSlides.push({ url: path, alt: "", title: "" });
+                    }
+                } catch (e) {
+                    console.error("Error uploading slide:", e);
+                }
+            }
+            if (uploadedSlides.length > 0) {
+                slides = JSON.stringify(uploadedSlides);
+            }
+        }
+    } else if (mediaInputType === "file") {
+        try {
+            const uploadedPath = await handleFileUpload(file);
+            if (uploadedPath) {
+                mediaUrl = uploadedPath;
+            }
+        } catch (error) {
+            console.error("Error uploading file:", error);
+        }
+    } else if (!mediaInputType) {
+        const uploadedPath = await handleFileUpload(file);
+        if (uploadedPath) {
+            mediaUrl = uploadedPath;
+        }
     }
 
     const backgroundColor = (formData.get("backgroundColorText") as string) || (formData.get("backgroundColor") as string);
@@ -70,8 +140,9 @@ export async function updatePageSection(id: string, formData: FormData) {
             title: formData.get("title") as string,
             subtitle: formData.get("subtitle") as string,
             content: formData.get("content") as string,
-            mediaType: formData.get("mediaType") as string,
+            mediaType,
             mediaUrl,
+            slides,
             backgroundColor,
             layout: formData.get("layout") as string,
             animation: formData.get("animation") as string,

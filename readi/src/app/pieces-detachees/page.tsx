@@ -64,11 +64,22 @@ export default async function PiecesDetacheesPage() {
       >
         {heroData.video ? (
           <div className="absolute inset-0 z-0">
-            <iframe
-              src={`${heroData.video.replace('watch?v=', 'embed/')}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0`}
-              className="w-full h-full border-0 scale-150 grayscale-[20%]"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            />
+            {(heroData.video.startsWith('/') || heroData.video.match(/\.(mp4|webm|ogg)$/i)) ? (
+              <video
+                src={heroData.video}
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="w-full h-full object-cover grayscale-[20%]"
+              />
+            ) : (
+              <iframe
+                src={`${heroData.video.replace('watch?v=', 'embed/')}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0`}
+                className="w-full h-full border-0 scale-150 grayscale-[20%]"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              />
+            )}
           </div>
         ) : heroData.image ? (
           <div className="absolute inset-0 z-0">

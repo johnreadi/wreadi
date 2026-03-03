@@ -18,11 +18,37 @@ export async function createService(formData: FormData) {
     let image = imageUrl || formData.get("image") as string;
     let icon = iconUrl || formData.get("icon") as string;
 
-    const uploadedImage = await handleFileUpload(imageFile);
-    if (uploadedImage) image = uploadedImage;
+    const imageInputType = formData.get("imageInputType") as string;
+    const iconInputType = formData.get("iconInputType") as string;
 
-    const uploadedIcon = await handleFileUpload(iconFile);
-    if (uploadedIcon) icon = uploadedIcon;
+    if (imageInputType === "file") {
+        try {
+            const uploadedImage = await handleFileUpload(imageFile);
+            if (uploadedImage) image = uploadedImage;
+        } catch (e) {
+            console.error("Image upload failed:", e);
+        }
+    } else {
+        // Fallback or URL mode (image already set from imageUrl)
+        if (!imageInputType) {
+             const uploadedImage = await handleFileUpload(imageFile);
+             if (uploadedImage) image = uploadedImage;
+        }
+    }
+
+    if (iconInputType === "file") {
+        try {
+            const uploadedIcon = await handleFileUpload(iconFile);
+            if (uploadedIcon) icon = uploadedIcon;
+        } catch (e) {
+            console.error("Icon upload failed:", e);
+        }
+    } else {
+        if (!iconInputType) {
+            const uploadedIcon = await handleFileUpload(iconFile);
+            if (uploadedIcon) icon = uploadedIcon;
+        }
+    }
 
     const slug = name.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
 
@@ -56,17 +82,39 @@ export async function updateService(id: string, formData: FormData) {
     let image = formData.get("image") as string;
     let icon = formData.get("icon") as string;
 
-    if (imageUrl && imageUrl.trim() !== "") image = imageUrl;
-    if (iconUrl && iconUrl.trim() !== "") icon = iconUrl;
+    const imageInputType = formData.get("imageInputType") as string;
+    const iconInputType = formData.get("iconInputType") as string;
 
-    const uploadedImage = await handleFileUpload(imageFile);
-    if (uploadedImage) {
-        image = uploadedImage;
+    if (imageInputType === "url") {
+        if (imageUrl && imageUrl.trim() !== "") image = imageUrl;
+    } else if (imageInputType === "file") {
+        try {
+            const uploadedImage = await handleFileUpload(imageFile);
+            if (uploadedImage) image = uploadedImage;
+        } catch (e) {
+            console.error("Image upload failed:", e);
+        }
+    } else {
+        // Fallback
+        if (imageUrl && imageUrl.trim() !== "") image = imageUrl;
+        const uploadedImage = await handleFileUpload(imageFile);
+        if (uploadedImage) image = uploadedImage;
     }
 
-    const uploadedIcon = await handleFileUpload(iconFile);
-    if (uploadedIcon) {
-        icon = uploadedIcon;
+    if (iconInputType === "url") {
+        if (iconUrl && iconUrl.trim() !== "") icon = iconUrl;
+    } else if (iconInputType === "file") {
+        try {
+            const uploadedIcon = await handleFileUpload(iconFile);
+            if (uploadedIcon) icon = uploadedIcon;
+        } catch (e) {
+            console.error("Icon upload failed:", e);
+        }
+    } else {
+        // Fallback
+        if (iconUrl && iconUrl.trim() !== "") icon = iconUrl;
+        const uploadedIcon = await handleFileUpload(iconFile);
+        if (uploadedIcon) icon = uploadedIcon;
     }
 
     await prisma.service.update({

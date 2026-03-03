@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Palette, Upload, Type, Layout, Image as ImageIcon, Save, Phone, Mail, MapPin, Clock } from "lucide-react";
+import { toast } from "sonner";
 import { updateAppearance } from "./settings-actions";
 import { ColorPicker } from "@/components/admin/ColorPicker";
 
@@ -27,16 +28,40 @@ type Settings = {
 export function AppearanceForm({ initialSettings, menuItems, topBarItems }: { initialSettings: Settings | any, menuItems: any[], topBarItems: any[] }) {
     const [logoPreview, setLogoPreview] = useState<string | null>(initialSettings?.siteLogo || null);
     const [logoInputType, setLogoInputType] = useState<"file" | "url">("file");
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            // Client-side validation
+            if (file.size > 10 * 1024 * 1024) { // 10MB
+                toast.error("Le fichier est trop volumineux (max 10MB).");
+                if (fileInputRef.current) fileInputRef.current.value = "";
+                return;
+            }
+
             const reader = new FileReader();
             reader.onloadend = () => {
                 setLogoPreview(reader.result as string);
             };
             reader.readAsDataURL(file);
+        }
+    };
+
+    const handleSubmit = async (formData: FormData) => {
+        setIsSubmitting(true);
+        try {
+            // Ensure logoInputType is correct in formData
+            formData.set("logoInputType", logoInputType);
+            
+            await updateAppearance(formData);
+            toast.success("Paramètres mis à jour avec succès !");
+        } catch (error: any) {
+            console.error("Erreur lors de la mise à jour:", error);
+            toast.error(error.message || "Une erreur est survenue lors de la sauvegarde.");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -53,7 +78,7 @@ export function AppearanceForm({ initialSettings, menuItems, topBarItems }: { in
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="p-8">
-                    <form action={updateAppearance} className="space-y-10">
+                    <form action={handleSubmit} className="space-y-10">
                         <input type="hidden" name="logoInputType" value={logoInputType} />
                         <div className="grid gap-10 md:grid-cols-2">
                             {/* Logo Upload Section */}

@@ -135,6 +135,8 @@ export function ServiceList({ initialServices, categories }: ServiceListProps) {
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
+                                    <input type="hidden" name="imageInputType" value={imageInputType} />
+                                    <input type="hidden" name="iconInputType" value={iconInputType} />
                                     <div className="space-y-2">
                                         <Label>Image du service</Label>
                                         <div className="flex items-center gap-4 mb-2">
@@ -160,7 +162,19 @@ export function ServiceList({ initialServices, categories }: ServiceListProps) {
                                             </div>
                                         </div>
                                         {imageInputType === "file" ? (
-                                            <Input type="file" id="imageFile" name="imageFile" accept="image/*" />
+                                            <Input 
+                                                type="file" 
+                                                id="imageFile" 
+                                                name="imageFile" 
+                                                accept="image/*" 
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file && file.size > 10 * 1024 * 1024) {
+                                                        alert("Le fichier est trop volumineux (max 10MB).");
+                                                        e.target.value = "";
+                                                    }
+                                                }}
+                                            />
                                         ) : (
                                             <Input 
                                                 type="url" 
@@ -194,7 +208,19 @@ export function ServiceList({ initialServices, categories }: ServiceListProps) {
                                             </div>
                                         </div>
                                         {iconInputType === "file" ? (
-                                            <Input type="file" id="iconFile" name="iconFile" accept="image/*" />
+                                            <Input 
+                                                type="file" 
+                                                id="iconFile" 
+                                                name="iconFile" 
+                                                accept="image/*" 
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file && file.size > 10 * 1024 * 1024) {
+                                                        alert("Le fichier est trop volumineux (max 10MB).");
+                                                        e.target.value = "";
+                                                    }
+                                                }}
+                                            />
                                         ) : (
                                             <Input 
                                                 type="url" 
@@ -309,6 +335,8 @@ export function ServiceList({ initialServices, categories }: ServiceListProps) {
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
+                                    <input type="hidden" name="imageInputType" value={editImageInputType} />
+                                    <input type="hidden" name="iconInputType" value={editIconInputType} />
                                     <div className="space-y-2">
                                         <Label>Image du service</Label>
                                         <div className="flex items-center gap-4 mb-2">
@@ -340,7 +368,19 @@ export function ServiceList({ initialServices, categories }: ServiceListProps) {
                                         )}
                                         <Input type="hidden" name="image" value={selectedService.image || ""} />
                                         {editImageInputType === "file" ? (
-                                            <Input type="file" id="edit-imageFile" name="imageFile" accept="image/*" />
+                                            <Input 
+                                                type="file" 
+                                                id="edit-imageFile" 
+                                                name="imageFile" 
+                                                accept="image/*" 
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file && file.size > 10 * 1024 * 1024) {
+                                                        alert("Le fichier est trop volumineux (max 10MB).");
+                                                        e.target.value = "";
+                                                    }
+                                                }}
+                                            />
                                         ) : (
                                             <Input 
                                                 type="url" 
@@ -381,7 +421,19 @@ export function ServiceList({ initialServices, categories }: ServiceListProps) {
                                         )}
                                         <Input type="hidden" name="icon" value={selectedService.icon || ""} />
                                         {editIconInputType === "file" ? (
-                                            <Input type="file" id="edit-iconFile" name="iconFile" accept="image/*" />
+                                            <Input 
+                                                type="file" 
+                                                id="edit-iconFile" 
+                                                name="iconFile" 
+                                                accept="image/*" 
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file && file.size > 10 * 1024 * 1024) {
+                                                        alert("Le fichier est trop volumineux (max 10MB).");
+                                                        e.target.value = "";
+                                                    }
+                                                }}
+                                            />
                                         ) : (
                                             <Input 
                                                 type="url" 

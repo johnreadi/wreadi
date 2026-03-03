@@ -109,6 +109,11 @@ export function CategoryList({ initialCategories }: CategoryListProps) {
                                         <Label>Image de la catégorie</Label>
                                         <div className="flex items-center gap-2 mb-2">
                                             <input 
+                                                type="hidden" 
+                                                name="imageInputType" 
+                                                value={imageInputType} 
+                                            />
+                                            <input 
                                                 type="radio" 
                                                 id="add-img-file" 
                                                 checked={imageInputType === "file"} 
@@ -126,7 +131,19 @@ export function CategoryList({ initialCategories }: CategoryListProps) {
                                             <Label htmlFor="add-img-url" className="font-normal text-xs cursor-pointer">URL</Label>
                                         </div>
                                         {imageInputType === "file" ? (
-                                            <Input type="file" id="imageFile" name="imageFile" accept="image/*" />
+                                            <Input 
+                                                type="file" 
+                                                id="imageFile" 
+                                                name="imageFile" 
+                                                accept="image/*" 
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file && file.size > 10 * 1024 * 1024) {
+                                                        alert("Le fichier est trop volumineux (max 10MB).");
+                                                        e.target.value = "";
+                                                    }
+                                                }}
+                                            />
                                         ) : (
                                             <Input id="imageUrl" name="imageUrl" placeholder="https://..." />
                                         )}
@@ -134,6 +151,11 @@ export function CategoryList({ initialCategories }: CategoryListProps) {
                                     <div className="space-y-2">
                                         <Label>Icône de la catégorie</Label>
                                         <div className="flex items-center gap-2 mb-2">
+                                            <input 
+                                                type="hidden" 
+                                                name="iconInputType" 
+                                                value={iconInputType} 
+                                            />
                                             <input 
                                                 type="radio" 
                                                 id="add-icon-file" 
@@ -152,7 +174,19 @@ export function CategoryList({ initialCategories }: CategoryListProps) {
                                             <Label htmlFor="add-icon-url" className="font-normal text-xs cursor-pointer">URL</Label>
                                         </div>
                                         {iconInputType === "file" ? (
-                                            <Input type="file" id="iconFile" name="iconFile" accept="image/*" />
+                                            <Input 
+                                                type="file" 
+                                                id="iconFile" 
+                                                name="iconFile" 
+                                                accept="image/*" 
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file && file.size > 10 * 1024 * 1024) {
+                                                        alert("Le fichier est trop volumineux (max 10MB).");
+                                                        e.target.value = "";
+                                                    }
+                                                }}
+                                            />
                                         ) : (
                                             <Input id="iconUrl" name="iconUrl" placeholder="https://..." />
                                         )}
@@ -248,6 +282,11 @@ export function CategoryList({ initialCategories }: CategoryListProps) {
                                         
                                         <div className="flex items-center gap-2 mb-2">
                                             <input 
+                                                type="hidden" 
+                                                name="imageInputType" 
+                                                value={imageInputType} 
+                                            />
+                                            <input 
                                                 type="radio" 
                                                 id="edit-img-file" 
                                                 checked={imageInputType === "file"} 
@@ -268,7 +307,19 @@ export function CategoryList({ initialCategories }: CategoryListProps) {
                                         <Input type="hidden" name="image" value={selectedCategory.image || ""} />
                                         
                                         {imageInputType === "file" ? (
-                                            <Input type="file" id="edit-imageFile" name="imageFile" accept="image/*" />
+                                            <Input 
+                                                type="file" 
+                                                id="edit-imageFile" 
+                                                name="imageFile" 
+                                                accept="image/*" 
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file && file.size > 10 * 1024 * 1024) {
+                                                        alert("Le fichier est trop volumineux (max 10MB).");
+                                                        e.target.value = "";
+                                                    }
+                                                }}
+                                            />
                                         ) : (
                                             <Input id="edit-imageUrl" name="imageUrl" placeholder="https://..." defaultValue={selectedCategory.image?.startsWith("http") ? selectedCategory.image : ""} />
                                         )}
@@ -282,6 +333,11 @@ export function CategoryList({ initialCategories }: CategoryListProps) {
                                         )}
                                         
                                         <div className="flex items-center gap-2 mb-2">
+                                            <input 
+                                                type="hidden" 
+                                                name="iconInputType" 
+                                                value={iconInputType} 
+                                            />
                                             <input 
                                                 type="radio" 
                                                 id="edit-icon-file" 
@@ -303,7 +359,19 @@ export function CategoryList({ initialCategories }: CategoryListProps) {
                                         <Input type="hidden" name="icon" value={selectedCategory.icon || ""} />
                                         
                                         {iconInputType === "file" ? (
-                                            <Input type="file" id="edit-iconFile" name="iconFile" accept="image/*" />
+                                            <Input 
+                                                type="file" 
+                                                id="edit-iconFile" 
+                                                name="iconFile" 
+                                                accept="image/*" 
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file && file.size > 10 * 1024 * 1024) {
+                                                        alert("Le fichier est trop volumineux (max 10MB).");
+                                                        e.target.value = "";
+                                                    }
+                                                }}
+                                            />
                                         ) : (
                                             <Input id="edit-iconUrl" name="iconUrl" placeholder="https://..." defaultValue={selectedCategory.icon?.startsWith("http") ? selectedCategory.icon : ""} />
                                         )}

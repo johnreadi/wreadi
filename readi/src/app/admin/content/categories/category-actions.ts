@@ -14,14 +14,37 @@ export async function createCategory(formData: FormData) {
     const iconFile = formData.get("iconFile") as File;
     const imageUrl = formData.get("imageUrl") as string;
     const iconUrl = formData.get("iconUrl") as string;
+    const imageInputType = formData.get("imageInputType") as string;
+    const iconInputType = formData.get("iconInputType") as string;
+    
     let image = imageUrl || null;
     let icon = iconUrl || null;
 
-    const uploadedImage = await handleFileUpload(imageFile);
-    if (uploadedImage) image = uploadedImage;
+    if (imageInputType === "file") {
+        try {
+            const uploadedImage = await handleFileUpload(imageFile);
+            if (uploadedImage) image = uploadedImage;
+        } catch (e) {
+            console.error("Image upload failed:", e);
+        }
+    } else if (!imageInputType) {
+        // Fallback if js didn't send input type
+        const uploadedImage = await handleFileUpload(imageFile);
+        if (uploadedImage) image = uploadedImage;
+    }
 
-    const uploadedIcon = await handleFileUpload(iconFile);
-    if (uploadedIcon) icon = uploadedIcon;
+    if (iconInputType === "file") {
+        try {
+            const uploadedIcon = await handleFileUpload(iconFile);
+            if (uploadedIcon) icon = uploadedIcon;
+        } catch (e) {
+            console.error("Icon upload failed:", e);
+        }
+    } else if (!iconInputType) {
+        // Fallback
+        const uploadedIcon = await handleFileUpload(iconFile);
+        if (uploadedIcon) icon = uploadedIcon;
+    }
 
     await prisma.category.create({
         data: {
@@ -46,17 +69,45 @@ export async function updateCategory(id: string, formData: FormData) {
     const iconFile = formData.get("iconFile") as File;
     const imageUrl = formData.get("imageUrl") as string;
     const iconUrl = formData.get("iconUrl") as string;
+    const imageInputType = formData.get("imageInputType") as string;
+    const iconInputType = formData.get("iconInputType") as string;
+    
     let image = formData.get("image") as string;
     let icon = formData.get("icon") as string;
 
-    if (imageUrl && imageUrl.trim() !== "") image = imageUrl;
-    if (iconUrl && iconUrl.trim() !== "") icon = iconUrl;
+    // Handle Image
+    if (imageInputType === "url") {
+        if (imageUrl && imageUrl.trim() !== "") image = imageUrl;
+    } else if (imageInputType === "file") {
+        try {
+            const uploadedImage = await handleFileUpload(imageFile);
+            if (uploadedImage) image = uploadedImage;
+        } catch (e) {
+            console.error("Image upload failed:", e);
+        }
+    } else {
+        // Fallback for existing behavior
+        if (imageUrl && imageUrl.trim() !== "") image = imageUrl;
+        const uploadedImage = await handleFileUpload(imageFile);
+        if (uploadedImage) image = uploadedImage;
+    }
 
-    const uploadedImage = await handleFileUpload(imageFile);
-    if (uploadedImage) image = uploadedImage;
-
-    const uploadedIcon = await handleFileUpload(iconFile);
-    if (uploadedIcon) icon = uploadedIcon;
+    // Handle Icon
+    if (iconInputType === "url") {
+        if (iconUrl && iconUrl.trim() !== "") icon = iconUrl;
+    } else if (iconInputType === "file") {
+        try {
+            const uploadedIcon = await handleFileUpload(iconFile);
+            if (uploadedIcon) icon = uploadedIcon;
+        } catch (e) {
+            console.error("Icon upload failed:", e);
+        }
+    } else {
+        // Fallback
+        if (iconUrl && iconUrl.trim() !== "") icon = iconUrl;
+        const uploadedIcon = await handleFileUpload(iconFile);
+        if (uploadedIcon) icon = uploadedIcon;
+    }
 
     await prisma.category.update({
         where: { id },

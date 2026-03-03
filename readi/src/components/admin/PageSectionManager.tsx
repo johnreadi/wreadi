@@ -224,6 +224,7 @@ function SectionFormFields({ section }: { section?: Section }) {
 
     return (
         <div className="grid gap-6 py-6">
+            <input type="hidden" name="mediaInputType" value={mediaInputType} />
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                     <Label htmlFor="title">Titre principal</Label>
@@ -288,17 +289,41 @@ function SectionFormFields({ section }: { section?: Section }) {
                                 <Input id="mediaUrl" name="mediaUrl" defaultValue={section?.mediaUrl || ""} placeholder="https://..." />
                             </div>
                         ) : (
-                            (mType === 'IMAGE' || mType === 'VIDEO') && (
+                            (mType === 'IMAGE' || mType === 'VIDEO' || mType === 'SLIDESHOW') && (
                                 <div className="space-y-1.5">
-                                    {/* Keep existing mediaUrl when in file mode to prevent deletion if no new file is selected */}
-                                    {section?.mediaUrl && <input type="hidden" name="mediaUrl" value={section.mediaUrl} />}
+                                    {section?.mediaUrl && mType !== 'SLIDESHOW' && <input type="hidden" name="mediaUrl" value={section.mediaUrl} />}
+                                    {section?.slides && mType === 'SLIDESHOW' && <input type="hidden" name="slides" value={section.slides} />}
+                                    
                                     <Input 
                                         type="file" 
                                         id="file" 
-                                        name="file" 
+                                        name={mType === 'SLIDESHOW' ? "files" : "file"}
+                                        multiple={mType === 'SLIDESHOW'}
                                         accept={mType === 'VIDEO' ? "video/*" : "image/*"} 
+                                        onChange={(e) => {
+                                            if (mType === 'SLIDESHOW') {
+                                                const files = Array.from(e.target.files || []);
+                                                const totalSize = files.reduce((acc, file) => acc + file.size, 0);
+                                                if (totalSize > 50 * 1024 * 1024) { // 50MB total limit for slideshow
+                                                    alert("La taille totale des fichiers est trop volumineuse (max 50MB).");
+                                                    e.target.value = "";
+                                                }
+                                            } else {
+                                                const file = e.target.files?.[0];
+                                                if (file && file.size > 20 * 1024 * 1024) { // 20MB limit
+                                                    alert("Le fichier est trop volumineux (max 20MB).");
+                                                    e.target.value = "";
+                                                }
+                                            }
+                                        }}
                                         className="cursor-pointer file:cursor-pointer file:text-red-600 file:border-0 file:bg-red-50 file:px-4 file:py-1 file:mr-4 file:rounded-full hover:file:bg-red-100 transition-all h-auto py-2" 
                                     />
+                                    {mType === 'SLIDESHOW' && section?.slides && (
+                                        <div className="text-xs text-gray-500 mt-2">
+                                            {JSON.parse(section.slides).length} image(s) actuellement dans le diaporama.
+                                            Les nouveaux fichiers remplaceront les existants.
+                                        </div>
+                                    )}
                                 </div>
                             )
                         )}

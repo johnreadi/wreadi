@@ -97,9 +97,7 @@ export default function AdminLoginPage() {
               {loading ? "Connexion..." : "Se connecter"}
             </Button>
           </form>
-          <p className="text-center text-sm text-gray-500 mt-4">
-            Par défaut: admin@readi.fr / admin123
-          </p>
+          <div className="mt-4"></div>
         </CardContent>
       </Card>
     </div>

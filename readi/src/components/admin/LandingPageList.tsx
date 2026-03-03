@@ -154,6 +154,11 @@ export function LandingPageList({ initialLandingPages }: LandingPageListProps) {
                                                 <Label>Image Hero</Label>
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <input 
+                                                        type="hidden" 
+                                                        name="heroImageInputType" 
+                                                        value={heroImageInputType} 
+                                                    />
+                                                    <input 
                                                         type="radio" 
                                                         id="add-hero-img-file" 
                                                         checked={heroImageInputType === "file"} 
@@ -171,7 +176,20 @@ export function LandingPageList({ initialLandingPages }: LandingPageListProps) {
                                                     <Label htmlFor="add-hero-img-url" className="font-normal text-xs cursor-pointer">URL</Label>
                                                 </div>
                                                 {heroImageInputType === "file" ? (
-                                                    <Input type="file" id="heroImageFile" name="heroImageFile" accept="image/*" className="text-xs" />
+                                                    <Input 
+                                                        type="file" 
+                                                        id="heroImageFile" 
+                                                        name="heroImageFile" 
+                                                        accept="image/*" 
+                                                        className="text-xs" 
+                                                        onChange={(e) => {
+                                                            const file = e.target.files?.[0];
+                                                            if (file && file.size > 10 * 1024 * 1024) {
+                                                                alert("Le fichier est trop volumineux (max 10MB).");
+                                                                e.target.value = "";
+                                                            }
+                                                        }}
+                                                    />
                                                 ) : (
                                                     <Input id="heroImageUrl" name="heroImageUrl" placeholder="https://..." className="text-xs" />
                                                 )}
@@ -179,6 +197,11 @@ export function LandingPageList({ initialLandingPages }: LandingPageListProps) {
                                             <div className="space-y-2">
                                                 <Label>Vidéo Hero</Label>
                                                 <div className="flex items-center gap-2 mb-2">
+                                                    <input 
+                                                        type="hidden" 
+                                                        name="heroVideoInputType" 
+                                                        value={heroVideoInputType} 
+                                                    />
                                                     <input 
                                                         type="radio" 
                                                         id="add-hero-vid-file" 
@@ -197,7 +220,20 @@ export function LandingPageList({ initialLandingPages }: LandingPageListProps) {
                                                     <Label htmlFor="add-hero-vid-url" className="font-normal text-xs cursor-pointer">URL</Label>
                                                 </div>
                                                 {heroVideoInputType === "file" ? (
-                                                    <Input type="file" id="heroVideoFile" name="heroVideoFile" accept="video/*" className="text-xs" />
+                                                    <Input 
+                                                        type="file" 
+                                                        id="heroVideoFile" 
+                                                        name="heroVideoFile" 
+                                                        accept="video/*" 
+                                                        className="text-xs" 
+                                                        onChange={(e) => {
+                                                            const file = e.target.files?.[0];
+                                                            if (file && file.size > 10 * 1024 * 1024) {
+                                                                alert("Le fichier est trop volumineux (max 10MB).");
+                                                                e.target.value = "";
+                                                            }
+                                                        }}
+                                                    />
                                                 ) : (
                                                     <Input id="heroVideoUrl" name="heroVideoUrl" placeholder="https://..." className="text-xs" />
                                                 )}
@@ -323,8 +359,14 @@ export function LandingPageList({ initialLandingPages }: LandingPageListProps) {
                                                 {selectedPage.heroImage && (
                                                     <div className="text-xs text-gray-500 mb-1 truncate">Actuelle: {selectedPage.heroImage}</div>
                                                 )}
+                                                <input type="hidden" name="heroImage" value={selectedPage.heroImage || ""} />
                                                 
                                                 <div className="flex items-center gap-2 mb-2">
+                                                    <input 
+                                                        type="hidden" 
+                                                        name="heroImageInputType" 
+                                                        value={heroImageInputType} 
+                                                    />
                                                     <input 
                                                         type="radio" 
                                                         id="edit-hero-img-file" 
@@ -344,7 +386,20 @@ export function LandingPageList({ initialLandingPages }: LandingPageListProps) {
                                                 </div>
                                                 
                                                 {heroImageInputType === "file" ? (
-                                                    <Input type="file" id="edit-heroImageFile" name="heroImageFile" accept="image/*" className="text-xs" />
+                                                    <Input 
+                                                        type="file" 
+                                                        id="edit-heroImageFile" 
+                                                        name="heroImageFile" 
+                                                        accept="image/*" 
+                                                        className="text-xs" 
+                                                        onChange={(e) => {
+                                                            const file = e.target.files?.[0];
+                                                            if (file && file.size > 10 * 1024 * 1024) {
+                                                                alert("Le fichier est trop volumineux (max 10MB).");
+                                                                e.target.value = "";
+                                                            }
+                                                        }}
+                                                    />
                                                 ) : (
                                                     <Input id="edit-heroImageUrl" name="heroImageUrl" placeholder="https://..." className="text-xs" defaultValue={selectedPage.heroImage?.startsWith("http") ? selectedPage.heroImage : ""} />
                                                 )}
@@ -354,8 +409,14 @@ export function LandingPageList({ initialLandingPages }: LandingPageListProps) {
                                                 {selectedPage.heroVideo && (
                                                     <div className="text-xs text-gray-500 mb-1 truncate">Actuelle: {selectedPage.heroVideo}</div>
                                                 )}
+                                                <input type="hidden" name="heroVideo" value={selectedPage.heroVideo || ""} />
                                                 
                                                 <div className="flex items-center gap-2 mb-2">
+                                                    <input 
+                                                        type="hidden" 
+                                                        name="heroVideoInputType" 
+                                                        value={heroVideoInputType} 
+                                                    />
                                                     <input 
                                                         type="radio" 
                                                         id="edit-hero-vid-file" 
@@ -375,7 +436,20 @@ export function LandingPageList({ initialLandingPages }: LandingPageListProps) {
                                                 </div>
                                                 
                                                 {heroVideoInputType === "file" ? (
-                                                    <Input type="file" id="edit-heroVideoFile" name="heroVideoFile" accept="video/*" className="text-xs" />
+                                                    <Input 
+                                                        type="file" 
+                                                        id="edit-heroVideoFile" 
+                                                        name="heroVideoFile" 
+                                                        accept="video/*" 
+                                                        className="text-xs" 
+                                                        onChange={(e) => {
+                                                            const file = e.target.files?.[0];
+                                                            if (file && file.size > 10 * 1024 * 1024) {
+                                                                alert("Le fichier est trop volumineux (max 10MB).");
+                                                                e.target.value = "";
+                                                            }
+                                                        }}
+                                                    />
                                                 ) : (
                                                     <Input id="edit-heroVideoUrl" name="heroVideoUrl" placeholder="https://..." className="text-xs" defaultValue={selectedPage.heroVideo?.startsWith("http") ? selectedPage.heroVideo : ""} />
                                                 )}
