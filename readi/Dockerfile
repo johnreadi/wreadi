@@ -60,9 +60,7 @@ COPY --from=builder /app/node_modules ./node_modules
 RUN chown -R nextjs:nodejs /app
 
 COPY start.sh ./
-RUN apk add --no-cache dos2unix && dos2unix start.sh && chmod +x start.sh && chown nextjs:nodejs start.sh
-
-USER nextjs
+RUN apk add --no-cache dos2unix su-exec && dos2unix start.sh && chmod +x start.sh
 
 EXPOSE 3000
 

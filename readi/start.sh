@@ -5,6 +5,12 @@ echo "Starting deployment script..."
 echo "Current user: $(whoami)"
 echo "Current directory: $(pwd)"
 
+# Fix permissions for uploads directory (crucial for Docker volumes)
+echo "Fixing permissions for public/uploads..."
+mkdir -p ./public/uploads
+chown -R nextjs:nodejs ./public/uploads
+echo "Permissions fixed."
+
 # Environment Variable Checks
 echo "--- Environment Check ---"
 if [ -z "$DATABASE_URL" ]; then
@@ -64,5 +70,5 @@ ls -la public/uploads || echo "public/uploads not found or not accessible"
 export HOSTNAME="0.0.0.0"
 export PORT="3000"
 
-echo "Launching node server.js..."
-exec node server.js
+echo "Launching node server.js as nextjs user..."
+exec su-exec nextjs:nodejs node server.js
