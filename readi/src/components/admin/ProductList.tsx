@@ -65,6 +65,7 @@ export function ProductList({ initialProducts, categories }: ProductListProps) {
     const [selectedProduct, setSelectedProduct] = useState<ProductWithCategory | null>(null);
     const [search, setSearch] = useState("");
     const [selectedCategory, setSelectedCategory] = useState<string>("all");
+    const [imageInputType, setImageInputType] = useState<"file" | "url">("file");
 
     const filteredProducts = initialProducts.filter(product => {
         const matchesSearch =
@@ -179,9 +180,40 @@ export function ProductList({ initialProducts, categories }: ProductListProps) {
                                         <Textarea id="description" name="description" placeholder="Détails techniques..." />
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <Label htmlFor="imageFile">Image du produit</Label>
-                                        <Input type="file" id="imageFile" name="imageFile" accept="image/*" />
+                                    <div className="space-y-3">
+                                        <Label>Image du produit</Label>
+                                        <div className="flex items-center gap-4 mb-2">
+                                            <div className="flex items-center gap-2">
+                                                <input 
+                                                    type="radio" 
+                                                    id="add-type-file" 
+                                                    checked={imageInputType === "file"} 
+                                                    onChange={() => setImageInputType("file")}
+                                                    className="w-4 h-4 text-orange-600 focus:ring-orange-500"
+                                                />
+                                                <Label htmlFor="add-type-file" className="font-normal cursor-pointer">Fichier Local</Label>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <input 
+                                                    type="radio" 
+                                                    id="add-type-url" 
+                                                    checked={imageInputType === "url"} 
+                                                    onChange={() => setImageInputType("url")}
+                                                    className="w-4 h-4 text-orange-600 focus:ring-orange-500"
+                                                />
+                                                <Label htmlFor="add-type-url" className="font-normal cursor-pointer">URL Externe</Label>
+                                            </div>
+                                        </div>
+
+                                        {imageInputType === "file" ? (
+                                            <Input type="file" id="imageFile" name="imageFile" accept="image/*" />
+                                        ) : (
+                                            <Input 
+                                                type="url" 
+                                                name="image" 
+                                                placeholder="https://exemple.com/image.jpg" 
+                                            />
+                                        )}
                                     </div>
 
                                     <div className="grid grid-cols-3 gap-4">
@@ -341,13 +373,47 @@ export function ProductList({ initialProducts, categories }: ProductListProps) {
                                     <Textarea id="edit-description" name="description" defaultValue={selectedProduct.description || ""} />
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="edit-imageFile">Image du produit</Label>
-                                    {selectedProduct.image && (
-                                        <div className="text-xs text-gray-500 mb-1 truncate">Actuelle: {selectedProduct.image.split("/").pop()}</div>
+                                <div className="space-y-3">
+                                    <Label>Image du produit</Label>
+                                    <div className="flex items-center gap-4 mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <input 
+                                                type="radio" 
+                                                id="edit-type-file" 
+                                                checked={imageInputType === "file"} 
+                                                onChange={() => setImageInputType("file")}
+                                                className="w-4 h-4 text-orange-600 focus:ring-orange-500"
+                                            />
+                                            <Label htmlFor="edit-type-file" className="font-normal cursor-pointer">Fichier Local</Label>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <input 
+                                                type="radio" 
+                                                id="edit-type-url" 
+                                                checked={imageInputType === "url"} 
+                                                onChange={() => setImageInputType("url")}
+                                                className="w-4 h-4 text-orange-600 focus:ring-orange-500"
+                                            />
+                                            <Label htmlFor="edit-type-url" className="font-normal cursor-pointer">URL Externe</Label>
+                                        </div>
+                                    </div>
+
+                                    {imageInputType === "file" ? (
+                                        <div className="space-y-2">
+                                            {selectedProduct.image && (
+                                                <div className="text-xs text-gray-500 truncate">Actuelle: {selectedProduct.image.split("/").pop()}</div>
+                                            )}
+                                            <Input type="hidden" name="image" value={selectedProduct.image || ""} />
+                                            <Input type="file" id="edit-imageFile" name="imageFile" accept="image/*" />
+                                        </div>
+                                    ) : (
+                                        <Input 
+                                            type="url" 
+                                            name="image" 
+                                            defaultValue={selectedProduct.image || ""} 
+                                            placeholder="https://exemple.com/image.jpg" 
+                                        />
                                     )}
-                                    <Input type="hidden" name="image" value={selectedProduct.image || ""} />
-                                    <Input type="file" id="edit-imageFile" name="imageFile" accept="image/*" />
                                 </div>
 
                                 <div className="grid grid-cols-3 gap-4">

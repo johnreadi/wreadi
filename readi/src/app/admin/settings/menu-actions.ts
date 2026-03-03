@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { handleFileUpload } from "@/lib/file-upload";
 import type { MenuItem, TopBarItem } from "@prisma/client";
 
 // --- MENU ACTIONS ---
@@ -66,13 +67,26 @@ export async function getTopBarItems(): Promise<TopBarItem[]> {
     }
 }
 
-export async function createTopBarItem(data: { type: string; content: string; settings?: string | null }) {
+export async function createTopBarItem(formData: FormData) {
+    const type = formData.get("type") as string;
+    let content = formData.get("content") as string;
+    const settings = formData.get("settings") as string;
+    
+    // Handle file upload if type is IMAGE
+    if (type === "IMAGE") {
+        const file = formData.get("file") as File;
+        const uploadedPath = await handleFileUpload(file);
+        if (uploadedPath) {
+            content = uploadedPath;
+        }
+    }
+
     const count = await prisma.topBarItem.count();
     const newItem = await prisma.topBarItem.create({
         data: {
-            type: data.type,
-            content: data.content,
-            settings: data.settings ?? null,
+            type,
+            content,
+            settings: settings || null,
             order: count,
         }
     });
@@ -80,13 +94,26 @@ export async function createTopBarItem(data: { type: string; content: string; se
     return newItem;
 }
 
-export async function updateTopBarItem(id: string, data: { type: string; content: string; settings?: string | null }) {
+export async function updateTopBarItem(id: string, formData: FormData) {
+    const type = formData.get("type") as string;
+    let content = formData.get("content") as string;
+    const settings = formData.get("settings") as string;
+
+    // Handle file upload if type is IMAGE
+    if (type === "IMAGE") {
+        const file = formData.get("file") as File;
+        const uploadedPath = await handleFileUpload(file);
+        if (uploadedPath) {
+            content = uploadedPath;
+        }
+    }
+
     const updatedItem = await prisma.topBarItem.update({
         where: { id },
         data: {
-            type: data.type,
-            content: data.content,
-            settings: data.settings ?? null,
+            type,
+            content,
+            settings: settings || null,
         }
     });
     revalidatePath("/", "layout");

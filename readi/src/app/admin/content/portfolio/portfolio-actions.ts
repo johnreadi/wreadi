@@ -11,7 +11,8 @@ export async function createPortfolioItem(formData: FormData) {
     const isActive = formData.get("isActive") === "on";
 
     const imageFile = formData.get("imageFile") as File;
-    let image = "";
+    const imageUrl = formData.get("imageUrl") as string;
+    let image = imageUrl || "";
 
     const uploadedImage = await handleFileUpload(imageFile);
     if (uploadedImage) {
@@ -38,7 +39,12 @@ export async function updatePortfolioItem(id: string, formData: FormData) {
     const isActive = formData.get("isActive") === "on";
 
     const imageFile = formData.get("imageFile") as File;
+    const imageUrl = formData.get("imageUrl") as string;
     let image = formData.get("image") as string;
+
+    if (imageUrl && imageUrl.trim() !== "") {
+        image = imageUrl;
+    }
 
     const uploadedImage = await handleFileUpload(imageFile);
     if (uploadedImage) {

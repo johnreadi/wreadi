@@ -67,8 +67,11 @@ export function PortfolioList({ initialItems }: PortfolioListProps) {
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
 
+    const [imageInputType, setImageInputType] = useState<"file" | "url">("file");
+
     const handleEdit = (item: PortfolioItem) => {
         setSelectedItem(item);
+        setImageInputType(item.image?.startsWith("http") ? "url" : "file");
         setIsEditOpen(true);
     };
 
@@ -122,8 +125,34 @@ export function PortfolioList({ initialItems }: PortfolioListProps) {
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="imageFile">Image de la réalisation</Label>
-                                    <Input type="file" id="imageFile" name="imageFile" accept="image/*" required />
+                                    <Label>Image de la réalisation</Label>
+                                    <div className="flex items-center gap-4 mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <input 
+                                                type="radio" 
+                                                id="add-type-file" 
+                                                checked={imageInputType === "file"} 
+                                                onChange={() => setImageInputType("file")}
+                                                className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                                            />
+                                            <Label htmlFor="add-type-file" className="font-normal cursor-pointer">Fichier Local</Label>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <input 
+                                                type="radio" 
+                                                id="add-type-url" 
+                                                checked={imageInputType === "url"} 
+                                                onChange={() => setImageInputType("url")}
+                                                className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                                            />
+                                            <Label htmlFor="add-type-url" className="font-normal cursor-pointer">URL Externe</Label>
+                                        </div>
+                                    </div>
+                                    {imageInputType === "file" ? (
+                                        <Input type="file" id="imageFile" name="imageFile" accept="image/*" required />
+                                    ) : (
+                                        <Input id="imageUrl" name="imageUrl" placeholder="https://exemple.com/image.jpg" required />
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="description">Description</Label>
@@ -239,14 +268,43 @@ export function PortfolioList({ initialItems }: PortfolioListProps) {
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="edit-imageFile">Image de la réalisation</Label>
+                                    <Label>Image de la réalisation</Label>
                                     {selectedItem.image && (
-                                        <div className="text-xs text-gray-500 truncate mb-1" title={selectedItem.image}>
+                                        <div className="text-xs text-gray-500 truncate mb-2" title={selectedItem.image}>
                                             Actuel: {selectedItem.image.split("/").pop()}
                                         </div>
                                     )}
+                                    
+                                    <div className="flex items-center gap-4 mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <input 
+                                                type="radio" 
+                                                id="edit-type-file" 
+                                                checked={imageInputType === "file"} 
+                                                onChange={() => setImageInputType("file")}
+                                                className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                                            />
+                                            <Label htmlFor="edit-type-file" className="font-normal cursor-pointer">Fichier Local</Label>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <input 
+                                                type="radio" 
+                                                id="edit-type-url" 
+                                                checked={imageInputType === "url"} 
+                                                onChange={() => setImageInputType("url")}
+                                                className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                                            />
+                                            <Label htmlFor="edit-type-url" className="font-normal cursor-pointer">URL Externe</Label>
+                                        </div>
+                                    </div>
+
                                     <Input type="hidden" name="image" value={selectedItem.image || ""} />
-                                    <Input type="file" id="edit-imageFile" name="imageFile" accept="image/*" />
+                                    
+                                    {imageInputType === "file" ? (
+                                        <Input type="file" id="edit-imageFile" name="imageFile" accept="image/*" />
+                                    ) : (
+                                        <Input id="edit-imageUrl" name="imageUrl" placeholder="https://exemple.com/image.jpg" defaultValue={selectedItem.image?.startsWith("http") ? selectedItem.image : ""} />
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="edit-description">Description</Label>

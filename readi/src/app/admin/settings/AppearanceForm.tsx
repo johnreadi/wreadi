@@ -26,6 +26,7 @@ type Settings = {
 
 export function AppearanceForm({ initialSettings, menuItems, topBarItems }: { initialSettings: Settings | any, menuItems: any[], topBarItems: any[] }) {
     const [logoPreview, setLogoPreview] = useState<string | null>(initialSettings?.siteLogo || null);
+    const [logoInputType, setLogoInputType] = useState<"file" | "url">("file");
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,49 +57,94 @@ export function AppearanceForm({ initialSettings, menuItems, topBarItems }: { in
                         <div className="grid gap-10 md:grid-cols-2">
                             {/* Logo Upload Section */}
                             <div className="space-y-6">
-                                <Label className="text-sm font-black uppercase text-gray-400 tracking-widest">Logo de l'entreprise</Label>
-                                <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-[2.5rem] p-10 hover:border-orange-300 transition-all bg-gray-50/50 group">
-                                    {logoPreview ? (
-                                        <div className="relative group mb-6">
-                                            <img src={logoPreview} alt="Logo preview" className="max-h-32 object-contain group-hover:scale-105 transition-transform" />
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-2xl">
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    className="text-white hover:bg-white/20 font-bold"
-                                                    onClick={() => fileInputRef.current?.click()}
-                                                >
-                                                    Changer le logo
-                                                </Button>
-                                            </div>
+                                <div className="flex items-center justify-between">
+                                    <Label className="text-sm font-black uppercase text-gray-400 tracking-widest">Logo de l'entreprise</Label>
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-2">
+                                            <input 
+                                                type="radio" 
+                                                id="logo-type-file" 
+                                                checked={logoInputType === "file"} 
+                                                onChange={() => setLogoInputType("file")}
+                                                className="w-4 h-4 text-orange-600 focus:ring-orange-500"
+                                            />
+                                            <Label htmlFor="logo-type-file" className="font-normal cursor-pointer text-xs">Fichier Local</Label>
                                         </div>
-                                    ) : (
-                                        <div className="flex flex-col items-center gap-4 mb-6 text-gray-400">
-                                            <div className="w-20 h-20 bg-gray-100 rounded-3xl flex items-center justify-center">
-                                                <ImageIcon className="h-10 w-10 opacity-20" />
-                                            </div>
-                                            <p className="text-xs font-bold uppercase tracking-tighter">Aucun logo configuré</p>
+                                        <div className="flex items-center gap-2">
+                                            <input 
+                                                type="radio" 
+                                                id="logo-type-url" 
+                                                checked={logoInputType === "url"} 
+                                                onChange={() => setLogoInputType("url")}
+                                                className="w-4 h-4 text-orange-600 focus:ring-orange-500"
+                                            />
+                                            <Label htmlFor="logo-type-url" className="font-normal cursor-pointer text-xs">URL Externe</Label>
                                         </div>
-                                    )}
-                                    <input
-                                        type="file"
-                                        name="logo"
-                                        ref={fileInputRef}
-                                        className="hidden"
-                                        accept="image/*"
-                                        onChange={handleFileChange}
-                                    />
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="lg"
-                                        onClick={() => fileInputRef.current?.click()}
-                                        className="bg-white border-2 rounded-2xl font-bold shadow-sm"
-                                    >
-                                        <Upload className="mr-2 h-4 w-4" />
-                                        Choisir un fichier
-                                    </Button>
+                                    </div>
                                 </div>
+
+                                {logoInputType === "file" ? (
+                                    <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-[2.5rem] p-10 hover:border-orange-300 transition-all bg-gray-50/50 group">
+                                        {logoPreview ? (
+                                            <div className="relative group mb-6">
+                                                <img src={logoPreview} alt="Logo preview" className="max-h-32 object-contain group-hover:scale-105 transition-transform" />
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-2xl">
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        className="text-white hover:bg-white/20 font-bold"
+                                                        onClick={() => fileInputRef.current?.click()}
+                                                    >
+                                                        Changer le logo
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col items-center gap-4 mb-6 text-gray-400">
+                                                <div className="w-20 h-20 bg-gray-100 rounded-3xl flex items-center justify-center">
+                                                    <ImageIcon className="h-10 w-10 opacity-20" />
+                                                </div>
+                                                <p className="text-xs font-bold uppercase tracking-tighter">Aucun logo configuré</p>
+                                            </div>
+                                        )}
+                                        <input
+                                            type="file"
+                                            name="logo"
+                                            ref={fileInputRef}
+                                            className="hidden"
+                                            accept="image/*"
+                                            onChange={handleFileChange}
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="lg"
+                                            onClick={() => fileInputRef.current?.click()}
+                                            className="bg-white border-2 rounded-2xl font-bold shadow-sm"
+                                        >
+                                            <Upload className="mr-2 h-4 w-4" />
+                                            Choisir un fichier
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        <div className="relative">
+                                            <ImageIcon className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
+                                            <Input 
+                                                name="logoUrl" 
+                                                defaultValue={initialSettings?.siteLogo || ""} 
+                                                placeholder="https://exemple.com/logo.png" 
+                                                className="pl-10 h-12 border-2 rounded-xl"
+                                                onChange={(e) => setLogoPreview(e.target.value)}
+                                            />
+                                        </div>
+                                        {logoPreview && (
+                                            <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 flex justify-center">
+                                                <img src={logoPreview} alt="Aperçu URL" className="max-h-24 object-contain" />
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
                             {/* General Title Info */}

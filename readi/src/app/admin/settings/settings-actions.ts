@@ -2,8 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
+import { handleFileUpload } from "@/lib/file-upload";
 
 export async function updateAppearance(formData: FormData) {
     const siteName = (formData.get("siteName") as string) || "READI.FR";
@@ -33,34 +32,18 @@ export async function updateAppearance(formData: FormData) {
     const topBarTextColor = (formData.get("topBarTextColor") as string) || "#ffffff";
 
     const logoFile = formData.get("logo") as File;
+    const logoUrl = formData.get("logoUrl") as string;
     let logoPath: string | undefined = undefined;
 
+    if (logoUrl && logoUrl.trim() !== "") {
+        logoPath = logoUrl;
+    }
+
     if (logoFile && logoFile.size > 0 && logoFile.name !== "undefined") {
-        const bytes = await logoFile.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-
-        // S'assurer que le répertoire existe
-        const uploadDir = join(process.cwd(), "public", "uploads");
-        try {
-            await mkdir(uploadDir, { recursive: true });
-        } catch (e) {
-            console.error("Error creating upload directory:", e);
+        const uploadedPath = await handleFileUpload(logoFile);
+        if (uploadedPath) {
+            logoPath = uploadedPath;
         }
-
-        // Nettoyage du nom de fichier pour éviter les caractères spéciaux
-        const cleanName = logoFile.name.replace(/[^a-zA-Z0-9.-]/g, "-");
-        const fileName = `${Date.now()}-${cleanName}`;
-        const fullPath = join(uploadDir, fileName);
-        
-        console.log("Saving logo to:", fullPath);
-        try {
-            await writeFile(fullPath, buffer);
-            console.log("Logo saved successfully.");
-        } catch (e) {
-            console.error("Error writing logo file:", e);
-            throw new Error("Impossible d'écrire le fichier du logo sur le disque.");
-        }
-        logoPath = `/uploads/${fileName}`;
     }
 
     try {

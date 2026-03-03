@@ -218,6 +218,9 @@ export function PageSectionManager({ pageSlug, initialSections }: PageSectionMan
 
 function SectionFormFields({ section }: { section?: Section }) {
     const [mType, setMType] = useState(section?.mediaType || "IMAGE");
+    const [mediaInputType, setMediaInputType] = useState<"file" | "url">(
+        section?.mediaUrl?.startsWith("http") ? "url" : "file"
+    );
 
     return (
         <div className="grid gap-6 py-6">
@@ -257,25 +260,45 @@ function SectionFormFields({ section }: { section?: Section }) {
                     </Label>
                     
                     <div className="space-y-4">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="mediaUrl" className="text-[10px] text-gray-500 uppercase font-semibold">Option A: Lien direct (URL)</Label>
-                            <Input id="mediaUrl" name="mediaUrl" defaultValue={section?.mediaUrl || ""} placeholder="https://..." />
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
+                                <input 
+                                    type="radio" 
+                                    id="media-type-file" 
+                                    checked={mediaInputType === "file"} 
+                                    onChange={() => setMediaInputType("file")}
+                                    className="w-3 h-3 text-red-600 focus:ring-red-500"
+                                />
+                                <Label htmlFor="media-type-file" className="font-normal cursor-pointer text-xs">Fichier Local</Label>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <input 
+                                    type="radio" 
+                                    id="media-type-url" 
+                                    checked={mediaInputType === "url"} 
+                                    onChange={() => setMediaInputType("url")}
+                                    className="w-3 h-3 text-red-600 focus:ring-red-500"
+                                />
+                                <Label htmlFor="media-type-url" className="font-normal cursor-pointer text-xs">URL Externe</Label>
+                            </div>
                         </div>
 
-                        {(mType === 'IMAGE' || mType === 'VIDEO') && (
-                            <div className="space-y-1.5 pt-2 border-t border-dashed">
-                                <Label htmlFor="file" className="text-[10px] text-gray-500 uppercase font-semibold flex items-center gap-2">
-                                    <Upload className="h-3 w-3" />
-                                    Option B: Charger depuis l'ordinateur
-                                </Label>
-                                <Input 
-                                    type="file" 
-                                    id="file" 
-                                    name="file" 
-                                    accept={mType === 'VIDEO' ? "video/*" : "image/*"} 
-                                    className="cursor-pointer file:cursor-pointer file:text-blue-600 file:border-0 file:bg-blue-50 file:px-4 file:py-1 file:mr-4 file:rounded-full hover:file:bg-blue-100 transition-all h-auto py-2" 
-                                />
+                        {mediaInputType === "url" ? (
+                            <div className="space-y-1.5">
+                                <Input id="mediaUrl" name="mediaUrl" defaultValue={section?.mediaUrl || ""} placeholder="https://..." />
                             </div>
+                        ) : (
+                            (mType === 'IMAGE' || mType === 'VIDEO') && (
+                                <div className="space-y-1.5">
+                                    <Input 
+                                        type="file" 
+                                        id="file" 
+                                        name="file" 
+                                        accept={mType === 'VIDEO' ? "video/*" : "image/*"} 
+                                        className="cursor-pointer file:cursor-pointer file:text-red-600 file:border-0 file:bg-red-50 file:px-4 file:py-1 file:mr-4 file:rounded-full hover:file:bg-red-100 transition-all h-auto py-2" 
+                                    />
+                                </div>
+                            )
                         )}
                     </div>
                 </div>

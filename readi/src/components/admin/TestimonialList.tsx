@@ -58,9 +58,12 @@ export function TestimonialList({ initialTestimonials }: TestimonialListProps) {
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [selectedTestimonial, setSelectedTestimonial] = useState<Testimonial | null>(null);
+    const [imageInputType, setImageInputType] = useState<"file" | "url">("file");
+    const [editImageInputType, setEditImageInputType] = useState<"file" | "url">("file");
 
     const handleEdit = (testimonial: Testimonial) => {
         setSelectedTestimonial(testimonial);
+        setEditImageInputType(testimonial.image?.startsWith("http") ? "url" : "file");
         setIsEditOpen(true);
     };
 
@@ -120,8 +123,38 @@ export function TestimonialList({ initialTestimonials }: TestimonialListProps) {
                                     <Input id="company" name="company" placeholder="ex: Société XYZ" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="imageFile">Photo du client / Logo (optionnel)</Label>
-                                    <Input type="file" id="imageFile" name="imageFile" accept="image/*" />
+                                    <Label>Photo du client / Logo (optionnel)</Label>
+                                    <div className="flex items-center gap-4 mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <input 
+                                                type="radio" 
+                                                id="add-image-file" 
+                                                checked={imageInputType === "file"} 
+                                                onChange={() => setImageInputType("file")}
+                                                className="w-4 h-4 text-yellow-600 focus:ring-yellow-500"
+                                            />
+                                            <Label htmlFor="add-image-file" className="font-normal cursor-pointer">Fichier</Label>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <input 
+                                                type="radio" 
+                                                id="add-image-url" 
+                                                checked={imageInputType === "url"} 
+                                                onChange={() => setImageInputType("url")}
+                                                className="w-4 h-4 text-yellow-600 focus:ring-yellow-500"
+                                            />
+                                            <Label htmlFor="add-image-url" className="font-normal cursor-pointer">URL</Label>
+                                        </div>
+                                    </div>
+                                    {imageInputType === "file" ? (
+                                        <Input type="file" id="imageFile" name="imageFile" accept="image/*" />
+                                    ) : (
+                                        <Input 
+                                            type="url" 
+                                            name="imageUrl" 
+                                            placeholder="https://exemple.com/photo.jpg"
+                                        />
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="content">Témoignage</Label>
@@ -231,14 +264,45 @@ export function TestimonialList({ initialTestimonials }: TestimonialListProps) {
                                     <Input id="edit-company" name="company" defaultValue={selectedTestimonial.company || ""} />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="edit-imageFile">Photo du client / Logo</Label>
+                                    <Label>Photo du client / Logo</Label>
+                                    <div className="flex items-center gap-4 mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <input 
+                                                type="radio" 
+                                                id="edit-image-file" 
+                                                checked={editImageInputType === "file"} 
+                                                onChange={() => setEditImageInputType("file")}
+                                                className="w-4 h-4 text-yellow-600 focus:ring-yellow-500"
+                                            />
+                                            <Label htmlFor="edit-image-file" className="font-normal cursor-pointer">Fichier</Label>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <input 
+                                                type="radio" 
+                                                id="edit-image-url" 
+                                                checked={editImageInputType === "url"} 
+                                                onChange={() => setEditImageInputType("url")}
+                                                className="w-4 h-4 text-yellow-600 focus:ring-yellow-500"
+                                            />
+                                            <Label htmlFor="edit-image-url" className="font-normal cursor-pointer">URL</Label>
+                                        </div>
+                                    </div>
                                     {selectedTestimonial.image && (
                                         <div className="text-xs text-gray-500 truncate mb-1" title={selectedTestimonial.image}>
                                             Actuel: {selectedTestimonial.image.split("/").pop()}
                                         </div>
                                     )}
                                     <Input type="hidden" name="image" value={selectedTestimonial.image || ""} />
-                                    <Input type="file" id="edit-imageFile" name="imageFile" accept="image/*" />
+                                    {editImageInputType === "file" ? (
+                                        <Input type="file" id="edit-imageFile" name="imageFile" accept="image/*" />
+                                    ) : (
+                                        <Input 
+                                            type="url" 
+                                            name="imageUrl" 
+                                            defaultValue={selectedTestimonial.image?.startsWith("http") ? selectedTestimonial.image : ""}
+                                            placeholder="https://exemple.com/photo.jpg"
+                                        />
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="edit-content">Témoignage</Label>

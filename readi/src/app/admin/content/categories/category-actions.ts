@@ -12,8 +12,10 @@ export async function createCategory(formData: FormData) {
 
     const imageFile = formData.get("imageFile") as File;
     const iconFile = formData.get("iconFile") as File;
-    let image = null;
-    let icon = null;
+    const imageUrl = formData.get("imageUrl") as string;
+    const iconUrl = formData.get("iconUrl") as string;
+    let image = imageUrl || null;
+    let icon = iconUrl || null;
 
     const uploadedImage = await handleFileUpload(imageFile);
     if (uploadedImage) image = uploadedImage;
@@ -42,8 +44,13 @@ export async function updateCategory(id: string, formData: FormData) {
 
     const imageFile = formData.get("imageFile") as File;
     const iconFile = formData.get("iconFile") as File;
+    const imageUrl = formData.get("imageUrl") as string;
+    const iconUrl = formData.get("iconUrl") as string;
     let image = formData.get("image") as string;
     let icon = formData.get("icon") as string;
+
+    if (imageUrl && imageUrl.trim() !== "") image = imageUrl;
+    if (iconUrl && iconUrl.trim() !== "") icon = iconUrl;
 
     const uploadedImage = await handleFileUpload(imageFile);
     if (uploadedImage) image = uploadedImage;

@@ -18,19 +18,39 @@ export function TopBarManager({ initialItems }: { initialItems: any[] }) {
     // New Item State
     const [newItem, setNewItem] = useState({ type: "TEXT", content: "" });
     const [newSettings, setNewSettings] = useState({ duration: 10, direction: "left" });
+    const [imageInputType, setImageInputType] = useState<"file" | "url">("file");
 
     // Edit State
     const [editForm, setEditForm] = useState({ type: "TEXT", content: "" });
     const [editSettings, setEditSettings] = useState({ duration: 10, direction: "left" });
+    const [editImageInputType, setEditImageInputType] = useState<"file" | "url">("file");
 
     const handleCreate = () => {
-        if (!newItem.content) return;
+        // Basic validation
+        if (newItem.type !== "IMAGE" && !newItem.content) return;
+        
         startTransition(async () => {
-            const settingsStr = JSON.stringify(newSettings);
-            const createdItem = await createTopBarItem({ ...newItem, settings: settingsStr });
+            const formData = new FormData();
+            formData.append("type", newItem.type);
+            formData.append("content", newItem.content);
+            formData.append("settings", JSON.stringify(newSettings));
+
+            if (newItem.type === "IMAGE" && imageInputType === "file") {
+                 const fileInput = document.getElementById("add-file") as HTMLInputElement;
+                 if (fileInput?.files?.[0]) {
+                     formData.append("file", fileInput.files[0]);
+                 }
+            }
+
+            const createdItem = await createTopBarItem(formData);
             setItems([...items, createdItem]);
             setNewItem({ type: "TEXT", content: "" });
             setNewSettings({ duration: 10, direction: "left" });
+            setImageInputType("file");
+            // Clear file input
+            const fileInput = document.getElementById("add-file") as HTMLInputElement;
+            if (fileInput) fileInput.value = "";
+            
             toast.success("Element added");
         });
     };
@@ -48,6 +68,11 @@ export function TopBarManager({ initialItems }: { initialItems: any[] }) {
     const startEdit = (item: any) => {
         setEditingId(item.id);
         setEditForm({ type: item.type, content: item.content });
+        // Set edit image input type based on content
+        if (item.type === "IMAGE") {
+            setEditImageInputType(item.content.startsWith("http") ? "url" : "file");
+        }
+
         try {
             const parsed = JSON.parse(item.settings || "{}");
             setEditSettings({
@@ -61,8 +86,19 @@ export function TopBarManager({ initialItems }: { initialItems: any[] }) {
 
     const saveEdit = (id: string) => {
         startTransition(async () => {
-            const settingsStr = JSON.stringify(editSettings);
-            const updatedItem = await updateTopBarItem(id, { ...editForm, settings: settingsStr });
+            const formData = new FormData();
+            formData.append("type", editForm.type);
+            formData.append("content", editForm.content);
+            formData.append("settings", JSON.stringify(editSettings));
+
+            if (editForm.type === "IMAGE" && editImageInputType === "file") {
+                const fileInput = document.getElementById(`edit-file-${id}`) as HTMLInputElement;
+                if (fileInput?.files?.[0]) {
+                    formData.append("file", fileInput.files[0]);
+                }
+            }
+
+            const updatedItem = await updateTopBarItem(id, formData);
             setItems(items.map(i => i.id === id ? updatedItem : i));
             setEditingId(null);
             toast.success("Element updated");
@@ -96,13 +132,57 @@ export function TopBarManager({ initialItems }: { initialItems: any[] }) {
                         </select>
                     </div>
                     <div className="space-y-2 col-span-2">
-                        <Label className="text-xs font-bold uppercase text-gray-400">Contenu (Texte ou URL)</Label>
-                        <Input 
-                            value={newItem.content} 
-                            onChange={e => setNewItem({...newItem, content: e.target.value})}
-                            placeholder="Contenu..."
-                            className="bg-white"
-                        />
+                        <Label className="text-xs font-bold uppercase text-gray-400">Contenu</Label>
+                        
+                        {newItem.type === 'IMAGE' ? (
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-4">
+                                    <div className="flex items-center gap-2">
+                                        <input 
+                                            type="radio" 
+                                            id="add-type-file" 
+                                            checked={imageInputType === "file"} 
+                                            onChange={() => setImageInputType("file")}
+                                            className="w-3 h-3 text-purple-600 focus:ring-purple-500"
+                                        />
+                                        <Label htmlFor="add-type-file" className="font-normal cursor-pointer text-xs">Fichier</Label>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <input 
+                                            type="radio" 
+                                            id="add-type-url" 
+                                            checked={imageInputType === "url"} 
+                                            onChange={() => setImageInputType("url")}
+                                            className="w-3 h-3 text-purple-600 focus:ring-purple-500"
+                                        />
+                                        <Label htmlFor="add-type-url" className="font-normal cursor-pointer text-xs">URL</Label>
+                                    </div>
+                                </div>
+
+                                {imageInputType === "file" ? (
+                                    <Input 
+                                        type="file" 
+                                        id="add-file" 
+                                        accept="image/*" 
+                                        className="bg-white"
+                                    />
+                                ) : (
+                                    <Input 
+                                        value={newItem.content} 
+                                        onChange={e => setNewItem({...newItem, content: e.target.value})}
+                                        placeholder="https://..."
+                                        className="bg-white"
+                                    />
+                                )}
+                            </div>
+                        ) : (
+                            <Input 
+                                value={newItem.content} 
+                                onChange={e => setNewItem({...newItem, content: e.target.value})}
+                                placeholder="Contenu..."
+                                className="bg-white"
+                            />
+                        )}
                     </div>
                     
                     {newItem.type === 'SCROLL' && (
@@ -174,7 +254,51 @@ export function TopBarManager({ initialItems }: { initialItems: any[] }) {
                                     <TableCell className="font-medium pt-3 pb-3">
                                         {editingId === item.id ? (
                                             <div className="space-y-2">
-                                                <Input value={editForm.content} onChange={e => setEditForm({...editForm, content: e.target.value})} placeholder="Content" />
+                                                {editForm.type === 'IMAGE' ? (
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="flex items-center gap-2">
+                                                                <input 
+                                                                    type="radio" 
+                                                                    id={`edit-type-file-${item.id}`}
+                                                                    checked={editImageInputType === "file"} 
+                                                                    onChange={() => setEditImageInputType("file")}
+                                                                    className="w-3 h-3 text-purple-600 focus:ring-purple-500"
+                                                                />
+                                                                <Label htmlFor={`edit-type-file-${item.id}`} className="font-normal cursor-pointer text-xs">Fichier</Label>
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                <input 
+                                                                    type="radio" 
+                                                                    id={`edit-type-url-${item.id}`}
+                                                                    checked={editImageInputType === "url"} 
+                                                                    onChange={() => setEditImageInputType("url")}
+                                                                    className="w-3 h-3 text-purple-600 focus:ring-purple-500"
+                                                                />
+                                                                <Label htmlFor={`edit-type-url-${item.id}`} className="font-normal cursor-pointer text-xs">URL</Label>
+                                                            </div>
+                                                        </div>
+
+                                                        {editImageInputType === "file" ? (
+                                                            <Input 
+                                                                type="file" 
+                                                                id={`edit-file-${item.id}`} 
+                                                                accept="image/*" 
+                                                                className="h-8 text-xs"
+                                                            />
+                                                        ) : (
+                                                            <Input 
+                                                                value={editForm.content} 
+                                                                onChange={e => setEditForm({...editForm, content: e.target.value})} 
+                                                                placeholder="https://..." 
+                                                                className="h-8"
+                                                            />
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <Input value={editForm.content} onChange={e => setEditForm({...editForm, content: e.target.value})} placeholder="Content" />
+                                                )}
+                                                
                                                 {editForm.type === 'SCROLL' && (
                                                     <div className="flex gap-2">
                                                         <div className="w-24">

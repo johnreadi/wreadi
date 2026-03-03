@@ -54,9 +54,13 @@ export function CategoryList({ initialCategories }: CategoryListProps) {
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+    const [imageInputType, setImageInputType] = useState<"file" | "url">("file");
+    const [iconInputType, setIconInputType] = useState<"file" | "url">("file");
 
     const handleEdit = (category: Category) => {
         setSelectedCategory(category);
+        setImageInputType(category.image?.startsWith("http") ? "url" : "file");
+        setIconInputType(category.icon?.startsWith("http") ? "url" : "file");
         setIsEditOpen(true);
     };
 
@@ -102,12 +106,56 @@ export function CategoryList({ initialCategories }: CategoryListProps) {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="imageFile">Image de la catégorie</Label>
-                                        <Input type="file" id="imageFile" name="imageFile" accept="image/*" />
+                                        <Label>Image de la catégorie</Label>
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <input 
+                                                type="radio" 
+                                                id="add-img-file" 
+                                                checked={imageInputType === "file"} 
+                                                onChange={() => setImageInputType("file")}
+                                                className="w-3 h-3 text-blue-600"
+                                            />
+                                            <Label htmlFor="add-img-file" className="font-normal text-xs cursor-pointer">Fichier</Label>
+                                            <input 
+                                                type="radio" 
+                                                id="add-img-url" 
+                                                checked={imageInputType === "url"} 
+                                                onChange={() => setImageInputType("url")}
+                                                className="w-3 h-3 text-blue-600 ml-2"
+                                            />
+                                            <Label htmlFor="add-img-url" className="font-normal text-xs cursor-pointer">URL</Label>
+                                        </div>
+                                        {imageInputType === "file" ? (
+                                            <Input type="file" id="imageFile" name="imageFile" accept="image/*" />
+                                        ) : (
+                                            <Input id="imageUrl" name="imageUrl" placeholder="https://..." />
+                                        )}
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="iconFile">Icône de la catégorie</Label>
-                                        <Input type="file" id="iconFile" name="iconFile" accept="image/*" />
+                                        <Label>Icône de la catégorie</Label>
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <input 
+                                                type="radio" 
+                                                id="add-icon-file" 
+                                                checked={iconInputType === "file"} 
+                                                onChange={() => setIconInputType("file")}
+                                                className="w-3 h-3 text-blue-600"
+                                            />
+                                            <Label htmlFor="add-icon-file" className="font-normal text-xs cursor-pointer">Fichier</Label>
+                                            <input 
+                                                type="radio" 
+                                                id="add-icon-url" 
+                                                checked={iconInputType === "url"} 
+                                                onChange={() => setIconInputType("url")}
+                                                className="w-3 h-3 text-blue-600 ml-2"
+                                            />
+                                            <Label htmlFor="add-icon-url" className="font-normal text-xs cursor-pointer">URL</Label>
+                                        </div>
+                                        {iconInputType === "file" ? (
+                                            <Input type="file" id="iconFile" name="iconFile" accept="image/*" />
+                                        ) : (
+                                            <Input id="iconUrl" name="iconUrl" placeholder="https://..." />
+                                        )}
                                     </div>
                                 </div>
                                 <div className="flex items-center justify-between">
@@ -191,24 +239,74 @@ export function CategoryList({ initialCategories }: CategoryListProps) {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="edit-imageFile">Image de la catégorie</Label>
+                                        <Label>Image de la catégorie</Label>
                                         {selectedCategory.image && (
                                             <div className="text-xs text-gray-500 truncate mb-1" title={selectedCategory.image}>
                                                 Actuelle: {selectedCategory.image.split("/").pop()}
                                             </div>
                                         )}
+                                        
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <input 
+                                                type="radio" 
+                                                id="edit-img-file" 
+                                                checked={imageInputType === "file"} 
+                                                onChange={() => setImageInputType("file")}
+                                                className="w-3 h-3 text-blue-600"
+                                            />
+                                            <Label htmlFor="edit-img-file" className="font-normal text-xs cursor-pointer">Fichier</Label>
+                                            <input 
+                                                type="radio" 
+                                                id="edit-img-url" 
+                                                checked={imageInputType === "url"} 
+                                                onChange={() => setImageInputType("url")}
+                                                className="w-3 h-3 text-blue-600 ml-2"
+                                            />
+                                            <Label htmlFor="edit-img-url" className="font-normal text-xs cursor-pointer">URL</Label>
+                                        </div>
+
                                         <Input type="hidden" name="image" value={selectedCategory.image || ""} />
-                                        <Input type="file" id="edit-imageFile" name="imageFile" accept="image/*" />
+                                        
+                                        {imageInputType === "file" ? (
+                                            <Input type="file" id="edit-imageFile" name="imageFile" accept="image/*" />
+                                        ) : (
+                                            <Input id="edit-imageUrl" name="imageUrl" placeholder="https://..." defaultValue={selectedCategory.image?.startsWith("http") ? selectedCategory.image : ""} />
+                                        )}
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="edit-iconFile">Icône de la catégorie</Label>
+                                        <Label>Icône de la catégorie</Label>
                                         {selectedCategory.icon && (
                                             <div className="text-xs text-gray-500 truncate mb-1" title={selectedCategory.icon}>
                                                 Actuelle: {selectedCategory.icon.split("/").pop()}
                                             </div>
                                         )}
+                                        
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <input 
+                                                type="radio" 
+                                                id="edit-icon-file" 
+                                                checked={iconInputType === "file"} 
+                                                onChange={() => setIconInputType("file")}
+                                                className="w-3 h-3 text-blue-600"
+                                            />
+                                            <Label htmlFor="edit-icon-file" className="font-normal text-xs cursor-pointer">Fichier</Label>
+                                            <input 
+                                                type="radio" 
+                                                id="edit-icon-url" 
+                                                checked={iconInputType === "url"} 
+                                                onChange={() => setIconInputType("url")}
+                                                className="w-3 h-3 text-blue-600 ml-2"
+                                            />
+                                            <Label htmlFor="edit-icon-url" className="font-normal text-xs cursor-pointer">URL</Label>
+                                        </div>
+
                                         <Input type="hidden" name="icon" value={selectedCategory.icon || ""} />
-                                        <Input type="file" id="edit-iconFile" name="iconFile" accept="image/*" />
+                                        
+                                        {iconInputType === "file" ? (
+                                            <Input type="file" id="edit-iconFile" name="iconFile" accept="image/*" />
+                                        ) : (
+                                            <Input id="edit-iconUrl" name="iconUrl" placeholder="https://..." defaultValue={selectedCategory.icon?.startsWith("http") ? selectedCategory.icon : ""} />
+                                        )}
                                     </div>
                                 </div>
                                 <div className="flex items-center justify-between">

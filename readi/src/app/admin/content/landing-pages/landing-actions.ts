@@ -15,9 +15,11 @@ export async function createLandingPage(formData: FormData) {
 
     const heroImageFile = formData.get("heroImageFile") as File;
     const heroVideoFile = formData.get("heroVideoFile") as File;
+    const heroImageUrl = formData.get("heroImageUrl") as string;
+    const heroVideoUrl = formData.get("heroVideoUrl") as string;
 
-    let heroImage = formData.get("heroImage") as string;
-    let heroVideo = formData.get("heroVideo") as string;
+    let heroImage = heroImageUrl || formData.get("heroImage") as string || "";
+    let heroVideo = heroVideoUrl || formData.get("heroVideo") as string || "";
 
     const uploadedImage = await handleFileUpload(heroImageFile);
     if (uploadedImage) heroImage = uploadedImage;
@@ -53,9 +55,14 @@ export async function updateLandingPage(id: string, formData: FormData) {
 
     const heroImageFile = formData.get("heroImageFile") as File;
     const heroVideoFile = formData.get("heroVideoFile") as File;
+    const heroImageUrl = formData.get("heroImageUrl") as string;
+    const heroVideoUrl = formData.get("heroVideoUrl") as string;
 
     let heroImage = formData.get("heroImage") as string;
     let heroVideo = formData.get("heroVideo") as string;
+
+    if (heroImageUrl && heroImageUrl.trim() !== "") heroImage = heroImageUrl;
+    if (heroVideoUrl && heroVideoUrl.trim() !== "") heroVideo = heroVideoUrl;
 
     const uploadedImage = await handleFileUpload(heroImageFile);
     if (uploadedImage) heroImage = uploadedImage;

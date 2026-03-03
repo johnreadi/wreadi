@@ -60,6 +60,8 @@ export function LandingPageList({ initialLandingPages }: LandingPageListProps) {
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [selectedPage, setSelectedPage] = useState<LandingPage | null>(null);
     const [search, setSearch] = useState("");
+    const [heroImageInputType, setHeroImageInputType] = useState<"file" | "url">("file");
+    const [heroVideoInputType, setHeroVideoInputType] = useState<"file" | "url">("file");
 
     const filteredPages = initialLandingPages.filter(page =>
         page.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -68,6 +70,8 @@ export function LandingPageList({ initialLandingPages }: LandingPageListProps) {
 
     const handleEdit = (page: LandingPage) => {
         setSelectedPage(page);
+        setHeroImageInputType(page.heroImage?.startsWith("http") ? "url" : "file");
+        setHeroVideoInputType(page.heroVideo?.startsWith("http") ? "url" : "file");
         setIsEditOpen(true);
     };
 
@@ -147,12 +151,56 @@ export function LandingPageList({ initialLandingPages }: LandingPageListProps) {
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
-                                                <Label htmlFor="heroImageFile">Image Hero</Label>
-                                                <Input type="file" id="heroImageFile" name="heroImageFile" accept="image/*" className="text-xs" />
+                                                <Label>Image Hero</Label>
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <input 
+                                                        type="radio" 
+                                                        id="add-hero-img-file" 
+                                                        checked={heroImageInputType === "file"} 
+                                                        onChange={() => setHeroImageInputType("file")}
+                                                        className="w-3 h-3 text-purple-600"
+                                                    />
+                                                    <Label htmlFor="add-hero-img-file" className="font-normal text-xs cursor-pointer">Fichier</Label>
+                                                    <input 
+                                                        type="radio" 
+                                                        id="add-hero-img-url" 
+                                                        checked={heroImageInputType === "url"} 
+                                                        onChange={() => setHeroImageInputType("url")}
+                                                        className="w-3 h-3 text-purple-600 ml-2"
+                                                    />
+                                                    <Label htmlFor="add-hero-img-url" className="font-normal text-xs cursor-pointer">URL</Label>
+                                                </div>
+                                                {heroImageInputType === "file" ? (
+                                                    <Input type="file" id="heroImageFile" name="heroImageFile" accept="image/*" className="text-xs" />
+                                                ) : (
+                                                    <Input id="heroImageUrl" name="heroImageUrl" placeholder="https://..." className="text-xs" />
+                                                )}
                                             </div>
                                             <div className="space-y-2">
-                                                <Label htmlFor="heroVideoFile">Vidéo Hero</Label>
-                                                <Input type="file" id="heroVideoFile" name="heroVideoFile" accept="video/*" className="text-xs" />
+                                                <Label>Vidéo Hero</Label>
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <input 
+                                                        type="radio" 
+                                                        id="add-hero-vid-file" 
+                                                        checked={heroVideoInputType === "file"} 
+                                                        onChange={() => setHeroVideoInputType("file")}
+                                                        className="w-3 h-3 text-purple-600"
+                                                    />
+                                                    <Label htmlFor="add-hero-vid-file" className="font-normal text-xs cursor-pointer">Fichier</Label>
+                                                    <input 
+                                                        type="radio" 
+                                                        id="add-hero-vid-url" 
+                                                        checked={heroVideoInputType === "url"} 
+                                                        onChange={() => setHeroVideoInputType("url")}
+                                                        className="w-3 h-3 text-purple-600 ml-2"
+                                                    />
+                                                    <Label htmlFor="add-hero-vid-url" className="font-normal text-xs cursor-pointer">URL</Label>
+                                                </div>
+                                                {heroVideoInputType === "file" ? (
+                                                    <Input type="file" id="heroVideoFile" name="heroVideoFile" accept="video/*" className="text-xs" />
+                                                ) : (
+                                                    <Input id="heroVideoUrl" name="heroVideoUrl" placeholder="https://..." className="text-xs" />
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -271,18 +319,66 @@ export function LandingPageList({ initialLandingPages }: LandingPageListProps) {
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
-                                                <Label htmlFor="edit-heroImageFile">Image Hero</Label>
+                                                <Label>Image Hero</Label>
                                                 {selectedPage.heroImage && (
                                                     <div className="text-xs text-gray-500 mb-1 truncate">Actuelle: {selectedPage.heroImage}</div>
                                                 )}
-                                                <Input type="file" id="edit-heroImageFile" name="heroImageFile" accept="image/*" className="text-xs" />
+                                                
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <input 
+                                                        type="radio" 
+                                                        id="edit-hero-img-file" 
+                                                        checked={heroImageInputType === "file"} 
+                                                        onChange={() => setHeroImageInputType("file")}
+                                                        className="w-3 h-3 text-purple-600"
+                                                    />
+                                                    <Label htmlFor="edit-hero-img-file" className="font-normal text-xs cursor-pointer">Fichier</Label>
+                                                    <input 
+                                                        type="radio" 
+                                                        id="edit-hero-img-url" 
+                                                        checked={heroImageInputType === "url"} 
+                                                        onChange={() => setHeroImageInputType("url")}
+                                                        className="w-3 h-3 text-purple-600 ml-2"
+                                                    />
+                                                    <Label htmlFor="edit-hero-img-url" className="font-normal text-xs cursor-pointer">URL</Label>
+                                                </div>
+                                                
+                                                {heroImageInputType === "file" ? (
+                                                    <Input type="file" id="edit-heroImageFile" name="heroImageFile" accept="image/*" className="text-xs" />
+                                                ) : (
+                                                    <Input id="edit-heroImageUrl" name="heroImageUrl" placeholder="https://..." className="text-xs" defaultValue={selectedPage.heroImage?.startsWith("http") ? selectedPage.heroImage : ""} />
+                                                )}
                                             </div>
                                             <div className="space-y-2">
-                                                <Label htmlFor="edit-heroVideoFile">Vidéo Hero</Label>
+                                                <Label>Vidéo Hero</Label>
                                                 {selectedPage.heroVideo && (
                                                     <div className="text-xs text-gray-500 mb-1 truncate">Actuelle: {selectedPage.heroVideo}</div>
                                                 )}
-                                                <Input type="file" id="edit-heroVideoFile" name="heroVideoFile" accept="video/*" className="text-xs" />
+                                                
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <input 
+                                                        type="radio" 
+                                                        id="edit-hero-vid-file" 
+                                                        checked={heroVideoInputType === "file"} 
+                                                        onChange={() => setHeroVideoInputType("file")}
+                                                        className="w-3 h-3 text-purple-600"
+                                                    />
+                                                    <Label htmlFor="edit-hero-vid-file" className="font-normal text-xs cursor-pointer">Fichier</Label>
+                                                    <input 
+                                                        type="radio" 
+                                                        id="edit-hero-vid-url" 
+                                                        checked={heroVideoInputType === "url"} 
+                                                        onChange={() => setHeroVideoInputType("url")}
+                                                        className="w-3 h-3 text-purple-600 ml-2"
+                                                    />
+                                                    <Label htmlFor="edit-hero-vid-url" className="font-normal text-xs cursor-pointer">URL</Label>
+                                                </div>
+                                                
+                                                {heroVideoInputType === "file" ? (
+                                                    <Input type="file" id="edit-heroVideoFile" name="heroVideoFile" accept="video/*" className="text-xs" />
+                                                ) : (
+                                                    <Input id="edit-heroVideoUrl" name="heroVideoUrl" placeholder="https://..." className="text-xs" defaultValue={selectedPage.heroVideo?.startsWith("http") ? selectedPage.heroVideo : ""} />
+                                                )}
                                             </div>
                                         </div>
                                     </div>
