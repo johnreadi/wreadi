@@ -1,0 +1,8 @@
+feat: Add Portfolio management module and fix DB schema
+
+- Added PortfolioItem model to schema (reverted to SQLite for local compatibility)
+- Created Portfolio admin actions (create, update, delete, toggle)
+- Created PortfolioList component with local image upload
+- Added Portfolio page in admin/content
+- Linked Portfolio management in admin dashboard
+- Ensured database schema is up to date

@@ -2,18 +2,19 @@ import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit3, Eye, LayoutGrid, Award, Monitor, Package, Megaphone, Mail } from "lucide-react";
+import { Edit3, Eye, LayoutGrid, Award, Monitor, Package, Megaphone, Mail, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 
 async function getContentStats() {
-    const [categories, services, testimonials, landingPages] = await Promise.all([
+    const [categories, services, testimonials, landingPages, portfolio] = await Promise.all([
         prisma.category.count(),
         prisma.service.count(),
         prisma.testimonial.count(),
         // @ts-ignore
         prisma.landingPage.count(),
+        prisma.portfolioItem.count(),
     ]);
-    return { categories, services, testimonials, landingPages };
+    return { categories, services, testimonials, landingPages, portfolio };
 }
 
 export default async function ContentManagementPage() {
@@ -55,6 +56,15 @@ export default async function ContentManagementPage() {
             icon: Award,
             color: "text-yellow-600",
             bg: "bg-yellow-50",
+        },
+        {
+            title: "Portfolio",
+            description: "Gérez vos réalisations et projets clients.",
+            count: stats.portfolio,
+            href: "/admin/content/portfolio",
+            icon: ImageIcon,
+            color: "text-pink-600",
+            bg: "bg-pink-50",
         },
         {
             title: "Campagnes Marketing",

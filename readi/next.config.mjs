@@ -9,7 +9,7 @@ const withPWA = withPWAInit({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // output: 'standalone', // Disabled to ensure local uploads work correctly
+  output: 'standalone',
   eslint: {
     ignoreDuringBuilds: true,
   },
