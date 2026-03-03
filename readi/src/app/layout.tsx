@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 export const dynamic = "force-dynamic";
@@ -10,11 +10,19 @@ import { BackToTop } from "@/components/layout/BackToTop";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { prisma } from "@/lib/prisma";
 import { getMenuItems, getTopBarItems } from "@/app/admin/settings/menu-actions";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
 });
+
+export const viewport: Viewport = {
+  themeColor: "#dc2626",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://readi.fr'),
@@ -23,6 +31,15 @@ export const metadata: Metadata = {
     template: "%s | READI.FR"
   },
   description: "READI.FR c'est La Compétence ! Affichage dynamique, informatique, maintenance, pièces détachées et formation web. Pro depuis 1994, nous intervenons partout en France.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "READI.FR",
+  },
+  formatDetection: {
+    telephone: false,
+  },
   keywords: ["affichage dynamique", "informatique pro", "maintenance informatique", "pièces détachées", "hologramme 3d", "bornes tactiles", "formation web"],
   authors: [{ name: "READI" }],
   creator: "READI",
@@ -106,6 +123,7 @@ export default async function RootLayout({
           <Footer settings={settings} />
           <ChatBot />
           <BackToTop />
+          <InstallPrompt />
         </Providers>
       </body>
     </html>

@@ -47,17 +47,17 @@ export default async function PiecesDetacheesPage() {
     btnLink: pageContent?.heroBtnLink || "#catalogues",
     image: pageContent?.heroImage || null,
     video: pageContent?.heroVideoUrl || null,
-    // Font settings - Reduced
-    titleFontSize: pageContent?.titleFontSize || "3rem",
-    titleFontFamily: pageContent?.titleFontFamily || "inherit",
-    subtitleFontSize: pageContent?.subtitleFontSize || "0.75rem",
-    descriptionFontSize: pageContent?.descriptionFontSize || "1.125rem",
+    // Font settings - Responsive defaults handled by Tailwind
+    titleFontSize: pageContent?.titleFontSize || undefined,
+    titleFontFamily: pageContent?.titleFontFamily || undefined,
+    subtitleFontSize: pageContent?.subtitleFontSize || undefined,
+    descriptionFontSize: pageContent?.descriptionFontSize || undefined,
   };
 
   return (
     <div className="flex flex-col">
       {/* Dynamic Hero */}
-      <section className="relative h-[65vh] min-h-[450px] flex items-center justify-center overflow-hidden bg-orange-900">
+      <section className="relative min-h-[50vh] md:h-[40vh] md:min-h-[400px] flex items-center justify-center overflow-hidden bg-orange-900 py-20 md:py-0">
         {heroData.video ? (
           <div className="absolute inset-0 z-0">
             <iframe
@@ -98,13 +98,13 @@ export default async function PiecesDetacheesPage() {
             {heroData.description}
           </p>
           <div className="flex flex-wrap justify-center gap-6 animate-in fade-in zoom-in-95 duration-1000">
-            <Button asChild size="lg" className="bg-white text-orange-600 hover:bg-orange-50 h-14 px-8 rounded-2xl font-black shadow-2xl transition-all hover:scale-105 active:scale-95 text-base">
-              <Link href={heroData.btnLink}>
-                {heroData.btnText}
-                <ArrowRight className="ml-2 h-5 w-5" />
+            <Button asChild size="lg" className="bg-white text-orange-600 hover:bg-orange-50 h-auto min-h-[3.5rem] py-4 px-6 md:px-8 rounded-2xl font-black shadow-2xl transition-all hover:scale-105 active:scale-95 text-base md:text-lg whitespace-normal text-center leading-tight">
+              <Link href={heroData.btnLink} className="flex items-center gap-2">
+                <span>{heroData.btnText}</span>
+                <ArrowRight className="h-5 w-5 flex-shrink-0" />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="border-white/40 text-white hover:bg-white/10 h-14 px-8 rounded-2xl font-black backdrop-blur-sm text-base">
+            <Button asChild size="lg" variant="outline" className="border-white/40 text-white hover:bg-white/10 h-auto min-h-[3.5rem] py-4 px-6 md:px-8 rounded-2xl font-black backdrop-blur-sm text-base md:text-lg whitespace-normal text-center leading-tight">
               <Link href="#configurateur">
                 Configurateur
               </Link>

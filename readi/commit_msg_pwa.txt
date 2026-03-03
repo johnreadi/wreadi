@@ -1,0 +1,8 @@
+feat(pwa): add PWA support, install prompt and real-time sync
+
+- Integrated next-pwa configuration in next.config.mjs
+- Created manifest.ts for PWA manifest generation
+- Added InstallPrompt component to prompt users to install the app
+- Updated layout.tsx with PWA metadata and viewport settings
+- Improved useSync hook to poll every 30s for near real-time updates
+- Added basic icon.svg for PWA

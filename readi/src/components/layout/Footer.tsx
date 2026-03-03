@@ -134,11 +134,11 @@ export function Footer({ settings }: FooterProps) {
               <DialogTrigger className="hover:text-red-500 transition-colors pointer-events-auto">
                 Confidentialité
               </DialogTrigger>
-              <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+              <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
                 <DialogHeader>
                   <DialogTitle className="text-2xl font-black mb-4">Politique de Confidentialité</DialogTitle>
                 </DialogHeader>
-                <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
+                <div className="whitespace-pre-wrap text-gray-700 leading-relaxed flex-1 overflow-y-auto pr-2">
                   {settings?.privacyPolicy || "Contenu de la politique de confidentialité à définir."}
                 </div>
               </DialogContent>
@@ -150,11 +150,11 @@ export function Footer({ settings }: FooterProps) {
               <DialogTrigger className="hover:text-red-500 transition-colors pointer-events-auto">
                 Conditions Générales
               </DialogTrigger>
-              <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+              <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
                 <DialogHeader>
                   <DialogTitle className="text-2xl font-black mb-4">Conditions Générales d'Utilisation</DialogTitle>
                 </DialogHeader>
-                <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
+                <div className="whitespace-pre-wrap text-gray-700 leading-relaxed flex-1 overflow-y-auto pr-2">
                   {settings?.termsOfService || "Contenu des conditions générales à définir."}
                 </div>
               </DialogContent>

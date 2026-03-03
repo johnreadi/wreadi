@@ -45,17 +45,17 @@ export default async function HomePage() {
     btnLink: pageContent?.heroBtnLink || "/contact",
     image: pageContent?.heroImage || null,
     video: pageContent?.heroVideoUrl || null,
-    // Font settings - Reduced
-    titleFontSize: pageContent?.titleFontSize || "3.5rem",
-    titleFontFamily: pageContent?.titleFontFamily || "inherit",
-    subtitleFontSize: pageContent?.subtitleFontSize || "0.75rem",
-    descriptionFontSize: pageContent?.descriptionFontSize || "1.125rem",
+    // Font settings - Responsive defaults handled by Tailwind
+    titleFontSize: pageContent?.titleFontSize || undefined,
+    titleFontFamily: pageContent?.titleFontFamily || undefined,
+    subtitleFontSize: pageContent?.subtitleFontSize || undefined,
+    descriptionFontSize: pageContent?.descriptionFontSize || undefined,
   };
 
   return (
     <div className="flex flex-col">
       {/* Hero Section Dynamic */}
-      <section className="relative h-[40vh] min-h-[300px] flex items-center justify-center overflow-hidden bg-black">
+      <section className="relative min-h-[50vh] md:h-[40vh] md:min-h-[400px] flex items-center justify-center overflow-hidden bg-black py-20 md:py-0">
         {heroData.video ? (
           <div className="absolute inset-0 z-0 opacity-60">
             <iframe
@@ -79,7 +79,7 @@ export default async function HomePage() {
 
         <div className="container relative z-20 mx-auto px-4 text-center text-white">
           <div
-            className="inline-block px-4 py-1 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm font-black uppercase tracking-[0.3em] mb-6"
+            className="inline-block px-4 py-1 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm font-black uppercase tracking-[0.3em] mb-6 text-xs md:text-sm"
             style={{ fontSize: heroData.subtitleFontSize }}
           >
             {heroData.subtitle}
@@ -100,13 +100,13 @@ export default async function HomePage() {
             {heroData.description}
           </p>
           <div className="flex flex-wrap justify-center gap-6 animate-in fade-in zoom-in-95 duration-1000">
-            <Button asChild size="lg" className="bg-white text-black hover:bg-gray-100 h-14 px-10 rounded-2xl text-lg font-black shadow-2xl transition-all hover:scale-105 active:scale-95">
-              <Link href={heroData.btnLink}>
-                {heroData.btnText}
-                <ArrowRight className="ml-2 h-6 w-6" />
+            <Button asChild size="lg" className="bg-white text-black hover:bg-gray-100 h-auto min-h-[3.5rem] py-4 px-6 md:px-10 rounded-2xl text-base md:text-lg font-black shadow-2xl transition-all hover:scale-105 active:scale-95 whitespace-normal text-center leading-tight">
+              <Link href={heroData.btnLink} className="flex items-center gap-2">
+                <span>{heroData.btnText}</span>
+                <ArrowRight className="h-6 w-6 flex-shrink-0" />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="border-white/40 text-white hover:bg-white/10 h-14 px-10 rounded-2xl text-lg font-black backdrop-blur-sm">
+            <Button asChild size="lg" variant="outline" className="border-white/40 text-white hover:bg-white/10 h-auto min-h-[3.5rem] py-4 px-6 md:px-10 rounded-2xl text-base md:text-lg font-black backdrop-blur-sm whitespace-normal text-center leading-tight">
               <Link href="/affichage-dynamique">
                 Nos solutions
               </Link>

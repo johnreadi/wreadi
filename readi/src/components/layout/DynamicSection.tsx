@@ -76,10 +76,10 @@ export function DynamicSection({ section }: DynamicSectionProps) {
 
                         {(section.ctaText && section.ctaLink) && (
                             <div className={`pt-4 ${isCenter ? 'flex justify-center' : ''}`}>
-                                <Button asChild size="lg" className="bg-red-600 hover:bg-red-700 h-12 px-6 text-base font-bold shadow-xl shadow-red-600/20 group">
-                                    <Link href={section.ctaLink}>
-                                        {section.ctaText}
-                                        <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                                <Button asChild size="lg" className="bg-red-600 hover:bg-red-700 h-auto min-h-[3rem] py-3 px-6 text-base font-bold shadow-xl shadow-red-600/20 group whitespace-normal text-center leading-tight">
+                                    <Link href={section.ctaLink} className="flex items-center gap-2">
+                                        <span>{section.ctaText}</span>
+                                        <ChevronRight className="h-4 w-4 flex-shrink-0 transition-transform group-hover:translate-x-1" />
                                     </Link>
                                 </Button>
                             </div>

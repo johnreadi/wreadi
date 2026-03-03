@@ -60,17 +60,18 @@ export default async function FormationWebPage() {
         btnLink: pageContent?.heroBtnLink || "/contact",
         image: pageContent?.heroImage || null,
         video: pageContent?.heroVideoUrl || null,
-        titleFontSize: pageContent?.titleFontSize || "3.5rem",
-        titleFontFamily: pageContent?.titleFontFamily || "inherit",
-        subtitleFontSize: pageContent?.subtitleFontSize || "0.75rem",
-        descriptionFontSize: pageContent?.descriptionFontSize || "1.125rem",
+        // Font settings - Responsive defaults handled by Tailwind
+        titleFontSize: pageContent?.titleFontSize || undefined,
+        titleFontFamily: pageContent?.titleFontFamily || undefined,
+        subtitleFontSize: pageContent?.subtitleFontSize || undefined,
+        descriptionFontSize: pageContent?.descriptionFontSize || undefined,
     };
 
     return (
         <div className="flex flex-col">
             {/* Dynamic Hero */}
-            <section className="relative h-[65vh] min-h-[450px] flex items-center justify-center overflow-hidden bg-blue-900">
-                {heroData.video ? (
+      <section className="relative min-h-[50vh] md:h-[40vh] md:min-h-[400px] flex items-center justify-center overflow-hidden bg-blue-900 py-20 md:py-0">
+        {heroData.video ? (
                     <div className="absolute inset-0 z-0">
                         <iframe
                             src={`${heroData.video.replace('watch?v=', 'embed/')}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0`}
@@ -171,10 +172,10 @@ export default async function FormationWebPage() {
                     <p className="text-lg text-blue-100 mb-10 max-w-3xl mx-auto font-medium">
                         Contactez-nous pour la conception de votre site internet ou pour organiser une session de formation personnalisée selon vos besoins.
                     </p>
-                    <Button asChild size="lg" className="bg-white text-blue-700 hover:bg-blue-50 h-14 px-10 rounded-2xl font-black text-lg shadow-2xl transition-all hover:scale-105 active:scale-95">
-                        <Link href="/contact">
-                            Démarrer le projet
-                            <ArrowRight className="ml-2 h-5 w-5" />
+                    <Button asChild size="lg" className="bg-white text-blue-700 hover:bg-blue-50 h-auto min-h-[3.5rem] py-4 px-6 md:px-10 rounded-2xl font-black text-base md:text-lg shadow-2xl transition-all hover:scale-105 active:scale-95 whitespace-normal text-center leading-tight">
+                        <Link href="/contact" className="flex items-center gap-2">
+                            <span>Démarrer le projet</span>
+                            <ArrowRight className="h-5 w-5 flex-shrink-0" />
                         </Link>
                     </Button>
                 </div>

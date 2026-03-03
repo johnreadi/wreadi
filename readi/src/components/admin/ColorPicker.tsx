@@ -4,22 +4,30 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 
 interface ColorPickerProps {
-    name: string;
+    name?: string;
     defaultValue?: string;
+    value?: string;
     label?: string;
     className?: string; // Container class
     inputClassName?: string; // Text input class
+    onChange?: (color: string) => void;
 }
 
-export function ColorPicker({ name, defaultValue = "#ffffff", label, className, inputClassName }: ColorPickerProps) {
-    const [color, setColor] = useState(defaultValue);
+export function ColorPicker({ name, defaultValue = "#ffffff", value, label, className, inputClassName, onChange }: ColorPickerProps) {
+    const [color, setColor] = useState(value || defaultValue);
 
     useEffect(() => {
-        setColor(defaultValue);
-    }, [defaultValue]);
+        if (value !== undefined) {
+            setColor(value);
+        }
+    }, [value]);
 
     const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setColor(e.target.value);
+        const newColor = e.target.value;
+        setColor(newColor);
+        if (onChange) {
+            onChange(newColor);
+        }
     };
 
     return (

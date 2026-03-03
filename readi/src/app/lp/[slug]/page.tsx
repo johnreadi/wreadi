@@ -22,7 +22,7 @@ export default async function LandingPage({ params }: { params: { slug: string }
 
             <main className="flex-grow">
                 {/* Hero Section */}
-                <section className="relative py-20 lg:py-32 overflow-hidden bg-gradient-to-br from-purple-50 via-white to-purple-50">
+                <section className="relative min-h-[50vh] md:h-[40vh] md:min-h-[400px] flex items-center justify-center overflow-hidden bg-gradient-to-br from-purple-50 via-white to-purple-50 py-20 md:py-0">
                     <div className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none">
                         <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-200 rounded-full blur-3xl animate-pulse" />
                         <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-100 rounded-full blur-3xl animate-pulse" />
@@ -44,13 +44,13 @@ export default async function LandingPage({ params }: { params: { slug: string }
                             </p>
 
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                                <Button size="lg" className="h-14 px-8 text-lg bg-purple-600 hover:bg-purple-700 shadow-xl shadow-purple-200 rounded-full" asChild>
-                                    <Link href="/contact">
-                                        Demander un devis gratuit
-                                        <ArrowRight className="ml-2 h-5 w-5" />
+                                <Button size="lg" className="h-auto min-h-[3.5rem] py-4 px-8 text-base md:text-lg bg-purple-600 hover:bg-purple-700 shadow-xl shadow-purple-200 rounded-full whitespace-normal text-center leading-tight" asChild>
+                                    <Link href="/contact" className="flex items-center gap-2">
+                                        <span>Demander un devis gratuit</span>
+                                        <ArrowRight className="h-5 w-5 flex-shrink-0" />
                                     </Link>
                                 </Button>
-                                <Button size="lg" variant="outline" className="h-14 px-8 text-lg rounded-full" asChild>
+                                <Button size="lg" variant="outline" className="h-auto min-h-[3.5rem] py-4 px-8 text-base md:text-lg rounded-full whitespace-normal text-center leading-tight" asChild>
                                     <Link href="/services">
                                         Voir nos réalisations
                                     </Link>

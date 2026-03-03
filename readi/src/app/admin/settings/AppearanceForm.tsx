@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Palette, Upload, Type, Layout, Image as ImageIcon, Save, Phone, Mail, MapPin, Clock } from "lucide-react";
 import { updateAppearance } from "./settings-actions";
+import { ColorPicker } from "@/components/admin/ColorPicker";
 
 import { MenuManager } from "./MenuManager";
 import { TopBarManager } from "./TopBarManager";
@@ -127,12 +128,10 @@ export function AppearanceForm({ initialSettings, menuItems, topBarItems }: { in
                                     <div className="space-y-3">
                                         <Label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Couleur</Label>
                                         <div className="flex gap-2">
-                                            <Input
-                                                type="color"
-                                                id="primaryColor"
+                                            <ColorPicker
                                                 name="primaryColor"
                                                 defaultValue={initialSettings?.primaryColor || "#dc2626"}
-                                                className="w-12 h-12 p-1 cursor-pointer border-2 rounded-xl"
+                                                inputClassName="border-2 rounded-xl font-mono"
                                             />
                                         </div>
                                     </div>
@@ -181,28 +180,20 @@ export function AppearanceForm({ initialSettings, menuItems, topBarItems }: { in
                                     
                                     <div className="space-y-3">
                                         <Label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Couleur de fond</Label>
-                                        <div className="flex items-center gap-3">
-                                            <Input
-                                                type="color"
-                                                name="headerBgColor"
-                                                defaultValue={initialSettings?.headerBgColor || "#ffffff"}
-                                                className="w-12 h-12 p-1 cursor-pointer border-2 rounded-xl"
-                                            />
-                                            <span className="text-xs font-mono text-gray-500">Arrière-plan</span>
-                                        </div>
+                                        <ColorPicker
+                                            name="headerBgColor"
+                                            defaultValue={initialSettings?.headerBgColor || "#ffffff"}
+                                            inputClassName="border-2 rounded-xl font-mono"
+                                        />
                                     </div>
 
                                     <div className="space-y-3">
                                         <Label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Couleur du texte</Label>
-                                        <div className="flex items-center gap-3">
-                                            <Input
-                                                type="color"
-                                                name="headerTextColor"
-                                                defaultValue={initialSettings?.headerTextColor || "#1f2937"}
-                                                className="w-12 h-12 p-1 cursor-pointer border-2 rounded-xl"
-                                            />
-                                            <span className="text-xs font-mono text-gray-500">Liens et Textes</span>
-                                        </div>
+                                        <ColorPicker
+                                            name="headerTextColor"
+                                            defaultValue={initialSettings?.headerTextColor || "#1f2937"}
+                                            inputClassName="border-2 rounded-xl font-mono"
+                                        />
                                     </div>
 
                                     <div className="space-y-3">
@@ -238,26 +229,20 @@ export function AppearanceForm({ initialSettings, menuItems, topBarItems }: { in
                                     
                                     <div className="space-y-3">
                                         <Label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Couleur de fond</Label>
-                                        <div className="flex items-center gap-3">
-                                            <Input
-                                                type="color"
-                                                name="topBarBgColor"
-                                                defaultValue={initialSettings?.topBarBgColor || "#000000"}
-                                                className="w-12 h-12 p-1 cursor-pointer border-2 rounded-xl"
-                                            />
-                                        </div>
+                                        <ColorPicker
+                                            name="topBarBgColor"
+                                            defaultValue={initialSettings?.topBarBgColor || "#000000"}
+                                            inputClassName="border-2 rounded-xl font-mono"
+                                        />
                                     </div>
 
                                     <div className="space-y-3">
                                         <Label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Couleur du texte</Label>
-                                        <div className="flex items-center gap-3">
-                                            <Input
-                                                type="color"
-                                                name="topBarTextColor"
-                                                defaultValue={initialSettings?.topBarTextColor || "#ffffff"}
-                                                className="w-12 h-12 p-1 cursor-pointer border-2 rounded-xl"
-                                            />
-                                        </div>
+                                        <ColorPicker
+                                            name="topBarTextColor"
+                                            defaultValue={initialSettings?.topBarTextColor || "#ffffff"}
+                                            inputClassName="border-2 rounded-xl font-mono"
+                                        />
                                     </div>
                                     
                                     <p className="text-xs text-gray-400 italic mt-4">

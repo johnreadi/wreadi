@@ -21,7 +21,7 @@ interface UseSyncReturn {
   sync: () => Promise<void>;
 }
 
-const SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes
+const SYNC_INTERVAL = 30 * 1000; // 30 seconds
 const STORAGE_KEY = "readi_sync_data";
 const TIMESTAMP_KEY = "readi_sync_timestamp";
 
@@ -39,7 +39,7 @@ export function useSync(): UseSyncReturn {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch("/api/sync");
+      const response = await fetch("/api/sync", { cache: 'no-store' });
       if (!response.ok) {
         throw new Error("Failed to sync data");
       }

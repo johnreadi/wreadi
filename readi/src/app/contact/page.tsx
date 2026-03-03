@@ -41,11 +41,11 @@ export default async function ContactPage() {
     formDescription: pageContent?.heroBtnLink || "Remplissez le formulaire ci-dessous et nous vous répondrons dans les plus brefs délais.",
     successTitle: "Message envoyé !",
     successMessage: "Merci de nous avoir contacté. Nous vous répondrons rapidement.",
-    // Font settings - Harmonized
-    titleFontSize: pageContent?.titleFontSize || "3.5rem",
-    titleFontFamily: pageContent?.titleFontFamily || "inherit",
-    subtitleFontSize: pageContent?.subtitleFontSize || "0.75rem",
-    descriptionFontSize: pageContent?.descriptionFontSize || "1.125rem",
+    // Font settings - Responsive defaults handled by Tailwind
+    titleFontSize: pageContent?.titleFontSize || undefined,
+    titleFontFamily: pageContent?.titleFontFamily || undefined,
+    subtitleFontSize: pageContent?.subtitleFontSize || undefined,
+    descriptionFontSize: pageContent?.descriptionFontSize || undefined,
   };
 
   // Helper for address display (preserves newlines)
@@ -59,7 +59,7 @@ export default async function ContactPage() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative h-[40vh] min-h-[300px] flex items-center justify-center overflow-hidden bg-red-900">
+      <section className="relative min-h-[50vh] md:h-[40vh] md:min-h-[400px] flex items-center justify-center overflow-hidden bg-red-900 py-20 md:py-0">
         <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-red-700 to-red-800 opacity-90" />
         <div className="absolute inset-0 bg-black/20 z-10" />
 
