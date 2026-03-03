@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: readi-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://readi:readipassword@db:5432/readi?schema=public
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=change_me_in_production_please_secure_secret
+    volumes:
+      # Persistance des uploads (Correction du problème de logo)
+      - ./public/uploads:/app/public/uploads
+    depends_on:
+      - db
+    networks:
+      - readi-network
+
+  db:
+    container_name: readi-db
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=readi
+      - POSTGRES_PASSWORD=readipassword
+      - POSTGRES_DB=readi
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - readi-network
+
+networks:
+  readi-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
