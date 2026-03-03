@@ -33,16 +33,44 @@ export async function updateAppearance(formData: FormData) {
 
     const logoFile = formData.get("logo") as File;
     const logoUrl = formData.get("logoUrl") as string;
+    const logoInputType = formData.get("logoInputType") as string;
     let logoPath: string | undefined = undefined;
 
-    if (logoUrl && logoUrl.trim() !== "") {
-        logoPath = logoUrl;
-    }
+    // Log pour debug
+    console.log("UpdateAppearance:", { 
+        logoInputType, 
+        logoUrl: logoUrl ? logoUrl.substring(0, 50) : "null", 
+        logoFile: logoFile ? { name: logoFile.name, size: logoFile.size } : "null" 
+    });
 
-    if (logoFile && logoFile.size > 0 && logoFile.name !== "undefined") {
-        const uploadedPath = await handleFileUpload(logoFile);
-        if (uploadedPath) {
-            logoPath = uploadedPath;
+    if (logoInputType === "url") {
+        if (logoUrl && logoUrl.trim() !== "") {
+            logoPath = logoUrl;
+        }
+    } else if (logoInputType === "file") {
+        if (logoFile && logoFile.size > 0 && logoFile.name !== "undefined") {
+            try {
+                const uploadedPath = await handleFileUpload(logoFile);
+                if (uploadedPath) {
+                    logoPath = uploadedPath;
+                } else {
+                    console.error("Upload returned null without error");
+                }
+            } catch (e: any) {
+                console.error("Upload failed:", e);
+                throw new Error("Erreur lors de l'upload du logo: " + e.message);
+            }
+        }
+    } else {
+        // Fallback pour compatibilité si logoInputType n'est pas envoyé (ex: vieux cache)
+        if (logoUrl && logoUrl.trim() !== "") {
+            logoPath = logoUrl;
+        }
+        if (logoFile && logoFile.size > 0 && logoFile.name !== "undefined") {
+            const uploadedPath = await handleFileUpload(logoFile);
+            if (uploadedPath) {
+                logoPath = uploadedPath;
+            }
         }
     }
 

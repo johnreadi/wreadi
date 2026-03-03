@@ -54,6 +54,7 @@ export function AppearanceForm({ initialSettings, menuItems, topBarItems }: { in
                 </CardHeader>
                 <CardContent className="p-8">
                     <form action={updateAppearance} className="space-y-10">
+                        <input type="hidden" name="logoInputType" value={logoInputType} />
                         <div className="grid gap-10 md:grid-cols-2">
                             {/* Logo Upload Section */}
                             <div className="space-y-6">

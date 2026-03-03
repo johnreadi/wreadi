@@ -290,6 +290,8 @@ function SectionFormFields({ section }: { section?: Section }) {
                         ) : (
                             (mType === 'IMAGE' || mType === 'VIDEO') && (
                                 <div className="space-y-1.5">
+                                    {/* Keep existing mediaUrl when in file mode to prevent deletion if no new file is selected */}
+                                    {section?.mediaUrl && <input type="hidden" name="mediaUrl" value={section.mediaUrl} />}
                                     <Input 
                                         type="file" 
                                         id="file" 
