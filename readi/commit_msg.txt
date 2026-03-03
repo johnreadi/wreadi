@@ -1,4 +1,6 @@
 fix(ui): improve hero and dynamic section mobile visibility
 
 - Uniformize Hero section height across all pages (min-h-[50vh] md:h-[40vh])
-- Fix button visibility on mobile (wrap text, auto height) for Hero and Dynami
+- Fix button visibility on mobile (wrap text, auto height) for Hero and Dynamic sections
+- Ensure responsive font sizes and padding
+- Improve arrow icon alignment in buttons
