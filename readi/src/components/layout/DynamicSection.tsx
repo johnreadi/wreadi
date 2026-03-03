@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Play, ChevronRight, Layout } from "lucide-react";
+import { Play, ChevronRight, ChevronLeft, Layout } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -183,6 +183,22 @@ export function DynamicSection({ section }: DynamicSectionProps) {
                                                         />
                                                     ))}
                                                 </div>
+
+                                                {/* Navigation Arrows */}
+                                                <button
+                                                    onClick={() => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)}
+                                                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full z-20 transition-colors"
+                                                    aria-label="Previous slide"
+                                                >
+                                                    <ChevronLeft className="h-6 w-6" />
+                                                </button>
+                                                <button
+                                                    onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
+                                                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full z-20 transition-colors"
+                                                    aria-label="Next slide"
+                                                >
+                                                    <ChevronRight className="h-6 w-6" />
+                                                </button>
                                             </>
                                         ) : (
                                             <div className="flex flex-col items-center justify-center h-full text-gray-400">
