@@ -22,8 +22,31 @@ export default async function LandingPage({ params }: { params: { slug: string }
 
             <main className="flex-grow">
                 {/* Hero Section */}
-                <section className="relative min-h-[50vh] md:h-[40vh] md:min-h-[400px] flex items-center justify-center overflow-hidden bg-gradient-to-br from-purple-50 via-white to-purple-50 py-20 md:py-0">
-                    <div className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none">
+                <section 
+                    className="relative min-h-[50vh] md:h-[40vh] md:min-h-[400px] flex items-center justify-center overflow-hidden py-20 md:py-0"
+                    style={{ backgroundColor: page.backgroundColor || '#f3e8ff' }} // Default to purple-50-ish
+                >
+                    {page.heroVideo ? (
+                        <div className="absolute inset-0 z-0 opacity-60">
+                            <iframe
+                                src={`${page.heroVideo.replace('watch?v=', 'embed/')}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0`}
+                                className="w-full h-[120%] -translate-y-[10%] border-0 scale-125"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            />
+                        </div>
+                    ) : page.heroImage ? (
+                        <div className="absolute inset-0 z-0">
+                            <img
+                                src={page.heroImage}
+                                alt="Hero background"
+                                className="w-full h-full object-cover opacity-60"
+                            />
+                        </div>
+                    ) : (
+                        <div className="absolute inset-0 z-0 bg-gradient-to-br from-purple-50 via-white to-purple-50 opacity-90" />
+                    )}
+
+                    <div className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none z-10">
                         <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-200 rounded-full blur-3xl animate-pulse" />
                         <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-100 rounded-full blur-3xl animate-pulse" />
                     </div>

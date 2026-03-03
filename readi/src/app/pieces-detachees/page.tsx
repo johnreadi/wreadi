@@ -47,6 +47,7 @@ export default async function PiecesDetacheesPage() {
     btnLink: pageContent?.heroBtnLink || "#catalogues",
     image: pageContent?.heroImage || null,
     video: pageContent?.heroVideoUrl || null,
+    bgColor: pageContent?.heroBgColor || "#7c2d12", // orange-900 default
     // Font settings - Responsive defaults handled by Tailwind
     titleFontSize: pageContent?.titleFontSize || undefined,
     titleFontFamily: pageContent?.titleFontFamily || undefined,
@@ -57,7 +58,10 @@ export default async function PiecesDetacheesPage() {
   return (
     <div className="flex flex-col">
       {/* Dynamic Hero */}
-      <section className="relative min-h-[50vh] md:h-[40vh] md:min-h-[400px] flex items-center justify-center overflow-hidden bg-orange-900 py-20 md:py-0">
+      <section 
+        className="relative min-h-[50vh] md:h-[40vh] md:min-h-[400px] flex items-center justify-center overflow-hidden py-20 md:py-0"
+        style={{ backgroundColor: heroData.bgColor }}
+      >
         {heroData.video ? (
           <div className="absolute inset-0 z-0">
             <iframe
@@ -71,7 +75,7 @@ export default async function PiecesDetacheesPage() {
             <img src={heroData.image} alt="" className="w-full h-full object-cover opacity-40 transition-transform duration-1000 hover:scale-105" />
           </div>
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-600 to-red-800 opacity-90" />
+          <div className="absolute inset-0 opacity-90" style={{ backgroundColor: heroData.bgColor }} />
         )}
         <div className="absolute inset-0 bg-black/40 z-10" />
 

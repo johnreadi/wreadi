@@ -17,6 +17,7 @@ interface DynamicSectionProps {
         animation: string | null;
         ctaText: string | null;
         ctaLink: string | null;
+        backgroundColor?: string | null;
         // Font settings
         titleFontSize?: string | null;
         titleFontFamily?: string | null;
@@ -42,9 +43,17 @@ export function DynamicSection({ section }: DynamicSectionProps) {
     };
 
     const anim = getAnimation();
+    
+    // Check if media is a video file (local upload) or embed (YouTube/Vimeo)
+    const isVideoFile = (url: string) => {
+        return url.startsWith('/') || url.match(/\.(mp4|webm|ogg)$/i) || url.includes('/uploads/');
+    };
 
     return (
-        <section className={`py-12 lg:py-20 overflow-hidden ${isFull ? 'bg-gray-900 border-y-4 border-red-600/20' : ''}`}>
+        <section 
+            className={`py-12 lg:py-20 overflow-hidden ${isFull && !section.backgroundColor ? 'bg-gray-900 border-y-4 border-red-600/20' : ''}`}
+            style={{ backgroundColor: section.backgroundColor || undefined }}
+        >
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className={`flex flex-col ${isReverse ? 'lg:flex-row-reverse' : isCenter ? 'items-center text-center' : 'lg:flex-row'} gap-12 lg:gap-20 items-center`}>
 
@@ -108,12 +117,24 @@ export function DynamicSection({ section }: DynamicSectionProps) {
 
                                 {section.mediaType === "VIDEO" && section.mediaUrl && (
                                     <div className="w-full h-full bg-black flex items-center justify-center">
-                                        <iframe
-                                            src={section.mediaUrl.replace('watch?v=', 'embed/')}
-                                            className="w-full h-full border-0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowFullScreen
-                                        />
+                                        {isVideoFile(section.mediaUrl) ? (
+                                            <video 
+                                                src={section.mediaUrl}
+                                                className="w-full h-full object-cover"
+                                                controls
+                                                autoPlay
+                                                muted
+                                                loop
+                                                playsInline
+                                            />
+                                        ) : (
+                                            <iframe
+                                                src={section.mediaUrl.replace('watch?v=', 'embed/')}
+                                                className="w-full h-full border-0"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                allowFullScreen
+                                            />
+                                        )}
                                     </div>
                                 )}
 

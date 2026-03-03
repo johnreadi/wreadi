@@ -49,6 +49,7 @@ export default async function HomePage() {
     btnLink: pageContent?.heroBtnLink || "/contact",
     image: pageContent?.heroImage || null,
     video: pageContent?.heroVideoUrl || null,
+    bgColor: pageContent?.heroBgColor || "#000000",
     // Font settings - Responsive defaults handled by Tailwind
     titleFontSize: pageContent?.titleFontSize || undefined,
     titleFontFamily: pageContent?.titleFontFamily || undefined,
@@ -59,7 +60,10 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col">
       {/* Hero Section Dynamic */}
-      <section className="relative min-h-[50vh] md:h-[40vh] md:min-h-[400px] flex items-center justify-center overflow-hidden bg-black py-20 md:py-0">
+      <section 
+        className="relative min-h-[50vh] md:h-[40vh] md:min-h-[400px] flex items-center justify-center overflow-hidden py-20 md:py-0"
+        style={{ backgroundColor: heroData.bgColor }}
+      >
         {heroData.video ? (
           <div className="absolute inset-0 z-0 opacity-60">
             <iframe
@@ -77,7 +81,7 @@ export default async function HomePage() {
             />
           </div>
         ) : (
-          <div className="absolute inset-0 bg-red-600 z-0" />
+          <div className="absolute inset-0 z-0 opacity-60" style={{ backgroundColor: heroData.bgColor }} />
         )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 z-10" />
 
