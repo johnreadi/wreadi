@@ -74,7 +74,12 @@ export function Header({ settings, menuItems = [], topBarItems = [] }: HeaderPro
         <div style={topBarStyle} className="w-full py-2 px-4 text-xs font-bold">
           <div className="container mx-auto flex items-center justify-between">
             {topBarItems.map((item, idx) => {
-              const itemSettings = item.settings ? JSON.parse(item.settings) : {};
+              let itemSettings: any = {};
+              try {
+                itemSettings = item.settings ? JSON.parse(item.settings) : {};
+              } catch (e) {
+                console.error("Error parsing top bar item settings:", e);
+              }
               const duration = itemSettings.duration || 10;
               const direction = itemSettings.direction || 'left';
 

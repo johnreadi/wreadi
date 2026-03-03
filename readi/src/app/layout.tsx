@@ -99,12 +99,33 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const settings = await getSiteSettings();
-  const menuItems = await getMenuItems();
-  const topBarItems = await getTopBarItems();
+  let settings;
+  let menuItems;
+  let topBarItems;
+
+  try {
+    settings = await getSiteSettings();
+  } catch (e) {
+    console.error("Critical error loading site settings:", e);
+    settings = null;
+  }
+
+  try {
+    menuItems = await getMenuItems();
+  } catch (e) {
+    console.error("Critical error loading menu items:", e);
+    menuItems = [];
+  }
+
+  try {
+    topBarItems = await getTopBarItems();
+  } catch (e) {
+    console.error("Critical error loading top bar items:", e);
+    topBarItems = [];
+  }
   
   // Log server-side pour debug
-  console.log("RootLayout Settings:", JSON.stringify(settings, null, 2));
+  // console.log("RootLayout Settings:", JSON.stringify(settings, null, 2));
 
   // Construction des styles dynamiques
   const dynamicStyles = {

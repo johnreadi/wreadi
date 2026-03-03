@@ -2,20 +2,36 @@
 set -e
 
 echo "Starting deployment script..."
-echo "Initial DATABASE_URL: $DATABASE_URL"
+echo "Current user: $(whoami)"
+echo "Current directory: $(pwd)"
 
-# No need to force file: protocol anymore as we are using PostgreSQL
-# The DATABASE_URL from Dokploy (postgresql://...) is correct
+# Environment Variable Checks
+echo "--- Environment Check ---"
+if [ -z "$DATABASE_URL" ]; then
+  echo "ERROR: DATABASE_URL is not set!"
+  # We don't exit here because sometimes it might be set in .env file which Prisma reads
+else 
+  echo "DATABASE_URL is set."
+fi
+
+if [ -z "$NEXTAUTH_SECRET" ]; then
+  echo "WARNING: NEXTAUTH_SECRET is not set! This may cause 500 errors if using NextAuth."
+fi
+
+if [ -z "$NEXTAUTH_URL" ]; then
+  echo "WARNING: NEXTAUTH_URL is not set. Defaulting to localhost or inferred."
+fi
 
 # Run database migrations (or push schema)
-echo "Syncing database schema..."
+echo "--- Database Sync ---"
 if [ -d "prisma" ]; then
   # Try running db push using local prisma binary
   if [ -f "./node_modules/.bin/prisma" ]; then
+    echo "Running prisma db push..."
     # Using db push instead of migrate deploy because we switched providers
     # and don't have valid migrations for Postgres yet.
     ./node_modules/.bin/prisma db push --accept-data-loss || {
-      echo "DB Push failed! Check error above."
+      echo "ERROR: DB Push failed! Check database connection and credentials."
       # We don't exit here to allow server to start if it's just a connection issue we want to debug
     }
     
@@ -40,14 +56,13 @@ else
 fi
 
 # Start the server
-echo "Starting Next.js server..."
-echo "Current user: $(whoami)"
-echo "Current directory: $(pwd)"
+echo "--- Starting Server ---"
 echo "Listing files in public/uploads:"
 ls -la public/uploads || echo "public/uploads not found or not accessible"
 
-# Explicitly set hostname and port, though ENV vars should handle it
-# Use exec to replace shell with node process for better signal handling
+# Explicitly set hostname and port
 export HOSTNAME="0.0.0.0"
 export PORT="3000"
+
+echo "Launching node server.js..."
 exec node server.js

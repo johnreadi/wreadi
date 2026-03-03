@@ -7,9 +7,14 @@ import type { MenuItem, TopBarItem } from "@prisma/client";
 // --- MENU ACTIONS ---
 
 export async function getMenuItems(): Promise<MenuItem[]> {
-    return prisma.menuItem.findMany({
-        orderBy: { order: 'asc' }
-    });
+    try {
+        return await prisma.menuItem.findMany({
+            orderBy: { order: 'asc' }
+        });
+    } catch (error) {
+        console.error("Error fetching menu items:", error);
+        return [];
+    }
 }
 
 export async function createMenuItem(data: { label: string; href: string; target?: string }) {
@@ -51,9 +56,14 @@ export async function reorderMenuItems(items: { id: string; order: number }[]) {
 // --- TOP BAR ACTIONS ---
 
 export async function getTopBarItems(): Promise<TopBarItem[]> {
-    return prisma.topBarItem.findMany({
-        orderBy: { order: 'asc' }
-    });
+    try {
+        return await prisma.topBarItem.findMany({
+            orderBy: { order: 'asc' }
+        });
+    } catch (error) {
+        console.error("Error fetching top bar items:", error);
+        return [];
+    }
 }
 
 export async function createTopBarItem(data: { type: string; content: string; settings?: string | null }) {

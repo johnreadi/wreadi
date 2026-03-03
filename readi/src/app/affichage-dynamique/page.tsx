@@ -39,6 +39,16 @@ async function getPageData() {
   return { category, pageContent };
 }
 
+function safeJsonParse(jsonString: string | null | undefined, fallback: any = []) {
+  if (!jsonString) return fallback;
+  try {
+    return JSON.parse(jsonString);
+  } catch (e) {
+    console.error("Failed to parse JSON:", e);
+    return fallback;
+  }
+}
+
 export default async function AffichageDynamiquePage() {
   const { category, pageContent } = await getPageData();
   const services = category?.services || [];
@@ -138,7 +148,7 @@ export default async function AffichageDynamiquePage() {
                   <p className="text-gray-600 text-base md:text-lg mb-6 leading-relaxed font-medium">{service.description}</p>
                   {service.features && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-                      {JSON.parse(service.features).map((feature: string, index: number) => (
+                      {safeJsonParse(service.features).map((feature: string, index: number) => (
                         <div key={index} className="flex items-center gap-3 text-xs md:text-sm font-bold text-gray-700 bg-blue-50/50 p-3 md:p-4 rounded-xl md:rounded-2xl border border-blue-100/50">
                           <Zap className="h-4 w-4 text-blue-600" />
                           {feature}

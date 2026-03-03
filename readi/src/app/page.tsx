@@ -9,29 +9,33 @@ import Link from "next/link";
 import { DynamicSection } from "@/components/layout/DynamicSection";
 
 async function getData() {
-  const [categories, testimonials, pageContent] = await Promise.all([
-    prisma.category.findMany({
-      where: { isActive: true },
-      orderBy: { order: "asc" },
-    }),
-    prisma.testimonial.findMany({
-      where: { isActive: true },
-      orderBy: { order: "asc" },
-      take: 6,
-    }),
-    // @ts-ignore
-    prisma.pageContent.findUnique({
-      where: { pageSlug: "home" },
-      include: {
-        sections: {
-          where: { isActive: true },
-          orderBy: { order: "asc" },
+  try {
+    const [categories, testimonials, pageContent] = await Promise.all([
+      prisma.category.findMany({
+        where: { isActive: true },
+        orderBy: { order: "asc" },
+      }),
+      prisma.testimonial.findMany({
+        where: { isActive: true },
+        orderBy: { order: "asc" },
+        take: 6,
+      }),
+      prisma.pageContent.findUnique({
+        where: { pageSlug: "home" },
+        include: {
+          sections: {
+            where: { isActive: true },
+            orderBy: { order: "asc" },
+          },
         },
-      },
-    }),
-  ]);
+      }),
+    ]);
 
-  return { categories, testimonials, pageContent };
+    return { categories, testimonials, pageContent };
+  } catch (error) {
+    console.error("Error fetching home page data:", error);
+    return { categories: [], testimonials: [], pageContent: null };
+  }
 }
 
 export default async function HomePage() {

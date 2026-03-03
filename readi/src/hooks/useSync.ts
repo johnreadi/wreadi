@@ -63,8 +63,12 @@ export function useSync(): UseSyncReturn {
       if (!isProduction) {
         const cached = storage.getItem(STORAGE_KEY);
         if (cached) {
-          setData(JSON.parse(cached));
-          setLastSync(storage.getItem(TIMESTAMP_KEY));
+          try {
+            setData(JSON.parse(cached));
+            setLastSync(storage.getItem(TIMESTAMP_KEY));
+          } catch (e) {
+            console.error("Failed to parse cached sync data on error fallback:", e);
+          }
         }
       }
     } finally {
@@ -78,8 +82,12 @@ export function useSync(): UseSyncReturn {
       const cached = storage.getItem(STORAGE_KEY);
       const cachedTime = storage.getItem(TIMESTAMP_KEY);
       if (cached) {
-        setData(JSON.parse(cached));
-        setLastSync(cachedTime);
+        try {
+          setData(JSON.parse(cached));
+          setLastSync(cachedTime);
+        } catch (e) {
+          console.error("Failed to parse cached sync data:", e);
+        }
       }
     }
 

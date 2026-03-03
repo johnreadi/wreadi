@@ -47,6 +47,16 @@ const iconMap: Record<string, any> = {
   Globe: Globe,
 };
 
+function safeJsonParse(jsonString: string | null | undefined, fallback: any = []) {
+  if (!jsonString) return fallback;
+  try {
+    return JSON.parse(jsonString);
+  } catch (e) {
+    console.error("Failed to parse JSON:", e);
+    return fallback;
+  }
+}
+
 export default async function InformatiqueMaintenancePage() {
   const { category, pageContent } = await getPageData();
   const services = category?.services || [];
@@ -143,7 +153,7 @@ export default async function InformatiqueMaintenancePage() {
                   </p>
                   {service.features && (
                     <div className="space-y-2 pt-6 border-t border-gray-100">
-                      {JSON.parse(service.features).slice(0, 3).map((f: string, i: number) => (
+                      {safeJsonParse(service.features).slice(0, 3).map((f: string, i: number) => (
                         <div key={i} className="flex items-center gap-3 text-xs md:text-sm font-bold text-gray-600">
                           <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                           {f}

@@ -17,6 +17,9 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copier tout le code
 COPY . .
 
+# Adapter le provider Prisma pour la production (PostgreSQL)
+RUN sed -i 's/provider = "sqlite"/provider = "postgresql"/g' prisma/schema.prisma
+
 # Générer Prisma Client
 RUN npx prisma generate
 
