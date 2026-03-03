@@ -6,6 +6,7 @@ import {
   ArrowRight, Monitor, Settings, Package, GraduationCap
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { DynamicSection } from "@/components/layout/DynamicSection";
 
 async function getData() {
@@ -85,10 +86,13 @@ export default async function HomePage() {
           </div>
         ) : heroData.image ? (
           <div className="absolute inset-0 z-0">
-            <img
+            <Image
               src={heroData.image}
               alt="Hero background"
-              className="w-full h-full object-cover opacity-60"
+              fill
+              className="object-cover opacity-60"
+              priority
+              sizes="100vw"
             />
           </div>
         ) : (

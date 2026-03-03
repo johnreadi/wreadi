@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Play, ChevronRight, ChevronLeft, Layout } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import Image from "next/image";
 
 interface DynamicSectionProps {
     section: {
@@ -120,10 +121,12 @@ export function DynamicSection({ section }: DynamicSectionProps) {
                             <div className="relative aspect-video lg:aspect-square rounded-[2rem] overflow-hidden shadow-2xl shadow-red-600/10 group">
                                 {section.mediaType === "IMAGE" && section.mediaUrl && (
                                     <>
-                                        <img
+                                        <Image
                                             src={section.mediaUrl}
                                             alt={section.title || ""}
-                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                            fill
+                                            className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                     </>
@@ -163,10 +166,13 @@ export function DynamicSection({ section }: DynamicSectionProps) {
                                                             index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
                                                         }`}
                                                     >
-                                                        <img
+                                                        <Image
                                                             src={slide.url}
                                                             alt={slide.alt || `Slide ${index + 1}`}
-                                                            className="w-full h-full object-cover"
+                                                            fill
+                                                            className="object-cover"
+                                                            priority={index === 0}
+                                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                                         />
                                                     </div>
                                                 ))}

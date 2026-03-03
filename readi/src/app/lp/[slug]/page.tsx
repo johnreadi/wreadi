@@ -5,7 +5,8 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Megaphone, ArrowRight, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
-
+import Image from "next/image";
+import { Badge } from "@/components/ui/badge";
 export default async function LandingPage({ params }: { params: { slug: string } }) {
     // @ts-ignore
     const page = await prisma.landingPage.findUnique({
@@ -47,10 +48,13 @@ export default async function LandingPage({ params }: { params: { slug: string }
                         </div>
                     ) : page.heroImage ? (
                         <div className="absolute inset-0 z-0">
-                            <img
+                            <Image
                                 src={page.heroImage}
                                 alt="Hero background"
-                                className="w-full h-full object-cover opacity-60"
+                                fill
+                                className="object-cover opacity-60"
+                                priority
+                                sizes="100vw"
                             />
                         </div>
                     ) : (

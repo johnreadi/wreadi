@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Package, Settings, Globe, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -83,7 +84,14 @@ export default async function PiecesDetacheesPage() {
           </div>
         ) : heroData.image ? (
           <div className="absolute inset-0 z-0">
-            <img src={heroData.image} alt="" className="w-full h-full object-cover opacity-40 transition-transform duration-1000 hover:scale-105" />
+            <Image 
+              src={heroData.image} 
+              alt="" 
+              fill
+              className="object-cover opacity-40 transition-transform duration-1000 hover:scale-105" 
+              priority
+              sizes="100vw"
+            />
           </div>
         ) : (
           <div className="absolute inset-0 opacity-90" style={{ backgroundColor: heroData.bgColor }} />
