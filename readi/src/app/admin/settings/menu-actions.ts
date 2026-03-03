@@ -74,10 +74,12 @@ export async function createTopBarItem(formData: FormData) {
     
     // Handle file upload if type is IMAGE
     if (type === "IMAGE") {
-        const file = formData.get("file") as File;
-        const uploadedPath = await handleFileUpload(file);
-        if (uploadedPath) {
-            content = uploadedPath;
+        const fileEntry = formData.get("file");
+        if (fileEntry instanceof File) {
+             const uploadedPath = await handleFileUpload(fileEntry);
+             if (uploadedPath) {
+                 content = uploadedPath;
+             }
         }
     }
 

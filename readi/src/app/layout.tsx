@@ -99,9 +99,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let settings;
-  let menuItems;
-  let topBarItems;
+  let settings: any = null;
+  let menuItems: any[] = [];
+  let topBarItems: any[] = [];
 
   try {
     settings = await getSiteSettings();

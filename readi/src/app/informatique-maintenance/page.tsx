@@ -5,6 +5,7 @@ import {
   ArrowRight, Printer, Copy, ScanLine, Monitor, Antenna, Globe, Settings, CheckCircle2
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { DynamicSection } from "@/components/layout/DynamicSection";
 import { Metadata } from "next";
 
@@ -69,6 +70,7 @@ export default async function InformatiqueMaintenancePage() {
     btnLink: pageContent?.heroBtnLink || "/contact",
     image: pageContent?.heroImage || null,
     video: pageContent?.heroVideoUrl || null,
+    bgColor: pageContent?.heroBgColor || null,
     // Font settings - Responsive defaults handled by Tailwind
     titleFontSize: pageContent?.titleFontSize || undefined,
     titleFontFamily: pageContent?.titleFontFamily || undefined,
@@ -79,21 +81,42 @@ export default async function InformatiqueMaintenancePage() {
   return (
     <div className="flex flex-col">
       {/* Dynamic Hero */}
-      <section className="relative min-h-[50vh] md:h-[40vh] md:min-h-[400px] flex items-center justify-center overflow-hidden bg-emerald-900 py-20 md:py-0">
+      <section 
+        className="relative min-h-[50vh] md:h-[40vh] md:min-h-[400px] flex items-center justify-center overflow-hidden py-20 md:py-0"
+        style={{ backgroundColor: heroData.bgColor || '#064e3b' }} // Default emerald-900 equivalent
+      >
         {heroData.video ? (
           <div className="absolute inset-0 z-0">
-            <iframe
-              src={`${heroData.video.replace('watch?v=', 'embed/')}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0`}
-              className="w-full h-full border-0 scale-150 grayscale-[20%]"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            />
+            {(heroData.video.startsWith('/') || heroData.video.match(/\.(mp4|webm|ogg)$/i)) ? (
+                <video
+                    src={heroData.video}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    className="w-full h-full object-cover grayscale-[20%]"
+                />
+            ) : (
+                <iframe
+                    src={`${heroData.video.replace('watch?v=', 'embed/')}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0`}
+                    className="w-full h-full border-0 scale-150 grayscale-[20%]"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                />
+            )}
           </div>
         ) : heroData.image ? (
           <div className="absolute inset-0 z-0">
-            <img src={heroData.image} alt="" className="w-full h-full object-cover opacity-40 transition-transform duration-1000 hover:scale-105" />
+            <Image 
+                src={heroData.image} 
+                alt="Hero background" 
+                fill
+                className="object-cover opacity-40 transition-transform duration-1000 hover:scale-105" 
+                priority
+                sizes="100vw"
+            />
           </div>
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 to-teal-800 opacity-90" />
+          <div className="absolute inset-0 opacity-90" style={{ backgroundColor: heroData.bgColor || '#064e3b' }} />
         )}
         <div className="absolute inset-0 bg-black/40 z-10" />
 
