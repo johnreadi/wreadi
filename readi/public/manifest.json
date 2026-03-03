@@ -1,0 +1,16 @@
+{
+  "name": "READI.FR",
+  "short_name": "READI",
+  "description": "Expert Affichage Dynamique & Informatique depuis 1994",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#dc2626",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
