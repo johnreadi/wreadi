@@ -224,6 +224,15 @@ model SiteSettings {
   aiModel           String   @default("gpt-4o") // Modèle par défaut
   aiApiKey          String?  // Clé API (optionnelle si gérée par env)
   aiTemperature     Float    @default(0.7)
+  
+  // Configuration Messagerie (SMTP & Destinataires)
+  emailSmtpHost     String?
+  emailSmtpPort     Int?     @default(587)
+  emailSmtpUser     String?
+  emailSmtpPass     String?
+  emailRecipients   String?  // Liste séparée par des virgules
+  emailFrom         String?  // Adresse d'envoi (ex: no-reply@readi.fr)
+  
   contactEmail      String?
   contactPhone      String?
   contactAddress    String?

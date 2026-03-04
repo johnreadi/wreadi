@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Bot, Save, Sparkles, Zap, Globe } from "lucide-react";
+import { Bot, Save, Sparkles, Zap, Globe, Mail, Server, Users } from "lucide-react";
 import { revalidatePath } from "next/cache";
 import {
     Select,
@@ -59,6 +59,14 @@ export default async function AISettingsPage() {
         const aiApiKey = formData.get("aiApiKey") as string;
         const aiTemperature = parseFloat(formData.get("aiTemperature") as string || "0.7");
 
+        // Messaging Settings
+        const emailSmtpHost = formData.get("emailSmtpHost") as string;
+        const emailSmtpPort = parseInt(formData.get("emailSmtpPort") as string || "587");
+        const emailSmtpUser = formData.get("emailSmtpUser") as string;
+        const emailSmtpPass = formData.get("emailSmtpPass") as string;
+        const emailRecipients = formData.get("emailRecipients") as string;
+        const emailFrom = formData.get("emailFrom") as string;
+
         await prisma.siteSettings.update({
             where: { id: "default" },
             data: {
@@ -68,6 +76,12 @@ export default async function AISettingsPage() {
                 aiModel,
                 aiApiKey: aiApiKey || undefined,
                 aiTemperature,
+                emailSmtpHost,
+                emailSmtpPort,
+                emailSmtpUser,
+                emailSmtpPass,
+                emailRecipients,
+                emailFrom,
             },
         });
 
@@ -201,6 +215,102 @@ export default async function AISettingsPage() {
                                     <span>Équilibré</span>
                                     <span>Créatif & Varié</span>
                                 </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Configuration Messagerie */}
+                    <Card className="border-2 border-blue-100">
+                        <CardHeader className="bg-blue-50/50">
+                            <CardTitle className="flex items-center gap-2">
+                                <Mail className="h-5 w-5 text-blue-600" />
+                                Configuration Messagerie
+                            </CardTitle>
+                            <CardDescription>
+                                Configurez les paramètres d'envoi d'emails et les destinataires des formulaires de contact.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="pt-6 space-y-6">
+                            <div className="grid md:grid-cols-2 gap-6">
+                                {/* SMTP Host */}
+                                <div className="space-y-2">
+                                    <Label htmlFor="emailSmtpHost" className="flex items-center gap-2">
+                                        <Server className="h-4 w-4 text-gray-500" />
+                                        Serveur SMTP (Host)
+                                    </Label>
+                                    <Input
+                                        id="emailSmtpHost"
+                                        name="emailSmtpHost"
+                                        defaultValue={settings.emailSmtpHost || ""}
+                                        placeholder="ex: smtp.office365.com"
+                                    />
+                                </div>
+
+                                {/* SMTP Port */}
+                                <div className="space-y-2">
+                                    <Label htmlFor="emailSmtpPort">Port SMTP</Label>
+                                    <Input
+                                        id="emailSmtpPort"
+                                        name="emailSmtpPort"
+                                        type="number"
+                                        defaultValue={settings.emailSmtpPort || 587}
+                                        placeholder="587"
+                                    />
+                                </div>
+
+                                {/* SMTP User */}
+                                <div className="space-y-2">
+                                    <Label htmlFor="emailSmtpUser">Utilisateur SMTP</Label>
+                                    <Input
+                                        id="emailSmtpUser"
+                                        name="emailSmtpUser"
+                                        defaultValue={settings.emailSmtpUser || ""}
+                                        placeholder="ex: contact@readi.fr"
+                                    />
+                                </div>
+
+                                {/* SMTP Pass */}
+                                <div className="space-y-2">
+                                    <Label htmlFor="emailSmtpPass">Mot de passe SMTP</Label>
+                                    <Input
+                                        id="emailSmtpPass"
+                                        name="emailSmtpPass"
+                                        type="password"
+                                        defaultValue={settings.emailSmtpPass || ""}
+                                        placeholder="••••••••"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Destinataires */}
+                            <div className="space-y-2">
+                                <Label htmlFor="emailRecipients" className="flex items-center gap-2">
+                                    <Users className="h-4 w-4 text-green-600" />
+                                    Destinataires (séparés par des virgules)
+                                </Label>
+                                <Input
+                                    id="emailRecipients"
+                                    name="emailRecipients"
+                                    defaultValue={settings.emailRecipients || ""}
+                                    placeholder="ex: contact@readi.fr, support@readi.fr"
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Les messages du formulaire de contact seront envoyés à ces adresses.
+                                </p>
+                            </div>
+
+                            {/* Email d'envoi */}
+                            <div className="space-y-2">
+                                <Label htmlFor="emailFrom">Adresse d'envoi (From)</Label>
+                                <Input
+                                    id="emailFrom"
+                                    name="emailFrom"
+                                    defaultValue={settings.emailFrom || ""}
+                                    placeholder="ex: no-reply@readi.fr"
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    L'adresse qui apparaîtra comme expéditeur (doit souvent correspondre à l'utilisateur SMTP).
+                                </p>
                             </div>
                         </CardContent>
                     </Card>
