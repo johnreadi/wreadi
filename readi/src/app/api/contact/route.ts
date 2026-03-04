@@ -26,6 +26,29 @@ export async function POST(request: Request) {
       },
     });
 
+    // 1.5 Créer également une conversation pour l'interface de messagerie admin
+    try {
+        const conversation = await prisma.conversation.create({
+            data: {
+                subject: subject,
+                participantName: name,
+                participantEmail: email,
+                status: "OPEN",
+                messages: {
+                    create: {
+                        content: message,
+                        senderType: "USER",
+                        isRead: false
+                    }
+                }
+            }
+        });
+        console.log("Conversation created:", conversation.id);
+    } catch (convError) {
+        console.error("Failed to create conversation:", convError);
+        // On ne bloque pas si ça échoue, car le ContactMessage est déjà sauvé
+    }
+
     // 2. Envoyer un email si la configuration est présente
     try {
         const settings = await prisma.siteSettings.findUnique({
