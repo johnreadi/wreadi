@@ -394,3 +394,19 @@ model LandingPage {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
+
+// Modèle pour l'Agenda
+model Event {
+  id              String   @id @default(cuid())
+  title           String
+  description     String?
+  start           DateTime
+  end             DateTime
+  allDay          Boolean  @default(false)
+  location        String?
+  participantName String?  // Pour lier à un contact
+  participantEmail String? // Pour lier à un contact
+  color           String?  // Couleur de l'événement
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

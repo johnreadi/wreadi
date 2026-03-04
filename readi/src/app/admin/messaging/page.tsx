@@ -1,13 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Mail, Search, Paperclip, Send, User, Clock, Check, MoreVertical, Archive, Trash2, XCircle, RotateCcw, Tag, StickyNote, Zap, Filter, LayoutPanelLeft } from "lucide-react";
+import { 
+    Mail, Search, Paperclip, Send, User, Clock, Check, MoreVertical, 
+    Archive, Trash2, XCircle, RotateCcw, Tag, StickyNote, Zap, 
+    Filter, LayoutPanelLeft, Plus, Calendar, FileIcon, X
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
     getConversations,
@@ -16,8 +20,18 @@ import {
     updateConversationStatus,
     deleteConversation,
     updateConversationNotes,
-    updateConversationTags
+    updateConversationTags,
+    createConversation
 } from "./messaging-actions";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    DialogFooter
+} from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
 
 const QUICK_REPLIES = [
     { label: "Bien reçu", text: "Bonjour,\n\nNous avons bien reçu votre message et nous revenons vers vous dans les plus brefs délais.\n\nCordialement,\nL'équipe READI" },
@@ -27,6 +41,7 @@ const QUICK_REPLIES = [
 ];
 
 export default function MessagingPage() {
+    const router = useRouter();
     const [conversations, setConversations] = useState<any[]>([]);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [messages, setMessages] = useState<any[]>([]);
@@ -40,6 +55,21 @@ export default function MessagingPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [internalNotes, setInternalNotes] = useState("");
     const [tags, setTags] = useState("");
+
+    // Attachments
+    const [attachments, setAttachments] = useState<any[]>([]);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // New Conversation State
+    const [isNewConvOpen, setIsNewConvOpen] = useState(false);
+    const [newConvData, setNewConvData] = useState({
+        email: "",
+        name: "",
+        subject: "",
+        message: ""
+    });
+    const [newConvAttachments, setNewConvAttachments] = useState<any[]>([]);
+    const newConvFileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         const fetchConvs = async () => {
@@ -70,19 +100,72 @@ export default function MessagingPage() {
         }
     }, [selectedId, conversations]);
 
+    const handleFileUpload = async (files: FileList | null, isNewConv = false) => {
+        if (!files || files.length === 0) return;
+
+        const uploadedFiles = [];
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const res = await fetch("/api/upload", {
+                    method: "POST",
+                    body: formData
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    uploadedFiles.push(data);
+                }
+            } catch (error) {
+                console.error("Upload failed", error);
+            }
+        }
+
+        if (isNewConv) {
+            setNewConvAttachments(prev => [...prev, ...uploadedFiles]);
+        } else {
+            setAttachments(prev => [...prev, ...uploadedFiles]);
+        }
+    };
+
     const handleSend = async () => {
-        if (!selectedId || !newMessage.trim()) return;
+        if (!selectedId || (!newMessage.trim() && attachments.length === 0)) return;
 
         try {
-            const sent = await sendMessage(selectedId, newMessage);
+            const sent = await sendMessage(selectedId, newMessage, "ADMIN", attachments);
             setMessages(prev => [...prev, sent]);
             setNewMessage("");
+            setAttachments([]);
             // Update last message in conversations list
             setConversations(prev => prev.map(c =>
                 c.id === selectedId ? { ...c, messages: [sent], lastMessageAt: new Date() } : c
             ));
         } catch (error) {
             console.error("Failed to send message", error);
+        }
+    };
+
+    const handleCreateConversation = async () => {
+        if (!newConvData.email || !newConvData.subject || !newConvData.message) return;
+
+        try {
+            const newConv = await createConversation(
+                newConvData.email,
+                newConvData.name || newConvData.email,
+                newConvData.subject,
+                newConvData.message,
+                newConvAttachments
+            );
+            
+            setConversations(prev => [newConv, ...prev]);
+            setSelectedId(newConv.id);
+            setIsNewConvOpen(false);
+            setNewConvData({ email: "", name: "", subject: "", message: "" });
+            setNewConvAttachments([]);
+        } catch (error) {
+            console.error("Failed to create conversation", error);
         }
     };
 
@@ -135,6 +218,18 @@ export default function MessagingPage() {
         }
     };
 
+    const handleAddToAgenda = () => {
+        if (!selectedConv) return;
+        // Redirect to agenda with pre-filled info
+        const params = new URLSearchParams({
+            action: 'new',
+            title: `RDV avec ${selectedConv.participantName}`,
+            participant: selectedConv.participantName,
+            email: selectedConv.participantEmail
+        });
+        router.push(`/admin/agenda?${params.toString()}`);
+    };
+
     const filteredConversations = conversations.filter(c => {
         const matchesStatus = activeTab === "ALL" ? true : c.status === activeTab;
         const matchesSearch = 
@@ -147,11 +242,112 @@ export default function MessagingPage() {
 
     const selectedConv = conversations.find(c => c.id === selectedId);
 
+    const getTabLabel = (status: string) => {
+        switch(status) {
+            case "ALL": return "Tout";
+            case "OPEN": return "Ouvert";
+            case "CLOSED": return "Fermé";
+            case "ARCHIVED": return "Archivé";
+            default: return status;
+        }
+    };
+
     return (
         <div className="h-[calc(100vh-12rem)] flex gap-4">
             {/* Liste des conversations */}
             <Card className="w-80 flex-shrink-0 flex flex-col overflow-hidden border-2">
                 <div className="p-4 border-b bg-gray-50/50 space-y-3">
+                    <div className="flex justify-between items-center">
+                        <h2 className="font-semibold text-gray-700">Messages</h2>
+                        <Dialog open={isNewConvOpen} onOpenChange={setIsNewConvOpen}>
+                            <DialogTrigger asChild>
+                                <Button size="sm" className="h-8 bg-red-600 hover:bg-red-700">
+                                    <Plus className="h-4 w-4 mr-1" /> Nouveau
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[600px]">
+                                <DialogHeader>
+                                    <DialogTitle>Nouveau Message</DialogTitle>
+                                </DialogHeader>
+                                <div className="space-y-4 py-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label>Email du destinataire</Label>
+                                            <Input 
+                                                placeholder="client@exemple.com" 
+                                                value={newConvData.email}
+                                                onChange={(e) => setNewConvData({...newConvData, email: e.target.value})}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Nom (Optionnel)</Label>
+                                            <Input 
+                                                placeholder="Jean Dupont" 
+                                                value={newConvData.name}
+                                                onChange={(e) => setNewConvData({...newConvData, name: e.target.value})}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Sujet</Label>
+                                        <Input 
+                                            placeholder="Sujet du message" 
+                                            value={newConvData.subject}
+                                            onChange={(e) => setNewConvData({...newConvData, subject: e.target.value})}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Message</Label>
+                                        <Textarea 
+                                            placeholder="Votre message..." 
+                                            className="min-h-[150px]"
+                                            value={newConvData.message}
+                                            onChange={(e) => setNewConvData({...newConvData, message: e.target.value})}
+                                        />
+                                    </div>
+                                    
+                                    {/* Attachments for New Conversation */}
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <Label>Pièces jointes</Label>
+                                            <Button 
+                                                variant="outline" 
+                                                size="sm" 
+                                                onClick={() => newConvFileInputRef.current?.click()}
+                                            >
+                                                <Paperclip className="h-4 w-4 mr-2" /> Ajouter
+                                            </Button>
+                                            <input 
+                                                type="file" 
+                                                ref={newConvFileInputRef} 
+                                                className="hidden" 
+                                                multiple 
+                                                onChange={(e) => handleFileUpload(e.target.files, true)}
+                                            />
+                                        </div>
+                                        {newConvAttachments.length > 0 && (
+                                            <div className="flex flex-wrap gap-2">
+                                                {newConvAttachments.map((file, idx) => (
+                                                    <Badge key={idx} variant="secondary" className="flex items-center gap-1">
+                                                        <span className="truncate max-w-[150px]">{file.name}</span>
+                                                        <X 
+                                                            className="h-3 w-3 cursor-pointer hover:text-red-600" 
+                                                            onClick={() => setNewConvAttachments(prev => prev.filter((_, i) => i !== idx))}
+                                                        />
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button variant="outline" onClick={() => setIsNewConvOpen(false)}>Annuler</Button>
+                                    <Button onClick={handleCreateConversation} className="bg-red-600 hover:bg-red-700">Envoyer</Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
+                    
                     <div className="relative">
                         <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
                         <Input 
@@ -170,7 +366,7 @@ export default function MessagingPage() {
                                     activeTab === status ? "bg-white shadow-sm font-medium text-blue-600" : "text-gray-500 hover:bg-gray-200"
                                 }`}
                             >
-                                {status === "ALL" ? "Tout" : status}
+                                {getTabLabel(status)}
                             </button>
                         ))}
                     </div>
@@ -198,7 +394,7 @@ export default function MessagingPage() {
                             <div className="flex items-center gap-2 mt-2">
                                 {conv.status !== "OPEN" && (
                                     <Badge variant="outline" className="text-[9px] h-4 uppercase">
-                                        {conv.status}
+                                        {getTabLabel(conv.status)}
                                     </Badge>
                                 )}
                                 {conv.tags && (
@@ -228,6 +424,16 @@ export default function MessagingPage() {
                                 </div>
                             </div>
                             <div className="flex items-center gap-2 relative">
+                                <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    onClick={handleAddToAgenda}
+                                    className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                                >
+                                    <Calendar className="h-4 w-4 mr-2" />
+                                    Agenda
+                                </Button>
+
                                 <Button 
                                     variant="outline" 
                                     size="sm" 
@@ -300,6 +506,27 @@ export default function MessagingPage() {
                                         : "bg-white border rounded-tl-none"
                                         }`}>
                                         <div style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</div>
+                                        
+                                        {/* Attachments Display */}
+                                        {msg.attachments && msg.attachments.length > 0 && (
+                                            <div className="mt-3 space-y-2">
+                                                {msg.attachments.map((att: any) => (
+                                                    <a 
+                                                        key={att.id} 
+                                                        href={att.fileUrl} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        className={`flex items-center gap-2 p-2 rounded-lg ${
+                                                            msg.senderType === "ADMIN" ? "bg-red-700/50 hover:bg-red-700" : "bg-gray-100 hover:bg-gray-200"
+                                                        } transition-colors`}
+                                                    >
+                                                        <FileIcon className="h-4 w-4" />
+                                                        <span className="truncate max-w-[200px] text-xs underline">{att.fileName}</span>
+                                                    </a>
+                                                ))}
+                                            </div>
+                                        )}
+
                                         <div className={`text-[10px] mt-2 flex items-center gap-1 ${msg.senderType === "ADMIN" ? "text-red-100 justify-end" : "text-gray-400"
                                             }`}>
                                             <Clock className="h-3 w-3" />
@@ -313,10 +540,38 @@ export default function MessagingPage() {
 
                         {/* Zone de réponse */}
                         <div className="p-4 border-t bg-white">
+                            {/* Attachment Previews */}
+                            {attachments.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mb-2 p-2 bg-gray-50 rounded-lg">
+                                    {attachments.map((file, idx) => (
+                                        <Badge key={idx} variant="secondary" className="flex items-center gap-1 bg-white border">
+                                            <span className="truncate max-w-[150px]">{file.name}</span>
+                                            <X 
+                                                className="h-3 w-3 cursor-pointer hover:text-red-600" 
+                                                onClick={() => setAttachments(prev => prev.filter((_, i) => i !== idx))}
+                                            />
+                                        </Badge>
+                                    ))}
+                                </div>
+                            )}
+
                             <div className="flex items-end gap-2">
-                                <Button variant="ghost" size="icon" className="shrink-0">
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="shrink-0"
+                                    onClick={() => fileInputRef.current?.click()}
+                                >
                                     <Paperclip className="h-5 w-5 text-gray-500" />
                                 </Button>
+                                <input 
+                                    type="file" 
+                                    ref={fileInputRef} 
+                                    className="hidden" 
+                                    multiple 
+                                    onChange={(e) => handleFileUpload(e.target.files)}
+                                />
+                                
                                 <div className="flex-1">
                                     <textarea
                                         value={newMessage}
@@ -327,7 +582,7 @@ export default function MessagingPage() {
                                 </div>
                                 <Button
                                     onClick={handleSend}
-                                    disabled={!newMessage.trim()}
+                                    disabled={!newMessage.trim() && attachments.length === 0}
                                     className="bg-red-600 hover:bg-red-700 h-10 px-5 shrink-0"
                                 >
                                     <Send className="mr-2 h-4 w-4" />
