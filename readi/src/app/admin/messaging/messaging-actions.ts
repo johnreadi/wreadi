@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import nodemailer from "nodemailer";
+import { sendEmail } from "@/lib/email";
 
 export async function getConversations() {
     return prisma.conversation.findMany({
@@ -75,7 +75,18 @@ export async function createConversation(
     });
 
     // Send email to user
-    await sendEmailNotification(participantEmail, subject, message, attachments);
+    const emailAttachments = attachments.map(att => ({
+        filename: att.name,
+        path: `public${att.url}` // Assumes url starts with /
+    }));
+
+    await sendEmail({
+        to: participantEmail,
+        subject,
+        html: `<p>${message.replace(/\n/g, '<br>')}</p>`,
+        text: message,
+        attachments: emailAttachments
+    });
 
     revalidatePath("/admin/messaging");
     return conversation;
@@ -113,73 +124,25 @@ export async function sendMessage(
 
     // Send email notification to user if sender is ADMIN
     if (senderType === "ADMIN") {
-        await sendEmailNotification(conversation.participantEmail, `Re: ${conversation.subject || 'Votre message'}`, content, attachments);
+        const emailAttachments = attachments.map(att => ({
+            filename: att.name,
+            path: `public${att.url}`
+        }));
+
+        await sendEmail({
+            to: conversation.participantEmail,
+            subject: `Re: ${conversation.subject || 'Votre message'}`,
+            html: `<p>${content.replace(/\n/g, '<br>')}</p>`,
+            text: content,
+            attachments: emailAttachments
+        });
     }
 
     revalidatePath("/admin/messaging");
     return message;
 }
 
-async function sendEmailNotification(to: string, subject: string, content: string, attachments: AttachmentData[]) {
-    try {
-        const settings = await prisma.siteSettings.findUnique({
-            where: { id: "default" }
-        });
 
-        if (settings && settings.emailSmtpHost && settings.emailSmtpUser && settings.emailSmtpPass) {
-            const transporter = nodemailer.createTransport({
-                host: settings.emailSmtpHost,
-                port: settings.emailSmtpPort || 587,
-                secure: settings.emailSmtpPort === 465,
-                auth: {
-                    user: settings.emailSmtpUser,
-                    pass: settings.emailSmtpPass,
-                },
-                tls: {
-                    rejectUnauthorized: false
-                }
-            });
-
-            const mailAttachments = attachments.map(att => ({
-                filename: att.name,
-                path: process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}${att.url}` : `public${att.url}` // Note: This path logic might need adjustment depending on where files are stored relative to execution
-                // For simplicity in this environment, let's assume public URL if accessible, or just file path if local
-            }));
-            
-            // Adjust path for nodemailer if local file
-            // If the url starts with /uploads/, and we are on the server, we might need the absolute path
-            const fsAttachments = attachments.map(att => {
-                // Assuming url is like /uploads/file.png
-                // We need to point to the actual file on disk for nodemailer if we want to attach it directly
-                // OR pass the URL if it's publicly accessible.
-                // Let's try to construct the absolute path for reliability in this env
-                const cleanUrl = att.url.startsWith('/') ? att.url.substring(1) : att.url;
-                return {
-                    filename: att.name,
-                    path: `public/${cleanUrl}`
-                };
-            });
-
-            const mailOptions = {
-                from: settings.emailFrom || settings.emailSmtpUser,
-                to: to,
-                subject: subject,
-                text: content,
-                html: `
-                    <p>${content.replace(/\n/g, '<br>')}</p>
-                    <hr />
-                    <p style="font-size: 12px; color: #666;">Ceci est un message de ${settings.siteName || 'notre site'}.</p>
-                `,
-                attachments: fsAttachments
-            };
-
-            await transporter.sendMail(mailOptions);
-        }
-    } catch (error) {
-        console.error("Failed to send email reply:", error);
-        // Don't throw, just log. The message is saved in DB.
-    }
-}
 
 export async function updateConversationStatus(conversationId: string, status: string) {
     await prisma.conversation.update({

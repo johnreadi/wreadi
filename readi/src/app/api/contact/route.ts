@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import nodemailer from "nodemailer";
+import { sendEmail } from "@/lib/email";
 
 export async function POST(request: Request) {
   try {
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
             where: { id: "default" }
         });
 
-        if (settings && settings.emailSmtpHost && settings.emailSmtpUser && settings.emailSmtpPass) {
+        if (settings) {
             
             // Déterminer les destinataires
             let recipients: string[] = [];
@@ -69,25 +69,10 @@ export async function POST(request: Request) {
             }
 
             if (recipients.length > 0) {
-                const transporter = nodemailer.createTransport({
-                    host: settings.emailSmtpHost,
-                    port: settings.emailSmtpPort || 587,
-                    secure: settings.emailSmtpPort === 465, // true for 465, false for other ports
-                    auth: {
-                        user: settings.emailSmtpUser,
-                        pass: settings.emailSmtpPass,
-                    },
-                    tls: {
-                        rejectUnauthorized: false // Often needed for some SMTP servers during dev/prod if certs are tricky
-                    }
-                });
-
-                const mailOptions = {
-                    from: settings.emailFrom || settings.emailSmtpUser, // Sender address
-                    to: recipients.join(', '), // List of receivers
-                    replyTo: email, // Reply to the user's email
-                    subject: `[Contact READI] ${subject}`, // Subject line
-                    text: `Nouveau message de ${name} (${email})\n\nTéléphone: ${phone || 'Non renseigné'}\n\nMessage:\n${message}`, // plain text body
+                const result = await sendEmail({
+                    to: recipients.join(', '),
+                    subject: `[Contact READI] ${subject}`,
+                    text: `Nouveau message de ${name} (${email})\n\nTéléphone: ${phone || 'Non renseigné'}\n\nMessage:\n${message}`,
                     html: `
                         <h3>Nouveau message de contact</h3>
                         <p><strong>De:</strong> ${name} (<a href="mailto:${email}">${email}</a>)</p>
@@ -95,21 +80,19 @@ export async function POST(request: Request) {
                         <p><strong>Sujet:</strong> ${subject}</p>
                         <hr />
                         <p><strong>Message:</strong></p>
-                        <p style="white-space: pre-wrap;">${message}</p>
-                    `, // html body
-                };
+                        <p style="white-space: pre-wrap;">${message.replace(/\n/g, '<br>')}</p>
+                    `
+                });
 
-                await transporter.sendMail(mailOptions);
-                console.log("Email sent successfully to:", recipients);
+                if (!result.success) {
+                    console.error("Failed to send email notification:", result.error);
+                }
             } else {
-                console.warn("No recipients configured for contact form emails.");
+                console.warn("No recipients configured for contact form notifications.");
             }
-        } else {
-            console.log("SMTP settings incomplete, skipping email sending.");
         }
     } catch (emailError) {
-        // On ne veut pas bloquer la réponse si l'envoi d'email échoue, mais on log l'erreur
-        console.error("Failed to send email notification:", emailError);
+        console.error("Error in email notification logic:", emailError);
     }
 
     return NextResponse.json(contactMessage, { status: 201 });

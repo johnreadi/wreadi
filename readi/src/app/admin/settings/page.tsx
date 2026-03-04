@@ -2,6 +2,7 @@ import { getAppearanceSettings } from "./settings-actions";
 import { getMenuItems, getTopBarItems } from "./menu-actions";
 import { AppearanceForm } from "./AppearanceForm";
 import { SecurityForms } from "./SecurityForms";
+import { SmtpSettingsForm } from "./SmtpSettingsForm";
 
 export default async function AdminSettingsPage() {
     const settings = await getAppearanceSettings();
@@ -16,6 +17,9 @@ export default async function AdminSettingsPage() {
                 menuItems={menuItems}
                 topBarItems={topBarItems}
             />
+
+            {/* Configuration SMTP */}
+            <SmtpSettingsForm initialSettings={settings} />
 
             {/* Section existante : Sécurité & Profil */}
             <SecurityForms />
