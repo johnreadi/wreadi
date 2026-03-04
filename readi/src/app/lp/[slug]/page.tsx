@@ -50,7 +50,7 @@ export default async function LandingPage({ params }: { params: { slug: string }
                         <div className="absolute inset-0 z-0">
                             <Image
                                 src={page.heroImage}
-                                alt="Hero background"
+                                alt=""
                                 fill
                                 className="object-cover opacity-60"
                                 priority

@@ -100,7 +100,7 @@ export default async function AffichageDynamiquePage() {
           <div className="absolute inset-0 z-0">
             <Image 
                 src={heroData.image} 
-                alt="Hero background" 
+                alt="" 
                 fill
                 className="object-cover opacity-40 transition-transform duration-1000 hover:scale-105" 
                 priority

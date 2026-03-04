@@ -88,7 +88,7 @@ export default async function HomePage() {
           <div className="absolute inset-0 z-0">
             <Image
               src={heroData.image}
-              alt="Hero background"
+              alt=""
               fill
               className="object-cover opacity-60"
               priority
