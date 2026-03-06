@@ -74,6 +74,19 @@ export function SmtpSettingsForm({ initialSettings }: { initialSettings: Setting
             return;
         }
 
+        // Vérification basique du serveur SMTP (souvent les utilisateurs mettent imap ou pop par erreur)
+        if (settings.host.toLowerCase().startsWith("imap.") || settings.host.toLowerCase().startsWith("pop.") || settings.host.toLowerCase().startsWith("mail.")) {
+            const suggested = settings.host.replace(/^(imap|pop|mail)\./i, "smtp.");
+            setTestResult({
+                success: false,
+                title: "Serveur SMTP incorrect probable",
+                message: `Il semble que vous ayez saisi un serveur de réception (${settings.host}). Pour l'envoi d'emails, le serveur commence généralement par "smtp" (ex: ${suggested}). Veuillez corriger le champ "Hôte SMTP".`
+            });
+            setShowDialog(true);
+            setIsTesting(false);
+            return;
+        }
+
         try {
             const result = await testSmtpConfiguration(settings);
             if (result.success) {
