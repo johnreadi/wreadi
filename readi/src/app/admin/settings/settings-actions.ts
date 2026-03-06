@@ -3,6 +3,61 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { handleFileUpload } from "@/lib/file-upload";
+import nodemailer from "nodemailer";
+
+export async function testSmtpConfiguration(settings: {
+    host: string;
+    port: number;
+    user: string;
+    pass: string;
+    from: string;
+    to: string;
+}) {
+    try {
+        const transporter = nodemailer.createTransport({
+            host: settings.host,
+            port: settings.port,
+            secure: settings.port === 465, // true for 465, false for other ports
+            auth: {
+                user: settings.user,
+                pass: settings.pass,
+            },
+            tls: {
+                rejectUnauthorized: false, // Useful for some self-signed certs or dev envs
+            },
+        });
+
+        // Verify connection configuration
+        await transporter.verify();
+
+        // Send test email
+        await transporter.sendMail({
+            from: settings.from,
+            to: settings.to,
+            subject: "Test de configuration SMTP - READI",
+            text: "Ceci est un email de test pour valider votre configuration SMTP. Si vous recevez ce message, votre configuration est correcte.",
+            html: `
+                <div style="font-family: sans-serif; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                    <h2 style="color: #16a34a;">Test de configuration réussi ! ✅</h2>
+                    <p>Ceci est un email de test envoyé depuis votre panneau d'administration READI.</p>
+                    <p><strong>Détails de la configuration testée :</strong></p>
+                    <ul>
+                        <li>Hôte : ${settings.host}</li>
+                        <li>Port : ${settings.port}</li>
+                        <li>Utilisateur : ${settings.user}</li>
+                        <li>Expéditeur : ${settings.from}</li>
+                    </ul>
+                    <p style="color: #6b7280; font-size: 12px; margin-top: 20px;">Ce message a été généré automatiquement.</p>
+                </div>
+            `,
+        });
+
+        return { success: true };
+    } catch (error: any) {
+        console.error("SMTP Test Error:", error);
+        return { success: false, error: error.message || "Une erreur inconnue est survenue" };
+    }
+}
 
 export async function updateAppearance(formData: FormData) {
     const siteName = (formData.get("siteName") as string) || "READI.FR";

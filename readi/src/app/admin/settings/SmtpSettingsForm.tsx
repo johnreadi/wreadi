@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Save } from "lucide-react";
+import { Mail, Save, Send } from "lucide-react";
 import { toast } from "sonner";
-import { updateSmtpSettings } from "./settings-actions";
+import { updateSmtpSettings, testSmtpConfiguration } from "./settings-actions";
 
 type Settings = {
     emailSmtpHost?: string | null;
@@ -20,6 +20,8 @@ type Settings = {
 
 export function SmtpSettingsForm({ initialSettings }: { initialSettings: Settings | null }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isTesting, setIsTesting] = useState(false);
+    const formRef = useRef<HTMLFormElement>(null);
 
     const handleSubmit = async (formData: FormData) => {
         setIsSubmitting(true);
@@ -31,6 +33,42 @@ export function SmtpSettingsForm({ initialSettings }: { initialSettings: Setting
             toast.error(error.message || "Une erreur est survenue lors de la sauvegarde.");
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const handleTest = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (!formRef.current) return;
+
+        setIsTesting(true);
+        const formData = new FormData(formRef.current);
+        
+        const settings = {
+            host: formData.get("emailSmtpHost") as string,
+            port: parseInt(formData.get("emailSmtpPort") as string || "587"),
+            user: formData.get("emailSmtpUser") as string,
+            pass: formData.get("emailSmtpPass") as string,
+            from: formData.get("emailFrom") as string,
+            to: (formData.get("emailRecipients") as string || "").split(",")[0]?.trim(),
+        };
+
+        if (!settings.host || !settings.user || !settings.pass || !settings.from || !settings.to) {
+            toast.error("Veuillez remplir tous les champs (et définir au moins un destinataire) pour tester.");
+            setIsTesting(false);
+            return;
+        }
+
+        try {
+            const result = await testSmtpConfiguration(settings);
+            if (result.success) {
+                toast.success("Test réussi ! Email envoyé à " + settings.to);
+            } else {
+                toast.error("Échec du test SMTP: " + result.error);
+            }
+        } catch (error: any) {
+            toast.error("Erreur inattendue lors du test.");
+        } finally {
+            setIsTesting(false);
         }
     };
 
@@ -46,7 +84,7 @@ export function SmtpSettingsForm({ initialSettings }: { initialSettings: Setting
                 </CardDescription>
             </CardHeader>
             <CardContent className="p-8">
-                <form action={handleSubmit} className="space-y-6">
+                <form ref={formRef} action={handleSubmit} className="space-y-6">
                     <div className="grid gap-6 md:grid-cols-2">
                         <div className="space-y-2">
                             <Label htmlFor="emailSmtpHost">Hôte SMTP (Host)</Label>
@@ -112,7 +150,23 @@ export function SmtpSettingsForm({ initialSettings }: { initialSettings: Setting
                         </div>
                     </div>
 
-                    <div className="flex justify-end pt-4">
+                    <div className="flex justify-end pt-4 gap-4">
+                        <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={handleTest} 
+                            disabled={isTesting || isSubmitting}
+                            className="font-bold rounded-xl px-6 border-blue-200 text-blue-700 hover:bg-blue-50"
+                        >
+                            {isTesting ? (
+                                <>Test en cours...</>
+                            ) : (
+                                <>
+                                    <Send className="mr-2 h-4 w-4" />
+                                    Test Messagerie
+                                </>
+                            )}
+                        </Button>
                         <Button type="submit" disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl px-8">
                             {isSubmitting ? "Sauvegarde..." : (
                                 <>
