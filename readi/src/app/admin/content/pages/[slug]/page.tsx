@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Link from "next/link";
 import { upsertPageContent } from "@/app/admin/content/page-actions";
 import { handleFileUpload } from "@/lib/file-upload";
+import { HeroActiveToggle } from "@/components/admin/HeroActiveToggle";
 
 async function getPageData(slug: string) {
     // @ts-ignore - Prisma types might be out of sync in IDE
@@ -77,6 +78,7 @@ export default async function PageEditor({ params }: { params: { slug: string } 
         heroImage: page?.heroImage || "",
         heroVideoUrl: page?.heroVideoUrl || "",
         heroBgColor: page?.heroBgColor || "",
+        heroActive: page?.heroActive ?? true,
         // Font settings
         titleFontSize: page?.titleFontSize || "4rem",
         titleFontFamily: page?.titleFontFamily || "inherit",
@@ -113,6 +115,7 @@ export default async function PageEditor({ params }: { params: { slug: string } 
             heroImage,
             heroVideoUrl,
             heroBgColor: (formData.get("heroBgColorText") as string) || (formData.get("heroBgColor") as string),
+            heroActive: formData.get("heroActive") === "on",
             // Font fields
             titleFontSize: formData.get("titleFontSize") as string,
             titleFontFamily: formData.get("titleFontFamily") as string,
@@ -155,7 +158,7 @@ export default async function PageEditor({ params }: { params: { slug: string } 
                                 {params.slug === 'contact' ? 'Modifiez ici les titres de la page et les instructions du formulaire contact.' : "Configurez le visuel et la typographie d'accueil."}
                             </CardDescription>
                         </div>
-                        <Badge className="bg-red-600 px-4 py-1">ÉLÉMENT ACTIF</Badge>
+                        <HeroActiveToggle defaultChecked={pageData.heroActive} name="heroActive" />
                     </div>
                 </CardHeader>
                 <CardContent className="p-8">

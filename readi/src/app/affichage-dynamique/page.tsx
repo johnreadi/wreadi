@@ -68,11 +68,13 @@ export default async function AffichageDynamiquePage() {
     titleFontFamily: pageContent?.titleFontFamily || undefined,
     subtitleFontSize: pageContent?.subtitleFontSize || undefined,
     descriptionFontSize: pageContent?.descriptionFontSize || undefined,
+    active: pageContent?.heroActive ?? true,
   };
 
   return (
     <div className="flex flex-col">
       {/* Dynamic Hero */}
+      {heroData.active && (
       <section 
         className="relative min-h-[50vh] md:h-[40vh] md:min-h-[400px] flex items-center justify-center overflow-hidden py-20 md:py-0"
         style={{ backgroundColor: heroData.bgColor || '#1e3a8a' }} // Default blue-900 equivalent
@@ -144,6 +146,7 @@ export default async function AffichageDynamiquePage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Services List */}
       <section className="py-20 bg-white relative">

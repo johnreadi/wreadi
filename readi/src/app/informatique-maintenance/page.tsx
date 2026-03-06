@@ -76,11 +76,13 @@ export default async function InformatiqueMaintenancePage() {
     titleFontFamily: pageContent?.titleFontFamily || undefined,
     subtitleFontSize: pageContent?.subtitleFontSize || undefined,
     descriptionFontSize: pageContent?.descriptionFontSize || undefined,
+    active: pageContent?.heroActive ?? true,
   };
 
   return (
     <div className="flex flex-col">
       {/* Dynamic Hero */}
+      {heroData.active && (
       <section 
         className="relative min-h-[50vh] md:h-[40vh] md:min-h-[400px] flex items-center justify-center overflow-hidden py-20 md:py-0"
         style={{ backgroundColor: heroData.bgColor || '#064e3b' }} // Default emerald-900 equivalent
@@ -152,6 +154,7 @@ export default async function InformatiqueMaintenancePage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Services Grid */}
       <section className="py-20 bg-white relative">

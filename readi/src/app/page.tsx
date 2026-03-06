@@ -56,11 +56,13 @@ export default async function HomePage() {
     titleFontFamily: pageContent?.titleFontFamily || undefined,
     subtitleFontSize: pageContent?.subtitleFontSize || undefined,
     descriptionFontSize: pageContent?.descriptionFontSize || undefined,
+    active: pageContent?.heroActive ?? true,
   };
 
   return (
     <div className="flex flex-col">
       {/* Hero Section Dynamic */}
+      {heroData.active && (
       <section 
         className="relative min-h-[50vh] md:h-[40vh] md:min-h-[400px] flex items-center justify-center overflow-hidden py-20 md:py-0"
         style={{ backgroundColor: heroData.bgColor }}
@@ -137,6 +139,7 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Services Section */}
       <section className="py-20 bg-white relative overflow-hidden">

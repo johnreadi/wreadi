@@ -54,11 +54,13 @@ export default async function PiecesDetacheesPage() {
     titleFontFamily: pageContent?.titleFontFamily || undefined,
     subtitleFontSize: pageContent?.subtitleFontSize || undefined,
     descriptionFontSize: pageContent?.descriptionFontSize || undefined,
+    active: pageContent?.heroActive ?? true,
   };
 
   return (
     <div className="flex flex-col">
       {/* Dynamic Hero */}
+      {heroData.active && (
       <section 
         className="relative min-h-[50vh] md:h-[40vh] md:min-h-[400px] flex items-center justify-center overflow-hidden py-20 md:py-0"
         style={{ backgroundColor: heroData.bgColor }}
@@ -135,6 +137,7 @@ export default async function PiecesDetacheesPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Trust Badges */}
       <section className="py-12 bg-gray-50 border-b">

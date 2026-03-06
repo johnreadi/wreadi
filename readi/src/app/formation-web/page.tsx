@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
     ArrowRight, GraduationCap, Laptop, Code, MonitorSpeaker, CheckCircle2, Layout, BookOpen
@@ -75,61 +75,64 @@ export default async function FormationWebPage() {
         titleFontFamily: pageContent?.titleFontFamily || undefined,
         subtitleFontSize: pageContent?.subtitleFontSize || undefined,
         descriptionFontSize: pageContent?.descriptionFontSize || undefined,
+        active: pageContent?.heroActive ?? true,
     };
 
     return (
         <div className="flex flex-col">
             {/* Dynamic Hero */}
-      <section className="relative min-h-[50vh] md:h-[40vh] md:min-h-[400px] flex items-center justify-center overflow-hidden bg-blue-900 py-20 md:py-0">
-        {heroData.video ? (
-                    <div className="absolute inset-0 z-0">
-                        <iframe
-                            src={`${heroData.video.replace('watch?v=', 'embed/')}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0`}
-                            className="w-full h-full border-0 scale-150 grayscale-[20%]"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        />
-                    </div>
-                ) : heroData.image ? (
-                    <div className="absolute inset-0 z-0">
-                        <img src={heroData.image} alt="" className="w-full h-full object-cover opacity-40 transition-transform duration-1000 hover:scale-105" />
-                    </div>
-                ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-indigo-800 opacity-90" />
-                )}
-                <div className="absolute inset-0 bg-black/40 z-10" />
+            {heroData.active && (
+                <section className="relative min-h-[50vh] md:h-[40vh] md:min-h-[400px] flex items-center justify-center overflow-hidden bg-blue-900 py-20 md:py-0">
+                    {heroData.video ? (
+                        <div className="absolute inset-0 z-0">
+                            <iframe
+                                src={`${heroData.video.replace('watch?v=', 'embed/')}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0`}
+                                className="w-full h-full border-0 scale-150 grayscale-[20%]"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            />
+                        </div>
+                    ) : heroData.image ? (
+                        <div className="absolute inset-0 z-0">
+                            <img src={heroData.image} alt="" className="w-full h-full object-cover opacity-40 transition-transform duration-1000 hover:scale-105" />
+                        </div>
+                    ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-indigo-800 opacity-90" />
+                    )}
+                    <div className="absolute inset-0 bg-black/40 z-10" />
 
-                <div className="container relative z-20 mx-auto px-4 text-center text-white">
-                    <span
-                        className="inline-block px-3 py-1 rounded-full bg-blue-500/20 backdrop-blur-md font-bold uppercase tracking-widest mb-6 border border-white/10 text-[10px] sm:text-xs"
-                        style={{ fontSize: heroData.subtitleFontSize }}
-                    >
-                        {heroData.subtitle}
-                    </span>
-                    <h1
-                        className="text-3xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tighter leading-tight animate-in fade-in slide-in-from-bottom-8 duration-700 uppercase"
-                        style={{
-                            fontSize: heroData.titleFontSize,
-                            fontFamily: heroData.titleFontFamily
-                        }}
-                    >
-                        {heroData.title}
-                    </h1>
-                    <p
-                        className="text-lg text-blue-100 mb-8 max-w-2xl mx-auto font-medium animate-in fade-in slide-in-from-bottom-4 duration-1000"
-                        style={{ fontSize: heroData.descriptionFontSize }}
-                    >
-                        {heroData.description}
-                    </p>
-                    <div className="animate-in fade-in zoom-in-95 duration-1000">
-                        <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-blue-50 h-14 px-8 rounded-2xl font-black shadow-xl transition-all hover:scale-105 active:scale-95 text-base">
-                            <Link href={heroData.btnLink}>
-                                {heroData.btnText}
-                                <ArrowRight className="ml-2 h-5 w-5" />
-                            </Link>
-                        </Button>
+                    <div className="container relative z-20 mx-auto px-4 text-center text-white">
+                        <span
+                            className="inline-block px-3 py-1 rounded-full bg-blue-500/20 backdrop-blur-md font-bold uppercase tracking-widest mb-6 border border-white/10 text-[10px] sm:text-xs"
+                            style={{ fontSize: heroData.subtitleFontSize }}
+                        >
+                            {heroData.subtitle}
+                        </span>
+                        <h1
+                            className="text-3xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tighter leading-tight animate-in fade-in slide-in-from-bottom-8 duration-700 uppercase"
+                            style={{
+                                fontSize: heroData.titleFontSize,
+                                fontFamily: heroData.titleFontFamily
+                            }}
+                        >
+                            {heroData.title}
+                        </h1>
+                        <p
+                            className="text-lg text-blue-100 mb-8 max-w-2xl mx-auto font-medium animate-in fade-in slide-in-from-bottom-4 duration-1000"
+                            style={{ fontSize: heroData.descriptionFontSize }}
+                        >
+                            {heroData.description}
+                        </p>
+                        <div className="animate-in fade-in zoom-in-95 duration-1000">
+                            <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-blue-50 h-14 px-8 rounded-2xl font-black shadow-xl transition-all hover:scale-105 active:scale-95 text-base">
+                                <Link href={heroData.btnLink}>
+                                    {heroData.btnText}
+                                    <ArrowRight className="ml-2 h-5 w-5" />
+                                </Link>
+                            </Button>
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            )}
 
             {/* Services Grid */}
             <section className="py-20 bg-white relative">

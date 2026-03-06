@@ -334,6 +334,7 @@ model PageContent {
   heroImage       String?
   heroVideoUrl    String?  // Optionnel
   heroBgColor     String?  // Couleur de fond (hex/rgb)
+  heroActive      Boolean  @default(true)
   
   // Paramètres de style Hero
   titleFontSize   String?  @default("4rem")

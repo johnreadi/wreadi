@@ -153,17 +153,18 @@ export async function updateSmtpSettings(formData: FormData) {
     const emailFrom = (formData.get("emailFrom") as string) || null;
 
     try {
-        // We use update here because settings should exist if we are editing them.
-        // But to be safe, we use upsert with minimal fields for create (or empty if allowed)
-        // Since we don't have all fields for create, we assume the record exists.
-        // If it doesn't, this might fail on required fields.
-        // But getAppearanceSettings ensures a default record creation if not found? No it returns null.
-        // Let's assume update is safer if we know it exists, but upsert is better if we can provide defaults.
-        // For now, let's use update on the existing record.
-        
-        await prisma.siteSettings.update({
+        await prisma.siteSettings.upsert({
             where: { id: "default" },
-            data: {
+            update: {
+                emailSmtpHost,
+                emailSmtpPort,
+                emailSmtpUser,
+                emailSmtpPass,
+                emailRecipients,
+                emailFrom,
+            },
+            create: {
+                id: "default",
                 emailSmtpHost,
                 emailSmtpPort,
                 emailSmtpUser,
